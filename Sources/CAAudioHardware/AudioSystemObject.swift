@@ -127,13 +127,17 @@ extension AudioSystemObject {
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyProcessInputMute`
 	@available(macOS 14, *)
 	public func processInputMute() throws -> Bool {
-		return try getProperty(PropertyAddress(AudioObjectPropertySelector(0x706d696e /* kAudioHardwarePropertyProcessInputMute, 'pmin' */)), type: UInt32.self) != 0
+		// FIXME: When GitHub CI supports the macOS 14 SDK
+//		return try getProperty(PropertyAddress(kAudioHardwarePropertyProcessInputMute), type: UInt32.self) != 0
+		return try getProperty(PropertyAddress(PropertySelector(0x706d696e /* 'pmin' */)), type: UInt32.self) != 0
 	}
 	/// Sets whether all data coming into the process for all devices will be silent
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyProcessInputMute`
 	@available(macOS 14, *)
 	public func setProcessInputMute(_ value: Bool) throws {
-		try setProperty(PropertyAddress(AudioObjectPropertySelector(0x706d696e /* kAudioHardwarePropertyProcessInputMute, 'pmin' */)), to: UInt32(value ? 1 : 0))
+		// FIXME: When GitHub CI supports the macOS 14 SDK
+//		try setProperty(PropertyAddress(kAudioHardwarePropertyProcessInputMute), to: UInt32(value ? 1 : 0))
+		try setProperty(PropertyAddress(AudioObjectPropertySelector(0x706d696e /* 'pmin' */)), to: UInt32(value ? 1 : 0))
 	}
 
 	/// Returns `true` if the process will be heard
@@ -261,7 +265,9 @@ extension AudioObjectSelector where T == AudioSystemObject {
 	public static let userIDChanged = AudioObjectSelector(kAudioHardwarePropertyUserIDChanged)
 	/// The property selector `kAudioHardwarePropertyProcessInputMute`
 	@available(macOS 14, *)
-	public static let processInputMute = AudioObjectSelector(0x706d696e /* kAudioHardwarePropertyProcessInputMute, 'pmin' */)
+	// FIXME: When GitHub CI supports the macOS 14 SDK
+//	public static let processInputMute = AudioObjectSelector(kAudioHardwarePropertyProcessInputMute)
+	public static let processInputMute = AudioObjectSelector(0x706d696e /* 'pmin' */)
 	/// The property selector `kAudioHardwarePropertyProcessIsAudible`
 	public static let processIsAudible = AudioObjectSelector(kAudioHardwarePropertyProcessIsAudible)
 	/// The property selector `kAudioHardwarePropertySleepingIsAllowed`
