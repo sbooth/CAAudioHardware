@@ -976,17 +976,20 @@ extension AudioDevice {
 
 	/// Returns `true` if voice activity detection is enabled on `element`
 	/// - remark: This corresponds to the property `kAudioDevicePropertyVoiceActivityDetectionEnable`
+	@available(macOS 14, *)
 	public func voiceActivityDetectionEnable(inScope scope: PropertyScope, onElement element: PropertyElement = .main) throws -> Bool {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionEnable), scope: scope, element: element), type: UInt32.self) != 0
 	}
 	/// Sets whether voice activity detection is enabled on `element`
 	/// - remark: This corresponds to the property `kAudioDevicePropertyVoiceActivityDetectionEnable`
+	@available(macOS 14, *)
 	public func setVoiceActivityDetectionEnable(_ value: Bool, inScope scope: PropertyScope, onElement element: PropertyElement = .main) throws {
 		try setProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionEnable), scope: scope, element: element), to: UInt32(value ? 1 : 0))
 	}
 
 	/// Returns `true` if a voice is detected on `element`
 	/// - remark: This corresponds to the property `kAudioDevicePropertyVoiceActivityDetectionState`
+	@available(macOS 14, *)
 	public func voiceActivityDetectionState(inScope scope: PropertyScope, onElement element: PropertyElement = .main) throws -> Bool {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionState), scope: scope, element: element), type: UInt32.self) != 0
 	}
@@ -1432,7 +1435,9 @@ extension AudioObjectSelector where T == AudioDevice {
 	/// The property selector `kAudioDevicePropertySubMute`
 	public static let subMute = AudioObjectSelector(kAudioDevicePropertySubMute)
 	/// The property selector `kAudioDevicePropertyVoiceActivityDetectionEnable`
+	@available(macOS 14, *)
 	public static let voiceActivityDetectionEnable = AudioObjectSelector(kAudioDevicePropertyVoiceActivityDetectionEnable)
 	/// The property selector `kAudioDevicePropertyVoiceActivityDetectionState`
+	@available(macOS 14, *)
 	public static let voiceActivityDetectionState = AudioObjectSelector(kAudioDevicePropertyVoiceActivityDetectionState)
 }
