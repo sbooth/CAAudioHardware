@@ -10,7 +10,7 @@ Add a package dependency to https://github.com/sbooth/CAAudioHardware in Xcode.
 
 ### Manual or Custom Build
 
-1. Clone the [SFBAudioUtilities](https://github.com/sbooth/CAAudioHardware) repository.
+1. Clone the [CAAudioHardware](https://github.com/sbooth/CAAudioHardware) repository.
 2. `swift build`.
 
 ## License
