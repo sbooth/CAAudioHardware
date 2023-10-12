@@ -368,7 +368,7 @@ func AudioObjectIsClassOrSubclassOf(_ objectID: AudioObjectID, _ classID: AudioC
 }
 
 /// The log for `AudioObject` and subclasses
-let audioObjectLog = OSLog(subsystem: "org.sbooth.AudioEngine", category: "AudioObject")
+let audioObjectLog = OSLog(subsystem: "org.sbooth.CAAudioHardware", category: "AudioObject")
 
 // MARK: - AudioObject Creation
 
