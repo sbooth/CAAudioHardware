@@ -261,13 +261,7 @@ extension AudioObjectSelector where T == AudioSystemObject {
 	public static let userIDChanged = AudioObjectSelector(kAudioHardwarePropertyUserIDChanged)
 	/// The property selector `kAudioHardwarePropertyProcessInputMute`
 	@available(macOS 14, *)
-	public static let processInputMute = AudioObjectSelector(
-		if #available(macOS 14, *) {
-			kAudioHardwarePropertyProcessInputMute
-		} else {
-			0x706d696e /* 'pmin' */
-		}
-	)
+	public static let processInputMute = AudioObjectSelector(0x706d696e /* kAudioHardwarePropertyProcessInputMute, 'pmin' */)
 	/// The property selector `kAudioHardwarePropertyProcessIsAudible`
 	public static let processIsAudible = AudioObjectSelector(kAudioHardwarePropertyProcessIsAudible)
 	/// The property selector `kAudioHardwarePropertySleepingIsAllowed`
