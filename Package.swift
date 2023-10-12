@@ -15,17 +15,11 @@ let package = Package(
 			name: "CAAudioHardware",
 			targets: ["CAAudioHardware"]),
 	],
-	dependencies: [
-		.package(url: "https://github.com/sbooth/SFBAudioUtilities", branch: "spm")
-	],
 	targets: [
 		// Targets are the basic building blocks of a package, defining a module or a test suite.
 		// Targets can depend on other targets in this package and products from dependencies.
 		.target(
-			name: "CAAudioHardware",
-			dependencies: [
-				.product(name: "CoreAudioExtensions", package: "SFBAudioUtilities")
-			]),
+			name: "CAAudioHardware"),
 		.testTarget(
 			name: "CAAudioHardwareTests",
 			dependencies: ["CAAudioHardware"]),
