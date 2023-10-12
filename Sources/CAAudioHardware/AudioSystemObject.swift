@@ -127,13 +127,13 @@ extension AudioSystemObject {
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyProcessInputMute`
 	@available(macOS 14, *)
 	public func processInputMute() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioHardwarePropertyProcessInputMute), type: UInt32.self) != 0
+		return try getProperty(PropertyAddress(AudioObjectPropertySelector(0x706d696e /* kAudioHardwarePropertyProcessInputMute, 'pmin' */)), type: UInt32.self) != 0
 	}
 	/// Sets whether all data coming into the process for all devices will be silent
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyProcessInputMute`
 	@available(macOS 14, *)
 	public func setProcessInputMute(_ value: Bool) throws {
-		try setProperty(PropertyAddress(kAudioHardwarePropertyProcessInputMute), to: UInt32(value ? 1 : 0))
+		try setProperty(PropertyAddress(AudioObjectPropertySelector(0x706d696e /* kAudioHardwarePropertyProcessInputMute, 'pmin' */)), to: UInt32(value ? 1 : 0))
 	}
 
 	/// Returns `true` if the process will be heard
