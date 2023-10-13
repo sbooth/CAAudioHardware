@@ -1,6 +1,6 @@
 # CAAudioHardware
 
-The Core Audio HAL made Swift-friendly.
+The Core Audio Hardware Abstraction Layer (HAL) made Swift-friendly.
 
 ## Installation
 
