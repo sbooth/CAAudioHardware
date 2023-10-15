@@ -978,26 +978,20 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertyVoiceActivityDetectionEnable`
 	@available(macOS 14, *)
 	public func voiceActivityDetectionEnable(inScope scope: PropertyScope, onElement element: PropertyElement = .main) throws -> Bool {
-		// FIXME: When GitHub CI supports the macOS 14 SDK
-//		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionEnable), scope: scope, element: element), type: UInt32.self) != 0
-		return try getProperty(PropertyAddress(PropertySelector(0x7641642b /* 'vAd+' */), scope: scope, element: element), type: UInt32.self) != 0
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionEnable), scope: scope, element: element), type: UInt32.self) != 0
 	}
 	/// Sets whether voice activity detection is enabled on `element`
 	/// - remark: This corresponds to the property `kAudioDevicePropertyVoiceActivityDetectionEnable`
 	@available(macOS 14, *)
 	public func setVoiceActivityDetectionEnable(_ value: Bool, inScope scope: PropertyScope, onElement element: PropertyElement = .main) throws {
-		// FIXME: When GitHub CI supports the macOS 14 SDK
-//		try setProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionEnable), scope: scope, element: element), to: UInt32(value ? 1 : 0))
-		try setProperty(PropertyAddress(PropertySelector(0x7641642b /* 'vAd+' */), scope: scope, element: element), to: UInt32(value ? 1 : 0))
+		try setProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionEnable), scope: scope, element: element), to: UInt32(value ? 1 : 0))
 	}
 
 	/// Returns `true` if a voice is detected on `element`
 	/// - remark: This corresponds to the property `kAudioDevicePropertyVoiceActivityDetectionState`
 	@available(macOS 14, *)
 	public func voiceActivityDetectionState(inScope scope: PropertyScope, onElement element: PropertyElement = .main) throws -> Bool {
-		// FIXME: When GitHub CI supports the macOS 14 SDK
-//		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionState), scope: scope, element: element), type: UInt32.self) != 0
-		return try getProperty(PropertyAddress(PropertySelector(0x76416453 /* 'vAdS' */), scope: scope, element: element), type: UInt32.self) != 0
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionState), scope: scope, element: element), type: UInt32.self) != 0
 	}
 }
 
@@ -1442,12 +1436,8 @@ extension AudioObjectSelector where T == AudioDevice {
 	public static let subMute = AudioObjectSelector(kAudioDevicePropertySubMute)
 	/// The property selector `kAudioDevicePropertyVoiceActivityDetectionEnable`
 	@available(macOS 14, *)
-	// FIXME: When GitHub CI supports the macOS 14 SDK
-	//	public static let voiceActivityDetectionEnable = AudioObjectSelector(kAudioDevicePropertyVoiceActivityDetectionEnable)
-	public static let voiceActivityDetectionEnable = AudioObjectSelector(0x7641642b /* 'vAd+' */)
+	public static let voiceActivityDetectionEnable = AudioObjectSelector(kAudioDevicePropertyVoiceActivityDetectionEnable)
 	/// The property selector `kAudioDevicePropertyVoiceActivityDetectionState`
 	@available(macOS 14, *)
-	// FIXME: When GitHub CI supports the macOS 14 SDK
-//	public static let voiceActivityDetectionState = AudioObjectSelector(kAudioDevicePropertyVoiceActivityDetectionState)
-	public static let voiceActivityDetectionState = AudioObjectSelector(0x76416453 /* 'vAdS' */)
+	public static let voiceActivityDetectionState = AudioObjectSelector(kAudioDevicePropertyVoiceActivityDetectionState)
 }
