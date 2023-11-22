@@ -479,7 +479,7 @@ extension AudioObject {
 			}
 
 		default:
-			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@'", objectClass.fourCC)
+			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@'", objectBaseClass.fourCC)
 			return AudioObject(objectID)
 		}
 	}
