@@ -232,7 +232,7 @@ extension AudioObject {
 	/// - remark: This corresponds to the property `kAudioObjectPropertyOwner`
 	/// - note: The system audio object does not have an owner
 	public func owner() throws -> AudioObject {
-		return AudioObject.make(try getProperty(PropertyAddress(kAudioObjectPropertyOwner), type: AudioObjectID.self))
+		return try AudioObject.make(getProperty(PropertyAddress(kAudioObjectPropertyOwner), type: AudioObjectID.self))
 	}
 
 	/// Returns the audio object's name
@@ -283,9 +283,9 @@ extension AudioObject {
 			var qualifierData = type!
 			let qualifierDataSize = MemoryLayout<AudioClassID>.stride * type!.count
 			let qualifier = PropertyQualifier(value: &qualifierData, size: UInt32(qualifierDataSize))
-			return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), elementType: AudioObjectID.self, qualifier: qualifier).map { AudioObject.make($0) }
+			return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), elementType: AudioObjectID.self, qualifier: qualifier).map { try AudioObject.make($0) }
 		}
-		return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), elementType: AudioObjectID.self).map { AudioObject.make($0) }
+		return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), elementType: AudioObjectID.self).map { try AudioObject.make($0) }
 	}
 
 	/// Returns `true` if the audio object's hardware is drawing attention to itself
@@ -331,40 +331,30 @@ extension AudioObjectPropertyAddress: Hashable {
 	}
 }
 
-/// Returns the value of `kAudioObjectPropertyClass` for `objectID` or `0` on error
-func AudioObjectClass(_ objectID: AudioObjectID) -> AudioClassID {
-	do {
-		var value: AudioClassID = 0
-		try readAudioObjectProperty(PropertyAddress(kAudioObjectPropertyClass), from: objectID, into: &value)
-		return value
-	}
-	catch {
-		return 0
-	}
+/// Returns the value of `kAudioObjectPropertyClass` for `objectID`
+func AudioObjectClass(_ objectID: AudioObjectID) throws -> AudioClassID {
+	var value: AudioClassID = 0
+	try readAudioObjectProperty(PropertyAddress(kAudioObjectPropertyClass), from: objectID, into: &value)
+	return value
 }
 
-/// Returns the value of `kAudioObjectPropertyBaseClass` for `objectID` or `0` on error
-func AudioObjectBaseClass(_ objectID: AudioObjectID) -> AudioClassID {
-	do {
-		var value: AudioClassID = 0
-		try readAudioObjectProperty(PropertyAddress(kAudioObjectPropertyBaseClass), from: objectID, into: &value)
-		return value
-	}
-	catch {
-		return 0
-	}
+/// Returns the value of `kAudioObjectPropertyBaseClass` for `objectID`
+func AudioObjectBaseClass(_ objectID: AudioObjectID) throws -> AudioClassID {
+	var value: AudioClassID = 0
+	try readAudioObjectProperty(PropertyAddress(kAudioObjectPropertyBaseClass), from: objectID, into: &value)
+	return value
 }
 
 /// Returns `true` if an audio object's class is equal to `classID`
-func AudioObjectIsClass(_ objectID: AudioObjectID, _ classID: AudioClassID) -> Bool
+func AudioObjectIsClass(_ objectID: AudioObjectID, _ classID: AudioClassID) throws -> Bool
 {
-	return AudioObjectClass(objectID) == classID
+	try AudioObjectClass(objectID) == classID
 }
 
 /// Returns `true` if an audio object's class or base class is equal to `classID`
-func AudioObjectIsClassOrSubclassOf(_ objectID: AudioObjectID, _ classID: AudioClassID) -> Bool
+func AudioObjectIsClassOrSubclassOf(_ objectID: AudioObjectID, _ classID: AudioClassID) throws -> Bool
 {
-	return AudioObjectClass(objectID) == classID || AudioObjectBaseClass(objectID) == classID
+	try AudioObjectClass(objectID) == classID || AudioObjectBaseClass(objectID) == classID
 }
 
 /// The log for `AudioObject` and subclasses
@@ -386,15 +376,15 @@ extension AudioObject {
 	/// Whenever possible this will return a specialized subclass exposing additional functionality
 	/// - precondition: `objectID` != `kAudioObjectUnknown`
 	/// - parameter objectID: The audio object ID
-	public class func make(_ objectID: AudioObjectID) -> AudioObject {
+	public class func make(_ objectID: AudioObjectID) throws -> AudioObject {
 		precondition(objectID != kAudioObjectUnknown)
 
 		if objectID == kAudioObjectSystemObject {
 			return AudioSystemObject.instance
 		}
 
-		let objectClass = AudioObjectClass(objectID)
-		let objectBaseClass = AudioObjectBaseClass(objectID)
+		let objectClass = try AudioObjectClass(objectID)
+		let objectBaseClass = try AudioObjectBaseClass(objectID)
 
 		switch objectBaseClass {
 		case kAudioObjectClassID:

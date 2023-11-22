@@ -53,7 +53,7 @@ extension AudioAggregateDevice {
 	/// Returns the active subdevices in the aggregate device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyActiveSubDeviceList`
 	public func activeSubdeviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyActiveSubDeviceList), elementType: AudioObjectID.self).map { AudioObject.make($0) as! AudioDevice }
+		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyActiveSubDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioDevice }
 	}
 
 	/// Returns the composition
@@ -65,20 +65,20 @@ extension AudioAggregateDevice {
 	/// Returns the main subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMainSubDevice`
 	public func mainSubdevice() throws -> AudioDevice {
-		return AudioObject.make(try getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice), type: AudioObjectID.self)) as! AudioDevice
+		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice), type: AudioObjectID.self)) as! AudioDevice
 	}
 
 	/// Returns the master subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMasterSubDevice`
 	@available(macOS, introduced: 10.0, deprecated: 12.0, renamed: "mainSubdevice")
 	public func masterSubdevice() throws -> AudioDevice {
-		return AudioObject.make(try getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice), type: AudioObjectID.self)) as! AudioDevice
+		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice), type: AudioObjectID.self)) as! AudioDevice
 	}
 
 	/// Returns the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`
 	public func clockDevice() throws -> AudioClockDevice {
-		return AudioObject.make(try getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), type: AudioObjectID.self)) as! AudioClockDevice
+		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), type: AudioObjectID.self)) as! AudioClockDevice
 	}
 	/// Sets the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`
