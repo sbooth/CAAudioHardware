@@ -345,18 +345,6 @@ func AudioObjectBaseClass(_ objectID: AudioObjectID) throws -> AudioClassID {
 	return value
 }
 
-/// Returns `true` if an audio object's class is equal to `classID`
-func AudioObjectIsClass(_ objectID: AudioObjectID, _ classID: AudioClassID) throws -> Bool
-{
-	try AudioObjectClass(objectID) == classID
-}
-
-/// Returns `true` if an audio object's class or base class is equal to `classID`
-func AudioObjectIsClassOrSubclassOf(_ objectID: AudioObjectID, _ classID: AudioClassID) throws -> Bool
-{
-	try AudioObjectClass(objectID) == classID || AudioObjectBaseClass(objectID) == classID
-}
-
 /// The log for `AudioObject` and subclasses
 let audioObjectLog = OSLog(subsystem: "org.sbooth.CAAudioHardware", category: "AudioObject")
 
