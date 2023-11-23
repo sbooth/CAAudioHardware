@@ -22,7 +22,7 @@ extension AudioEndpointDevice {
 	/// Returns the audio endpoints owned by `self`
 	/// - remark: This corresponds to the property `kAudioEndPointDevicePropertyEndPointList`
 	public func endpointList() throws -> [AudioEndpoint] {
-		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyEndPointList), elementType: AudioObjectID.self).map { AudioObject.make($0) as! AudioEndpoint }
+		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyEndPointList), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioEndpoint }
 	}
 
 	/// Returns the owning `pid_t`or `0` for public devices
