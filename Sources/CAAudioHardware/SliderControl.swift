@@ -14,8 +14,7 @@ public class SliderControl: AudioControl {
 	public override var debugDescription: String {
 		do {
 			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element())), \(try value())>"
-		}
-		catch {
+		} catch {
 			return super.debugDescription
 		}
 	}

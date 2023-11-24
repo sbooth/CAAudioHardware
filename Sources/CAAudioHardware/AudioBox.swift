@@ -36,8 +36,7 @@ public class AudioBox: AudioObject {
 			if try hasVideo() { media.append("video") }
 			if try hasMIDI() { media.append("MIDI") }
 			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), \(media.joined(separator: ", ")), [\(try deviceList().map({ $0.debugDescription }).joined(separator: ", "))]>"
-		}
-		catch {
+		} catch {
 			return super.debugDescription
 		}
 	}

@@ -32,8 +32,7 @@ public class AudioTransportManager: AudioPlugIn {
 	public override var debugDescription: String {
 		do {
 			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), [\(try endpointList().map({ $0.debugDescription }).joined(separator: ", "))]>"
-		}
-		catch {
+		} catch {
 			return super.debugDescription
 		}
 	}

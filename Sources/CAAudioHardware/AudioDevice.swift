@@ -65,8 +65,7 @@ public class AudioDevice: AudioObject {
 	public override var debugDescription: String {
 		do {
 			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)) \"\(try name())\">"
-		}
-		catch {
+		} catch {
 			return super.debugDescription
 		}
 	}
