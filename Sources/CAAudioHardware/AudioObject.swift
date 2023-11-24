@@ -115,6 +115,17 @@ public class AudioObject: CustomDebugStringConvertible {
 	}
 }
 
+extension AudioObject {
+	/// Attempts to cast `self` to the specified type and throws an error if the cast fails.
+	func cast<T: AudioObject>(to type: T.Type = T.self) throws -> T {
+		guard let object = self as? T else {
+			os_log(.error, log: audioObjectLog, "Unable to cast %{public}@ to %{public}@", debugDescription, String(describing: T.self))
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError), userInfo: nil)
+		}
+		return object
+	}
+}
+
 extension AudioObject: Hashable {
 	public static func == (lhs: AudioObject, rhs: AudioObject) -> Bool {
 		return lhs.objectID == rhs.objectID
