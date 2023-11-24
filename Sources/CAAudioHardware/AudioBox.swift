@@ -15,7 +15,7 @@ public class AudioBox: AudioObject {
 	/// Returns the available audio boxes
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyBoxList` on `kAudioObjectSystemObject`
 	public class func boxes() throws -> [AudioBox] {
-		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyBoxList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyBoxList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns an initialized `AudioBox` with `uid` or `nil` if unknown
@@ -89,19 +89,19 @@ extension AudioBox {
 	/// Returns the reason an attempt to acquire the box failed
 	/// - remark: This corresponds to the property `kAudioBoxPropertyAcquisitionFailed`
 	public func acquisitionFailed() throws -> OSStatus {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyAcquisitionFailed), type: OSStatus.self)
+		return try getProperty(PropertyAddress(kAudioBoxPropertyAcquisitionFailed))
 	}
 
 	/// Returns the audio devices provided by the box
 	/// - remark: This corresponds to the property `kAudioBoxPropertyDeviceList`
 	public func deviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioBoxPropertyDeviceList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the audio clock devices provided by the box
 	/// - remark: This corresponds to the property `kAudioBoxPropertyClockDeviceList`
 	public func clockDeviceList() throws -> [AudioClockDevice] {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyClockDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioBoxPropertyClockDeviceList)).map { try AudioObject.make($0).cast() }
 	}
 }
 

@@ -146,7 +146,7 @@ extension AudioObject {
 	/// - parameter qualifier: An optional property qualifier
 	/// - parameter initialValue: An optional initial value for `outData` when calling `AudioObjectGetPropertyData`
 	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
-	public func getProperty<T: Numeric>(_ property: PropertyAddress, type: T.Type, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
+	public func getProperty<T: Numeric>(_ property: PropertyAddress, type: T.Type = T.self, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
 		return try getAudioObjectProperty(property, from: objectID, type: type, qualifier: qualifier, initialValue: initialValue)
 	}
 
@@ -156,7 +156,7 @@ extension AudioObject {
 	/// - parameter type: The underlying `CFType`
 	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
-	public func getProperty<T: CFTypeRef>(_ property: PropertyAddress, type: T.Type, qualifier: PropertyQualifier? = nil) throws -> T {
+	public func getProperty<T: CFTypeRef>(_ property: PropertyAddress, type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> T {
 		return try getAudioObjectProperty(property, from: objectID, type: type, qualifier: qualifier)
 	}
 
@@ -200,7 +200,7 @@ extension AudioObject {
 	/// - parameter type: The underlying array element type
 	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
-	public func getProperty<T>(_ property: PropertyAddress, elementType type: T.Type, qualifier: PropertyQualifier? = nil) throws -> [T] {
+	public func getProperty<T>(_ property: PropertyAddress, elementType type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> [T] {
 		return try getAudioObjectProperty(property, from: objectID, elementType: type, qualifier: qualifier)
 	}
 
@@ -230,20 +230,20 @@ extension AudioObject {
 	/// Returns the base class of the underlying HAL audio object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyBaseClass`
 	public func baseClass() throws -> AudioClassID {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyBaseClass), type: AudioClassID.self)
+		return try getProperty(PropertyAddress(kAudioObjectPropertyBaseClass))
 	}
 
 	/// Returns the class of the underlying HAL audio object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyClass`
 	public func `class`() throws -> AudioClassID {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyClass), type: AudioClassID.self)
+		return try getProperty(PropertyAddress(kAudioObjectPropertyClass))
 	}
 
 	/// Returns the audio object's owning object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyOwner`
 	/// - note: The system audio object does not have an owner
 	public func owner() throws -> AudioObject {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioObjectPropertyOwner), type: AudioObjectID.self))
+		return try AudioObject.make(getProperty(PropertyAddress(kAudioObjectPropertyOwner)))
 	}
 
 	/// Returns the audio object's name
@@ -294,9 +294,9 @@ extension AudioObject {
 			var qualifierData = type!
 			let qualifierDataSize = MemoryLayout<AudioClassID>.stride * type!.count
 			let qualifier = PropertyQualifier(value: &qualifierData, size: UInt32(qualifierDataSize))
-			return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), elementType: AudioObjectID.self, qualifier: qualifier).map { try AudioObject.make($0) }
+			return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), qualifier: qualifier).map { try AudioObject.make($0) }
 		}
-		return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), elementType: AudioObjectID.self).map { try AudioObject.make($0) }
+		return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects)).map { try AudioObject.make($0) }
 	}
 
 	/// Returns `true` if the audio object's hardware is drawing attention to itself

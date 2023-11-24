@@ -15,7 +15,7 @@ public class AudioPlugIn: AudioObject {
 	/// Returns the available audio plug-ins
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyPlugInList` on `kAudioObjectSystemObject`
 	public class func plugIns() throws -> [AudioPlugIn] {
-		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyPlugInList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyPlugInList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns an initialized `AudioPlugIn` with `bundleID` or `nil` if unknown
@@ -46,7 +46,7 @@ extension AudioPlugIn {
 	/// - note: The constants for `composition` are defined in `AudioHardware.h`
 	func createAggregateDevice(composition: [AnyHashable: Any]) throws -> AudioAggregateDevice {
 		var qualifier = composition as CFDictionary
-		return try AudioObject.make( getProperty(PropertyAddress(kAudioPlugInCreateAggregateDevice), type: AudioObjectID.self, qualifier: PropertyQualifier(&qualifier))).cast()
+		return try AudioObject.make(getProperty(PropertyAddress(kAudioPlugInCreateAggregateDevice), qualifier: PropertyQualifier(&qualifier))).cast()
 	}
 
 	/// Destroys an aggregate device
@@ -64,7 +64,7 @@ extension AudioPlugIn {
 	/// Returns the audio devices provided by the plug-in
 	/// - remark: This corresponds to the property `kAudioPlugInPropertyDeviceList`
 	public func deviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioPlugInPropertyDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioPlugInPropertyDeviceList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the audio device provided by the plug-in with the specified UID or `nil` if unknown
@@ -82,7 +82,7 @@ extension AudioPlugIn {
 	/// Returns the audio boxes provided by the plug-in
 	/// - remark: This corresponds to the property `kAudioPlugInPropertyBoxList`
 	public func boxList() throws -> [AudioBox] {
-		return try getProperty(PropertyAddress(kAudioPlugInPropertyBoxList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioPlugInPropertyBoxList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the audio box provided by the plug-in with the specified UID or `nil` if unknown
@@ -100,7 +100,7 @@ extension AudioPlugIn {
 	/// Returns the clock devices provided by the plug-in
 	/// - remark: This corresponds to the property `kAudioPlugInPropertyClockDeviceList`
 	public func clockDeviceList() throws -> [AudioClockDevice] {
-		return try getProperty(PropertyAddress(kAudioPlugInPropertyClockDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioPlugInPropertyClockDeviceList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the audio clock device provided by the plug-in with the specified UID or `nil` if unknown

@@ -53,7 +53,7 @@ extension AudioAggregateDevice {
 	/// Returns the active subdevices in the aggregate device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyActiveSubDeviceList`
 	public func activeSubdeviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyActiveSubDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyActiveSubDeviceList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the composition
@@ -65,20 +65,20 @@ extension AudioAggregateDevice {
 	/// Returns the main subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMainSubDevice`
 	public func mainSubdevice() throws -> AudioDevice {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice), type: AudioObjectID.self)).cast()
+		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice))).cast()
 	}
 
 	/// Returns the master subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMasterSubDevice`
 	@available(macOS, introduced: 10.0, deprecated: 12.0, renamed: "mainSubdevice")
 	public func masterSubdevice() throws -> AudioDevice {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice), type: AudioObjectID.self)).cast()
+		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice))).cast()
 	}
 
 	/// Returns the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`
 	public func clockDevice() throws -> AudioClockDevice {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), type: AudioObjectID.self)).cast()
+		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice))).cast()
 	}
 	/// Sets the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`

@@ -51,7 +51,7 @@ extension AudioStream {
 	/// Returns the latency
 	/// - remark: This corresponds to the property `kAudioStreamPropertyLatency`
 	public func latency() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioStreamPropertyLatency), type: UInt32.self)
+		return try getProperty(PropertyAddress(kAudioStreamPropertyLatency))
 	}
 
 	/// Returns the virtual format
