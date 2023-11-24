@@ -72,11 +72,9 @@ extension AudioChannelLayoutWrapper: CustomDebugStringConvertible {
 		let channelLayoutTag = tag
 		if channelLayoutTag == kAudioChannelLayoutTag_UseChannelDescriptions {
 			return "<\(type(of: self)): \(channelCount) ch, [\(channelDescriptions.map({ $0.channelDescription }).joined(separator: ", "))]>"
-		}
-		else if channelLayoutTag == kAudioChannelLayoutTag_UseChannelBitmap {
+		} else if channelLayoutTag == kAudioChannelLayoutTag_UseChannelBitmap {
 			return "<\(type(of: self)): \(channelCount) ch, \(bitmap.bitmapDescription)>"
-		}
-		else {
+		} else {
 			return "<\(type(of: self)): \(channelCount) ch, \(channelLayoutTag.channelLayoutTagName)>"
 		}
 	}

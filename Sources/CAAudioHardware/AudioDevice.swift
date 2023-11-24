@@ -1111,8 +1111,7 @@ extension AudioDevice.DataSource: CustomDebugStringConvertible {
 	public var debugDescription: String {
 		if let name = try? name() {
 			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\" on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false))>"
-		}
-		else {
+		} else {
 			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false)))>"
 		}
 	}
@@ -1145,8 +1144,7 @@ extension AudioDevice.ClockSource: CustomDebugStringConvertible {
 	public var debugDescription: String {
 		if let name = try? name() {
 			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\" on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false))>"
-		}
-		else {
+		} else {
 			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false)))>"
 		}
 	}
@@ -1172,8 +1170,7 @@ extension AudioDevice.PlayThroughDestination: CustomDebugStringConvertible {
 	public var debugDescription: String {
 		if let name = try? name() {
 			return "<\(type(of: self)): '\(id.fourCC)' \"\(name)\" on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false))>"
-		}
-		else {
+		} else {
 			return "<\(type(of: self)): '\(id.fourCC)' on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false)))>"
 		}
 	}
@@ -1201,8 +1198,7 @@ extension AudioDevice.ChannelNominalLineLevel: CustomDebugStringConvertible {
 	public var debugDescription: String {
 		if let name = try? name() {
 			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\" on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false))>"
-		}
-		else {
+		} else {
 			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false)))>"
 		}
 	}
@@ -1230,8 +1226,7 @@ extension AudioDevice.HighPassFilterSetting: CustomDebugStringConvertible {
 	public var debugDescription: String {
 		if let name = try? name() {
 			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\" on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false))>"
-		}
-		else {
+		} else {
 			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false)))>"
 		}
 	}
