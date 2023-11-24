@@ -15,7 +15,7 @@ public class AudioTransportManager: AudioPlugIn {
 	/// Returns the available audio transport managers
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyTransportManagerList` on `kAudioObjectSystemObject`
 	public class func transportManagers() throws -> [AudioTransportManager] {
-		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyTransportManagerList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyTransportManagerList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns an initialized `AudioTransportManager` with `bundleID` or `nil` if unknown
@@ -46,7 +46,7 @@ extension AudioTransportManager {
 	/// - note: The constants for `composition` are defined in `AudioHardware.h`
 	func createEndpointDevice(composition: [AnyHashable: Any]) throws -> AudioEndpointDevice {
 		var qualifier = composition as CFDictionary
-		return try AudioObject.make( getProperty(PropertyAddress(kAudioTransportManagerCreateEndPointDevice), type: AudioObjectID.self, qualifier: PropertyQualifier(&qualifier))).cast()
+		return try AudioObject.make(getProperty(PropertyAddress(kAudioTransportManagerCreateEndPointDevice), qualifier: PropertyQualifier(&qualifier))).cast()
 	}
 
 	/// Destroys an endpoint device
@@ -58,7 +58,7 @@ extension AudioTransportManager {
 	/// Returns the audio endpoints provided by the transport manager
 	/// - remark: This corresponds to the property `kAudioTransportManagerPropertyEndPointList`
 	public func endpointList() throws -> [AudioEndpoint] {
-		return try getProperty(PropertyAddress(kAudioTransportManagerPropertyEndPointList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioTransportManagerPropertyEndPointList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the audio endpoint provided by the transport manager with the specified UID or `nil` if unknown

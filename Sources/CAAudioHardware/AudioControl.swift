@@ -27,13 +27,13 @@ extension AudioControl {
 	/// Returns the control's scope
 	/// - remark: This corresponds to the property `kAudioControlPropertyScope`
 	public func scope() throws -> PropertyScope {
-		return PropertyScope(try getProperty(PropertyAddress(kAudioControlPropertyScope), type: AudioObjectPropertyScope.self))
+		return PropertyScope(try getProperty(PropertyAddress(kAudioControlPropertyScope)))
 	}
 
 	/// Returns the control's element
 	/// - remark: This corresponds to the property `kAudioControlPropertyElement`
 	public func element() throws -> PropertyElement {
-		return PropertyElement(try getProperty(PropertyAddress(kAudioControlPropertyElement), type: AudioObjectPropertyElement.self))
+		return PropertyElement(try getProperty(PropertyAddress(kAudioControlPropertyElement)))
 	}
 }
 

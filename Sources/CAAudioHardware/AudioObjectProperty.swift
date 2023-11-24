@@ -259,7 +259,7 @@ public func writeAudioObjectProperty<T>(_ property: PropertyAddress, on objectID
 /// - parameter qualifier: An optional property qualifier
 /// - parameter initialValue: An optional initial value for `outData` when calling `AudioObjectGetPropertyData`
 /// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
+public func getAudioObjectProperty<T: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type = T.self, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
 	var value = initialValue
 	try readAudioObjectProperty(property, from: objectID, into: &value, qualifier: qualifier)
 	return value
@@ -272,7 +272,7 @@ public func getAudioObjectProperty<T: Numeric>(_ property: PropertyAddress, from
 /// - parameter type: The underlying `CFType`
 /// - parameter qualifier: An optional property qualifier
 /// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type, qualifier: PropertyQualifier? = nil) throws -> T {
+public func getAudioObjectProperty<T: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> T {
 	var value: Unmanaged<T>?
 	try readAudioObjectProperty(property, from: objectID, into: &value, qualifier: qualifier)
 	return value!.takeRetainedValue()
@@ -287,7 +287,7 @@ public func getAudioObjectProperty<T: CFTypeRef>(_ property: PropertyAddress, fr
 /// - parameter type: The underlying array element type
 /// - parameter qualifier: An optional property qualifier
 /// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T>(_ property: PropertyAddress, from objectID: AudioObjectID, elementType type: T.Type, qualifier: PropertyQualifier? = nil) throws -> [T] {
+public func getAudioObjectProperty<T>(_ property: PropertyAddress, from objectID: AudioObjectID, elementType type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> [T] {
 	let dataSize = try audioObjectPropertySize(property, from: objectID, qualifier: qualifier)
 	let count = dataSize / MemoryLayout<T>.stride
 	let array = try [T](unsafeUninitializedCapacity: count) { (buffer, initializedCount) in

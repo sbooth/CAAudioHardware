@@ -22,13 +22,13 @@ extension AudioEndpointDevice {
 	/// Returns the audio endpoints owned by `self`
 	/// - remark: This corresponds to the property `kAudioEndPointDevicePropertyEndPointList`
 	public func endpointList() throws -> [AudioEndpoint] {
-		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyEndPointList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyEndPointList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the owning `pid_t`or `0` for public devices
 	/// - remark: This corresponds to the property `kAudioEndPointDevicePropertyIsPrivate`
 	public func isPrivate() throws -> pid_t {
-		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyIsPrivate), type: pid_t.self)
+		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyIsPrivate))
 	}
 }
 

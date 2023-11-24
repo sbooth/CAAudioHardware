@@ -15,7 +15,7 @@ public class AudioClockDevice: AudioObject {
 	/// Returns the available audio clock devices
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyClockDeviceList` on `kAudioObjectSystemObject`
 	public class func clockDevices() throws -> [AudioClockDevice] {
-		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyClockDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyClockDeviceList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns an initialized `AudioClockDevice` with `uid` or `nil` if unknown
@@ -45,7 +45,7 @@ extension AudioClockDevice {
 	/// Returns the domain
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyClockDomain`
 	public func domain() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioClockDevicePropertyClockDomain), type: UInt32.self)
+		return try getProperty(PropertyAddress(kAudioClockDevicePropertyClockDomain))
 	}
 
 	/// Returns `true` if the clock device is alive
@@ -63,19 +63,19 @@ extension AudioClockDevice {
 	/// Returns the latency
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyDeviceIsRunning`
 	public func latency() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioClockDevicePropertyDeviceIsRunning), type: UInt32.self)
+		return try getProperty(PropertyAddress(kAudioClockDevicePropertyDeviceIsRunning))
 	}
 
 	/// Returns the audio controls owned by `self`
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyControlList`
 	public func controlList() throws -> [AudioControl] {
-		return try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the sample rate
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyNominalSampleRate`
 	public func sampleRate() throws -> Double {
-		return try getProperty(PropertyAddress(kAudioClockDevicePropertyNominalSampleRate), type: Double.self)
+		return try getProperty(PropertyAddress(kAudioClockDevicePropertyNominalSampleRate))
 	}
 
 	/// Returns the available sample rates
