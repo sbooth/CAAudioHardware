@@ -16,25 +16,25 @@ public class AudioDevice: AudioObject {
 	/// Returns the available audio devices
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDevices` on `kAudioObjectSystemObject`
 	public class func devices() throws -> [AudioDevice] {
-		try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDevices), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioDevice }
+		try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDevices), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the default input device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultInputDevice` on `kAudioObjectSystemObject`
 	public class func defaultInputDevice() throws -> AudioDevice {
-		return try AudioObject.make(AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDefaultInputDevice), type: AudioObjectID.self)) as! AudioDevice
+		return try AudioObject.make(AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDefaultInputDevice), type: AudioObjectID.self)).cast()
 	}
 
 	/// Returns the default output device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultOutputDevice` on `kAudioObjectSystemObject`
 	public class func defaultOutputDevice() throws -> AudioDevice {
-		return try AudioObject.make( AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice), type: AudioObjectID.self)) as! AudioDevice
+		return try AudioObject.make( AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice), type: AudioObjectID.self)).cast()
 	}
 
 	/// Returns the default system output device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultSystemOutputDevice` on `kAudioObjectSystemObject`
 	public class func defaultSystemOutputDevice() throws -> AudioDevice {
-		return try AudioObject.make( AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice), type: AudioObjectID.self)) as! AudioDevice
+		return try AudioObject.make( AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice), type: AudioObjectID.self)).cast()
 	}
 
 	/// Returns an initialized `AudioDevice` with `uid` or `nil` if unknown
@@ -44,7 +44,7 @@ public class AudioDevice: AudioObject {
 		guard let objectID = try AudioSystemObject.instance.deviceID(forUID: uid) else {
 			return nil
 		}
-		return (try AudioObject.make(objectID) as! AudioDevice)
+		return try AudioObject.make(objectID).cast()
 	}
 
 	/// Returns `true` if the device supports input
@@ -102,7 +102,7 @@ extension AudioDevice {
 	/// Returns related audio devices
 	/// - remark: This corresponds to the property `kAudioDevicePropertyRelatedDevices`
 	public func relatedDevices() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyRelatedDevices), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioDevice }
+		return try getProperty(PropertyAddress(kAudioDevicePropertyRelatedDevices), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the clock domain
@@ -154,13 +154,13 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertyStreams`
 	/// - parameter scope: The desired scope
 	public func streams(inScope scope: PropertyScope) throws -> [AudioStream] {
-		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyStreams), scope: scope), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioStream }
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyStreams), scope: scope), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the device's audio controls
 	/// - remark: This corresponds to the property `kAudioObjectPropertyControlList`
 	public func controlList() throws -> [AudioControl] {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyControlList), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioControl }
+		return try getProperty(PropertyAddress(kAudioObjectPropertyControlList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the safety offset

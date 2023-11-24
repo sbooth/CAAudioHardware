@@ -15,7 +15,7 @@ public class AudioClockDevice: AudioObject {
 	/// Returns the available audio clock devices
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyClockDeviceList` on `kAudioObjectSystemObject`
 	public class func clockDevices() throws -> [AudioClockDevice] {
-		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyClockDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioClockDevice }
+		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyClockDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns an initialized `AudioClockDevice` with `uid` or `nil` if unknown
@@ -25,7 +25,7 @@ public class AudioClockDevice: AudioObject {
 		guard let objectID = try AudioSystemObject.instance.clockDeviceID(forUID: uid) else {
 			return nil
 		}
-		return (try AudioObject.make(objectID) as! AudioClockDevice)
+		return try AudioObject.make(objectID).cast()
 	}
 }
 
@@ -69,7 +69,7 @@ extension AudioClockDevice {
 	/// Returns the audio controls owned by `self`
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyControlList`
 	public func controlList() throws -> [AudioControl] {
-		return try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioControl }
+		return try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the sample rate

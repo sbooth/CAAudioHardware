@@ -15,7 +15,7 @@ public class AudioPlugIn: AudioObject {
 	/// Returns the available audio plug-ins
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyPlugInList` on `kAudioObjectSystemObject`
 	public class func plugIns() throws -> [AudioPlugIn] {
-		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyPlugInList), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioPlugIn }
+		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyPlugInList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns an initialized `AudioPlugIn` with `bundleID` or `nil` if unknown
@@ -25,7 +25,7 @@ public class AudioPlugIn: AudioObject {
 		guard let objectID = try AudioSystemObject.instance.plugInID(forBundleID: bundleID) else {
 			return nil
 		}
-		return (try AudioObject.make(objectID) as! AudioPlugIn)
+		return try AudioObject.make(objectID).cast()
 	}
 
 	// A textual representation of this instance, suitable for debugging.
@@ -46,7 +46,7 @@ extension AudioPlugIn {
 	/// - note: The constants for `composition` are defined in `AudioHardware.h`
 	func createAggregateDevice(composition: [AnyHashable: Any]) throws -> AudioAggregateDevice {
 		var qualifier = composition as CFDictionary
-		return try AudioObject.make( getProperty(PropertyAddress(kAudioPlugInCreateAggregateDevice), type: AudioObjectID.self, qualifier: PropertyQualifier(&qualifier))) as! AudioAggregateDevice
+		return try AudioObject.make( getProperty(PropertyAddress(kAudioPlugInCreateAggregateDevice), type: AudioObjectID.self, qualifier: PropertyQualifier(&qualifier))).cast()
 	}
 
 	/// Destroys an aggregate device
@@ -64,7 +64,7 @@ extension AudioPlugIn {
 	/// Returns the audio devices provided by the plug-in
 	/// - remark: This corresponds to the property `kAudioPlugInPropertyDeviceList`
 	public func deviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioPlugInPropertyDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioDevice }
+		return try getProperty(PropertyAddress(kAudioPlugInPropertyDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the audio device provided by the plug-in with the specified UID or `nil` if unknown
@@ -76,13 +76,13 @@ extension AudioPlugIn {
 		guard deviceObjectID != kAudioObjectUnknown else {
 			return nil
 		}
-		return (try AudioObject.make(deviceObjectID) as! AudioDevice)
+		return try AudioObject.make(deviceObjectID).cast()
 	}
 
 	/// Returns the audio boxes provided by the plug-in
 	/// - remark: This corresponds to the property `kAudioPlugInPropertyBoxList`
 	public func boxList() throws -> [AudioBox] {
-		return try getProperty(PropertyAddress(kAudioPlugInPropertyBoxList), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioBox }
+		return try getProperty(PropertyAddress(kAudioPlugInPropertyBoxList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the audio box provided by the plug-in with the specified UID or `nil` if unknown
@@ -94,13 +94,13 @@ extension AudioPlugIn {
 		guard boxObjectID != kAudioObjectUnknown else {
 			return nil
 		}
-		return (try AudioObject.make(boxObjectID) as! AudioBox)
+		return (try AudioObject.make(boxObjectID).cast())
 	}
 
 	/// Returns the clock devices provided by the plug-in
 	/// - remark: This corresponds to the property `kAudioPlugInPropertyClockDeviceList`
 	public func clockDeviceList() throws -> [AudioClockDevice] {
-		return try getProperty(PropertyAddress(kAudioPlugInPropertyClockDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0) as! AudioClockDevice }
+		return try getProperty(PropertyAddress(kAudioPlugInPropertyClockDeviceList), elementType: AudioObjectID.self).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the audio clock device provided by the plug-in with the specified UID or `nil` if unknown
@@ -112,7 +112,7 @@ extension AudioPlugIn {
 		guard clockDeviceObjectID != kAudioObjectUnknown else {
 			return nil
 		}
-		return (try AudioObject.make(clockDeviceObjectID) as! AudioClockDevice)
+		return try AudioObject.make(clockDeviceObjectID).cast()
 	}
 }
 
