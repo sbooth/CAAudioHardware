@@ -22,7 +22,7 @@ public class AudioObject: CustomDebugStringConvertible {
 	}
 
 	/// An audio object property listener block and associated dispatch queue.
-	typealias PropertyListener = (block: AudioObjectPropertyListenerBlock, queue: dispatch_queue_t?)
+	typealias PropertyListener = (block: AudioObjectPropertyListenerBlock, queue: DispatchQueue?)
 
 	/// Registered audio object property listeners
 	private var propertyListeners = [PropertyAddress: PropertyListener]()
@@ -76,7 +76,7 @@ public class AudioObject: CustomDebugStringConvertible {
 	/// - parameter block: A closure to invoke when `property` changes or `nil` to remove the previous value
 	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - throws: An error if the property listener could not be registered
-	public final func whenPropertyChanges(_ property: PropertyAddress, perform block: PropertyChangeNotificationBlock?, on queue: dispatch_queue_t? = .global(qos: .background)) throws {
+	public final func whenPropertyChanges(_ property: PropertyAddress, perform block: PropertyChangeNotificationBlock?, on queue: DispatchQueue? = .global(qos: .background)) throws {
 		var address = property.rawValue
 
 		// Remove the existing listener, if any, for the property
