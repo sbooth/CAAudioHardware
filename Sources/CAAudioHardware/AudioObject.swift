@@ -21,15 +21,18 @@ public class AudioObject: CustomDebugStringConvertible {
 		self.objectID = objectID
 	}
 
+	/// An audio object property listener block and associated dispatch queue.
+	typealias PropertyListener = (block: AudioObjectPropertyListenerBlock, queue: DispatchQueue?)
+
 	/// Registered audio object property listeners
-	private var listenerBlocks = [PropertyAddress: AudioObjectPropertyListenerBlock]()
+	private var propertyListeners = [PropertyAddress: PropertyListener]()
 
 	/// Removes all property listeners
 	/// - note: Errors are logged but otherwise ignored
 	func removeAllPropertyListeners() {
-		for (property, listenerBlock) in listenerBlocks {
+		for (property, listener) in propertyListeners {
 			var address = property.rawValue
-			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, .global(qos: .background), listenerBlock)
+			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
 			if result != kAudioHardwareNoError {
 				os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
 			}
@@ -71,13 +74,14 @@ public class AudioObject: CustomDebugStringConvertible {
 	/// Registers `block` to be performed when `property` changes
 	/// - parameter property: The property to observe
 	/// - parameter block: A closure to invoke when `property` changes or `nil` to remove the previous value
+	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - throws: An error if the property listener could not be registered
-	public final func whenPropertyChanges(_ property: PropertyAddress, perform block: PropertyChangeNotificationBlock?) throws {
+	public final func whenPropertyChanges(_ property: PropertyAddress, perform block: PropertyChangeNotificationBlock?, on queue: DispatchQueue? = .global(qos: .background)) throws {
 		var address = property.rawValue
 
-		// Remove the existing listener block, if any, for the property
-		if let listenerBlock = listenerBlocks.removeValue(forKey: property) {
-			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, DispatchQueue.global(qos: .background), listenerBlock)
+		// Remove the existing listener, if any, for the property
+		if let listener = propertyListeners.removeValue(forKey: property) {
+			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
 			guard result == kAudioHardwareNoError else {
 				os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
 				let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The listener block for the property \(property.selector) on audio object 0x\(String(objectID, radix: 16, uppercase: false)) could not be removed.", comment: "")]
@@ -98,14 +102,16 @@ public class AudioObject: CustomDebugStringConvertible {
 				block(array)
 			}
 
-			let result = AudioObjectAddPropertyListenerBlock(objectID, &address, DispatchQueue.global(qos: .background), listenerBlock)
+			let listener: PropertyListener = (block: listenerBlock, queue: queue)
+
+			let result = AudioObjectAddPropertyListenerBlock(objectID, &address, listener.queue, listener.block)
 			guard result == kAudioHardwareNoError else {
 				os_log(.error, log: audioObjectLog, "AudioObjectAddPropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
 				let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The listener block for the property \(property.selector) on audio object 0x\(String(objectID, radix: 16, uppercase: false)) could not be added.", comment: "")]
 				throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
 			}
 
-			listenerBlocks[property] = listenerBlock;
+			propertyListeners[property] = listener
 		}
 	}
 
