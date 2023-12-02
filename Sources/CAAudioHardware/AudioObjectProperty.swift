@@ -153,13 +153,7 @@ public struct PropertyAddress: RawRepresentable {
 
 extension PropertyAddress: Hashable {
 	public static func == (lhs: PropertyAddress, rhs: PropertyAddress) -> Bool {
-		let l = lhs.rawValue
-		let r = rhs.rawValue
-		return l.mSelector == r.mSelector && l.mScope == r.mScope && l.mElement == r.mElement
-		// Congruence?
-//		return ((l.mSelector == r.mSelector) 	|| (l.mSelector == kAudioObjectPropertySelectorWildcard) 	|| (r.mSelector == kAudioObjectPropertySelectorWildcard))
-//			&& ((l.mScope == r.mScope) 			|| (l.mScope == kAudioObjectPropertyScopeWildcard) 			|| (r.mScope == kAudioObjectPropertyScopeWildcard))
-//			&& ((l.mElement == r.mElement) 		|| (l.mElement == kAudioObjectPropertyElementWildcard) 		|| (r.mElement == kAudioObjectPropertyElementWildcard))
+		lhs.rawValue.mSelector == rhs.rawValue.mSelector && lhs.rawValue.mScope == rhs.rawValue.mScope && lhs.rawValue.mElement == rhs.rawValue.mElement
 	}
 
 	public func hash(into hasher: inout Hasher) {
@@ -191,6 +185,38 @@ public struct PropertyQualifier {
 	public init<T>(_ value: UnsafePointer<T>) {
 		self.value = UnsafeRawPointer(value)
 		self.size = UInt32(MemoryLayout<T>.stride)
+	}
+}
+
+// MARK: - Congruence Relations
+
+infix operator ~==: ComparisonPrecedence
+extension PropertySelector {
+	public static func ~== (lhs: PropertySelector, rhs: PropertySelector) -> Bool {
+		lhs.rawValue == rhs.rawValue || lhs.rawValue == kAudioObjectPropertySelectorWildcard || rhs.rawValue == kAudioObjectPropertySelectorWildcard
+	}
+}
+
+extension PropertyScope {
+	public static func ~== (lhs: PropertyScope, rhs: PropertyScope) -> Bool {
+		lhs.rawValue == rhs.rawValue || lhs.rawValue == kAudioObjectPropertyScopeWildcard || rhs.rawValue == kAudioObjectPropertyScopeWildcard
+	}
+}
+
+extension PropertyElement {
+	public static func ~== (lhs: PropertyElement, rhs: PropertyElement) -> Bool {
+		lhs.rawValue == rhs.rawValue || lhs.rawValue == kAudioObjectPropertyElementWildcard || rhs.rawValue == kAudioObjectPropertyElementWildcard
+	}
+}
+
+extension PropertyAddress {
+	public static func ~== (lhs: PropertyAddress, rhs: PropertyAddress) -> Bool {
+//		lhs.selector ~== rhs.selector && lhs.scope ~== rhs.scope && lhs.element ~== rhs.element
+		let l = lhs.rawValue
+		let r = rhs.rawValue
+		return (l.mSelector == r.mSelector || l.mSelector == kAudioObjectPropertySelectorWildcard || r.mSelector == kAudioObjectPropertySelectorWildcard)
+		&& (l.mScope == r.mScope || l.mScope == kAudioObjectPropertyScopeWildcard || r.mScope == kAudioObjectPropertyScopeWildcard)
+		&& (l.mElement == r.mElement || l.mElement == kAudioObjectPropertyElementWildcard || r.mElement == kAudioObjectPropertyElementWildcard)
 	}
 }
 
