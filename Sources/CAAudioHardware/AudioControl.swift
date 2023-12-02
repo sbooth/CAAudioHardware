@@ -55,7 +55,7 @@ extension AudioControl {
 	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioControl>, on queue: DispatchQueue? = .global(qos: .background), perform block: PropertyChangeNotificationBlock?) throws {
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioControl>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
 		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
 	}
 }
