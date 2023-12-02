@@ -323,19 +323,44 @@ extension UInt32 {
 
 extension PropertySelector: CustomStringConvertible {
 	public var description: String {
-		return "'\(rawValue.fourCC)'"
+		switch rawValue {
+		case kAudioObjectPropertySelectorWildcard:
+			return "wildcard"
+		default:
+			return "'\(rawValue.fourCC)'"
+		}
 	}
 }
 
 extension PropertyScope: CustomStringConvertible {
 	public var description: String {
-		return "'\(rawValue.fourCC)'"
+		switch rawValue {
+		case kAudioObjectPropertyScopeGlobal:
+			return "global"
+		case kAudioObjectPropertyScopeInput:
+			return "input"
+		case kAudioObjectPropertyScopeOutput:
+			return "output"
+		case kAudioObjectPropertyScopePlayThrough:
+			return "playthrough"
+		case kAudioObjectPropertyScopeWildcard:
+			return "wildcard"
+		default:
+			return "'\(rawValue.fourCC)'"
+		}
 	}
 }
 
 extension PropertyElement: CustomStringConvertible {
 	public var description: String {
-		return rawValue == kAudioObjectPropertyElementMain ? "main" : "\(rawValue)"
+		switch rawValue {
+		case kAudioObjectPropertyElementMain:
+			return "main"
+		case kAudioObjectPropertyElementWildcard:
+			return "wildcard"
+		default:
+			return "\(rawValue)"
+		}
 	}
 }
 
