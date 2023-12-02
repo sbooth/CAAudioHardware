@@ -73,10 +73,10 @@ public class AudioObject: CustomDebugStringConvertible {
 
 	/// Registers `block` to be performed when `property` changes
 	/// - parameter property: The property to observe
-	/// - parameter block: A closure to invoke when `property` changes or `nil` to remove the previous value
 	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
+	/// - parameter block: A closure to invoke when `property` changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public final func whenPropertyChanges(_ property: PropertyAddress, perform block: PropertyChangeNotificationBlock?, on queue: DispatchQueue? = .global(qos: .background)) throws {
+	public final func whenPropertyChanges(_ property: PropertyAddress, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
 		var address = property.rawValue
 
 		// Remove the existing listener, if any, for the property
@@ -518,10 +518,11 @@ extension AudioObject {
 	/// - parameter selector: The selector of the desired property
 	/// - parameter scope: The desired scope
 	/// - parameter element: The desired element
+	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), perform: block)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), on: queue, perform: block)
 	}
 }
 
