@@ -102,11 +102,11 @@ extension AudioClockDevice {
 
 	/// Registers `block` to be performed when `selector` changes
 	/// - parameter selector: The selector of the desired property
-	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
+	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioClockDevice>, perform block: PropertyChangeNotificationBlock?, on queue: DispatchQueue? = .global(qos: .background)) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), perform: block, on: queue)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioClockDevice>, on queue: DispatchQueue? = .global(qos: .background), perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
 	}
 }
 
