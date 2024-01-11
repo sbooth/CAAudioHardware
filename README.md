@@ -15,9 +15,9 @@ Add a package dependency to https://github.com/sbooth/CAAudioHardware in Xcode.
 
 ## Documentation
 
-All public classes, structs, and functions should be documented. If you notice a documentation shortcoming please [open a new issue](https://github.com/sbooth/CAAudioHardware/issues/new/choose).
-
 The [latest documentation](https://swiftpackageindex.com/sbooth/CAAudioHardware/main/documentation/caaudiohardware) is hosted by [Swift Package Index](https://swiftpackageindex.com/).
+
+All public classes, structs, and functions should be documented. If you notice a documentation shortcoming please [open a new issue](https://github.com/sbooth/CAAudioHardware/issues/new/choose).
 
 ## License
 
