@@ -13,6 +13,12 @@ Add a package dependency to https://github.com/sbooth/CAAudioHardware in Xcode.
 1. Clone the [CAAudioHardware](https://github.com/sbooth/CAAudioHardware) repository.
 2. `swift build`.
 
+## Documentation
+
+All public classes, structs, and functions should be documented. If you notice a documentation shortcoming please [open a new issue](https://github.com/sbooth/CAAudioHardware/issues/new/choose).
+
+The [latest documentation](https://swiftpackageindex.com/sbooth/CAAudioHardware/main/documentation/caaudiohardware) is hosted by [Swift Package Index](https://swiftpackageindex.com/).
+
 ## License
 
 Released under the [MIT License](https://github.com/sbooth/CAAudioHardware/blob/main/LICENSE.txt).
