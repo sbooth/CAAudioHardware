@@ -132,7 +132,7 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertyDeviceCanBeDefaultDevice`
 	/// - parameter scope: The desired scope
 	public func canBeDefault(inScope scope: PropertyScope) throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyDeviceCanBeDefaultDevice), type: UInt32.self) != 0
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDeviceCanBeDefaultDevice), scope: scope), type: UInt32.self) != 0
 	}
 
 	/// Returns `true` if the device can be the system default device
