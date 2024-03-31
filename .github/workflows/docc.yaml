@@ -28,7 +28,6 @@ jobs:
         generate-documentation
         --target CAAudioHardware
         --disable-indexing
-        --transform-for-static-hosting
         --hosting-base-path CAAudioHardware
         --output-path .docs
         --source-service github
