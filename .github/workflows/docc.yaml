@@ -3,8 +3,6 @@ name: docc
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -27,12 +25,12 @@ jobs:
         --hosting-base-path https://sbooth.github.io/CAAudioHardware \
         --output-path .docs
     - name: Setup GitHub Pages
-        id: pages
-        uses: actions/configure-pages@v3
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: .docs
+      id: pages
+      uses: actions/configure-pages@v3
+    - name: Upload Pages Artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: .docs
           
   deploy:
 
