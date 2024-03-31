@@ -18,7 +18,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build Documentation
-      run: swift package --allow-writing-to-directory .docs \
+      run: swift package \
+        --allow-writing-to-directory .docs \
         generate-documentation \
         --target CAAudioHardware \
         --disable-indexing \
