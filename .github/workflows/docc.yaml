@@ -29,7 +29,7 @@ jobs:
         --target CAAudioHardware
         --disable-indexing
         --transform-for-static-hosting
-        --hosting-base-path 'sbooth.github.io/CAAudioHardware'
+        --hosting-base-path CAAudioHardware
         --output-path .docs
     - name: Setup GitHub Pages
       id: pages
