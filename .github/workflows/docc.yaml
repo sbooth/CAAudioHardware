@@ -1,0 +1,49 @@
+name: docc
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  pages: write
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build Documentation
+      run: swift package --allow-writing-to-directory .docs \
+        generate-documentation --target CAAudioHardware \
+        --disable-indexing \
+        --transform-for-static-hosting \
+        --hosting-base-path https://sbooth.github.io/CAAudioHardware \
+        --output-path .docs
+    - name: Setup GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v3
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: .docs
+          
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    needs: build
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2 
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
