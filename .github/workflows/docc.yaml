@@ -30,9 +30,6 @@ jobs:
         --disable-indexing
         --hosting-base-path CAAudioHardware
         --output-path .docs
-        --source-service github
-        --source-service-base-url 'https://github.com/sbooth/CAAudioHardware/blob/main'
-        --checkout-path ${{ github.workspace }}
     - name: Setup GitHub Pages
       id: pages
       uses: actions/configure-pages@v3
