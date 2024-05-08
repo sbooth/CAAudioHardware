@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2023 Stephen F. Booth <me@sbooth.org>
+// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -1072,7 +1072,7 @@ extension AudioDevice.TransportType: CustomDebugStringConvertible {
 			// kAudioDeviceTransportTypeContinuityCaptureWireless
 		case 0x6363776c /* 'ccwl' */: 					return "Continuity Capture Wireless"
 			// kAudioDeviceTransportTypeContinuityCapture
-		case 0x63636170 /* 'ccap' */: 			return "Continuity Capture"
+		case 0x63636170 /* 'ccap' */: 					return "Continuity Capture"
 		default:										return "\(self.rawValue)"
 		}
 	}
