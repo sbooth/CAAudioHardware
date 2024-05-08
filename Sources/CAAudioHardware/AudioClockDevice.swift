@@ -15,7 +15,7 @@ public class AudioClockDevice: AudioObject {
 	/// Returns the available audio clock devices
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyClockDeviceList` on `kAudioObjectSystemObject`
 	public class func clockDevices() throws -> [AudioClockDevice] {
-		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyClockDeviceList), elementType: AudioObjectID.self).map { AudioObject.make($0) as! AudioClockDevice }
+		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyClockDeviceList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns an initialized `AudioClockDevice` with `uid` or `nil` if unknown
@@ -25,7 +25,7 @@ public class AudioClockDevice: AudioObject {
 		guard let objectID = try AudioSystemObject.instance.clockDeviceID(forUID: uid) else {
 			return nil
 		}
-		return (AudioObject.make(objectID) as! AudioClockDevice)
+		return try AudioObject.make(objectID).cast()
 	}
 }
 
@@ -45,7 +45,7 @@ extension AudioClockDevice {
 	/// Returns the domain
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyClockDomain`
 	public func domain() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioClockDevicePropertyClockDomain), type: UInt32.self)
+		return try getProperty(PropertyAddress(kAudioClockDevicePropertyClockDomain))
 	}
 
 	/// Returns `true` if the clock device is alive
@@ -63,19 +63,19 @@ extension AudioClockDevice {
 	/// Returns the latency
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyDeviceIsRunning`
 	public func latency() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioClockDevicePropertyDeviceIsRunning), type: UInt32.self)
+		return try getProperty(PropertyAddress(kAudioClockDevicePropertyDeviceIsRunning))
 	}
 
 	/// Returns the audio controls owned by `self`
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyControlList`
 	public func controlList() throws -> [AudioControl] {
-		return try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList), elementType: AudioObjectID.self).map { AudioObject.make($0) as! AudioControl }
+		return try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the sample rate
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyNominalSampleRate`
 	public func sampleRate() throws -> Double {
-		return try getProperty(PropertyAddress(kAudioClockDevicePropertyNominalSampleRate), type: Double.self)
+		return try getProperty(PropertyAddress(kAudioClockDevicePropertyNominalSampleRate))
 	}
 
 	/// Returns the available sample rates
@@ -102,10 +102,11 @@ extension AudioClockDevice {
 
 	/// Registers `block` to be performed when `selector` changes
 	/// - parameter selector: The selector of the desired property
+	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioClockDevice>, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioClockDevice>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
 	}
 }
 

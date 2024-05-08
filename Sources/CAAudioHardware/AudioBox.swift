@@ -15,7 +15,7 @@ public class AudioBox: AudioObject {
 	/// Returns the available audio boxes
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyBoxList` on `kAudioObjectSystemObject`
 	public class func boxes() throws -> [AudioBox] {
-		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyBoxList), elementType: AudioObjectID.self).map { AudioObject.make($0) as! AudioBox }
+		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyBoxList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns an initialized `AudioBox` with `uid` or `nil` if unknown
@@ -25,7 +25,7 @@ public class AudioBox: AudioObject {
 		guard let objectID = try AudioSystemObject.instance.boxID(forUID: uid) else {
 			return nil
 		}
-		return (AudioObject.make(objectID) as! AudioBox)
+		return try AudioObject.make(objectID).cast()
 	}
 
 	// A textual representation of this instance, suitable for debugging.
@@ -36,8 +36,7 @@ public class AudioBox: AudioObject {
 			if try hasVideo() { media.append("video") }
 			if try hasMIDI() { media.append("MIDI") }
 			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), \(media.joined(separator: ", ")), [\(try deviceList().map({ $0.debugDescription }).joined(separator: ", "))]>"
-		}
-		catch {
+		} catch {
 			return super.debugDescription
 		}
 	}
@@ -89,19 +88,19 @@ extension AudioBox {
 	/// Returns the reason an attempt to acquire the box failed
 	/// - remark: This corresponds to the property `kAudioBoxPropertyAcquisitionFailed`
 	public func acquisitionFailed() throws -> OSStatus {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyAcquisitionFailed), type: OSStatus.self)
+		return try getProperty(PropertyAddress(kAudioBoxPropertyAcquisitionFailed))
 	}
 
 	/// Returns the audio devices provided by the box
 	/// - remark: This corresponds to the property `kAudioBoxPropertyDeviceList`
 	public func deviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyDeviceList), elementType: AudioObjectID.self).map { AudioObject.make($0) as! AudioDevice }
+		return try getProperty(PropertyAddress(kAudioBoxPropertyDeviceList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the audio clock devices provided by the box
 	/// - remark: This corresponds to the property `kAudioBoxPropertyClockDeviceList`
 	public func clockDeviceList() throws -> [AudioClockDevice] {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyClockDeviceList), elementType: AudioObjectID.self).map { AudioObject.make($0) as! AudioClockDevice }
+		return try getProperty(PropertyAddress(kAudioBoxPropertyClockDeviceList)).map { try AudioObject.make($0).cast() }
 	}
 }
 
@@ -121,10 +120,11 @@ extension AudioBox {
 
 	/// Registers `block` to be performed when `selector` changes
 	/// - parameter selector: The selector of the desired property
+	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioBox>, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioBox>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
 	}
 }
 

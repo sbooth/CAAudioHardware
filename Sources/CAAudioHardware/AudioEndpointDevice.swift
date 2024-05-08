@@ -22,13 +22,13 @@ extension AudioEndpointDevice {
 	/// Returns the audio endpoints owned by `self`
 	/// - remark: This corresponds to the property `kAudioEndPointDevicePropertyEndPointList`
 	public func endpointList() throws -> [AudioEndpoint] {
-		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyEndPointList), elementType: AudioObjectID.self).map { AudioObject.make($0) as! AudioEndpoint }
+		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyEndPointList)).map { try AudioObject.make($0).cast() }
 	}
 
 	/// Returns the owning `pid_t`or `0` for public devices
 	/// - remark: This corresponds to the property `kAudioEndPointDevicePropertyIsPrivate`
 	public func isPrivate() throws -> pid_t {
-		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyIsPrivate), type: pid_t.self)
+		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyIsPrivate))
 	}
 }
 
@@ -54,10 +54,11 @@ extension AudioEndpointDevice {
 	/// - parameter selector: The selector of the desired property
 	/// - parameter scope: The desired scope
 	/// - parameter element: The desired element
+	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioEndpointDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), perform: block)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioEndpointDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), on: queue, perform: block)
 	}
 }
 

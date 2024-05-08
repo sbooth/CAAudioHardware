@@ -16,8 +16,7 @@ public class AudioStream: AudioObject {
 	public override var debugDescription: String {
 		do {
 			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), \(try isActive() ? "active" : "inactive"), \(try direction() ? "output" : "input"), starting channel = \(try startingChannel()), virtual format = \(try virtualFormat()), physical format = \(try physicalFormat())>"
-		}
-		catch {
+		} catch {
 			return super.debugDescription
 		}
 	}
@@ -51,7 +50,7 @@ extension AudioStream {
 	/// Returns the latency
 	/// - remark: This corresponds to the property `kAudioStreamPropertyLatency`
 	public func latency() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioStreamPropertyLatency), type: UInt32.self)
+		return try getProperty(PropertyAddress(kAudioStreamPropertyLatency))
 	}
 
 	/// Returns the virtual format
@@ -175,10 +174,11 @@ extension AudioStream {
 
 	/// Registers `block` to be performed when `selector` changes
 	/// - parameter selector: The selector of the desired property
+	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioStream>, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioStream>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
 	}
 }
 

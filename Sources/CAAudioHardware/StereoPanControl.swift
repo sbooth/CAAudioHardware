@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2022 Stephen F. Booth <me@sbooth.org>
+// Copyright (c) 2020 - 2023 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -15,8 +15,7 @@ public class StereoPanControl: AudioControl {
 		do {
 			let panningChannels = try self.panningChannels()
 			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element())), \(try value()), (\(panningChannels.0), \(panningChannels.1))>"
-		}
-		catch {
+		} catch {
 			return super.debugDescription
 		}
 	}
@@ -26,7 +25,7 @@ extension StereoPanControl {
 	/// Returns the control's value
 	/// - remark: This corresponds to the property `kAudioStereoPanControlPropertyValue`
 	public func value() throws -> Float {
-		return try getProperty(PropertyAddress(kAudioStereoPanControlPropertyValue), type: Float.self)
+		return try getProperty(PropertyAddress(kAudioStereoPanControlPropertyValue))
 	}
 	/// Sets the control's value
 	/// - remark: This corresponds to the property `kAudioStereoPanControlPropertyValue`
@@ -64,10 +63,11 @@ extension StereoPanControl {
 
 	/// Registers `block` to be performed when `selector` changes
 	/// - parameter selector: The selector of the desired property
+	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<StereoPanControl>, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<StereoPanControl>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
 	}
 }
 

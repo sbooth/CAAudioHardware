@@ -16,8 +16,7 @@ public class AudioControl: AudioObject {
 	public override var debugDescription: String {
 		do {
 			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element()))>"
-		}
-		catch {
+		} catch {
 			return super.debugDescription
 		}
 	}
@@ -27,13 +26,13 @@ extension AudioControl {
 	/// Returns the control's scope
 	/// - remark: This corresponds to the property `kAudioControlPropertyScope`
 	public func scope() throws -> PropertyScope {
-		return PropertyScope(try getProperty(PropertyAddress(kAudioControlPropertyScope), type: AudioObjectPropertyScope.self))
+		return PropertyScope(try getProperty(PropertyAddress(kAudioControlPropertyScope)))
 	}
 
 	/// Returns the control's element
 	/// - remark: This corresponds to the property `kAudioControlPropertyElement`
 	public func element() throws -> PropertyElement {
-		return PropertyElement(try getProperty(PropertyAddress(kAudioControlPropertyElement), type: AudioObjectPropertyElement.self))
+		return PropertyElement(try getProperty(PropertyAddress(kAudioControlPropertyElement)))
 	}
 }
 
@@ -53,10 +52,11 @@ extension AudioControl {
 
 	/// Registers `block` to be performed when `selector` changes
 	/// - parameter selector: The selector of the desired property
+	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioControl>, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioControl>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
 	}
 }
 

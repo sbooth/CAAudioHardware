@@ -14,8 +14,7 @@ public class SliderControl: AudioControl {
 	public override var debugDescription: String {
 		do {
 			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element())), \(try value())>"
-		}
-		catch {
+		} catch {
 			return super.debugDescription
 		}
 	}
@@ -25,7 +24,7 @@ extension SliderControl {
 	/// Returns the control's value
 	/// - remark: This corresponds to the property `kAudioSliderControlPropertyValue`
 	public func value() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioSliderControlPropertyValue), type: UInt32.self)
+		return try getProperty(PropertyAddress(kAudioSliderControlPropertyValue))
 	}
 	/// Sets the control's value
 	/// - remark: This corresponds to the property `kAudioSliderControlPropertyValue`
@@ -58,10 +57,11 @@ extension SliderControl {
 
 	/// Registers `block` to be performed when `selector` changes
 	/// - parameter selector: The selector of the desired property
+	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<SliderControl>, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<SliderControl>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
 	}
 }
 

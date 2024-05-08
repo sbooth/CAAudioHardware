@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2022 Stephen F. Booth <me@sbooth.org>
+// Copyright (c) 2020 - 2023 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -14,8 +14,7 @@ public class SelectorControl: AudioControl {
 	public override var debugDescription: String {
 		do {
 			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element())), [\(try currentItem().map({ "'\($0.fourCC)'" }).joined(separator: ", "))]>"
-		}
-		catch {
+		} catch {
 			return super.debugDescription
 		}
 	}
@@ -25,7 +24,7 @@ extension SelectorControl {
 	/// Returns the selected items
 	/// - remark: This corresponds to the property `kAudioSelectorControlPropertyCurrentItem`
 	public func currentItem() throws -> [UInt32] {
-		return try getProperty(PropertyAddress(kAudioSelectorControlPropertyCurrentItem), elementType: UInt32.self)
+		return try getProperty(PropertyAddress(kAudioSelectorControlPropertyCurrentItem))
 	}
 	/// Sets the selected items
 	/// - remark: This corresponds to the property `kAudioSelectorControlPropertyCurrentItem`
@@ -36,7 +35,7 @@ extension SelectorControl {
 	/// Returns the available items
 	/// - remark: This corresponds to the property `kAudioSelectorControlPropertyAvailableItems`
 	public func availableItems() throws -> [UInt32] {
-		return try getProperty(PropertyAddress(kAudioSelectorControlPropertyAvailableItems), elementType: UInt32.self)
+		return try getProperty(PropertyAddress(kAudioSelectorControlPropertyAvailableItems))
 	}
 
 	/// Returns the name of `itemID`
@@ -50,7 +49,7 @@ extension SelectorControl {
 	/// - remark: This corresponds to the property `kAudioSelectorControlPropertyItemKind`
 	public func kindOfItem(_ itemID: UInt32) throws -> UInt32 {
 		var qualifier = itemID
-		return try getProperty(PropertyAddress(kAudioSelectorControlPropertyItemKind), type: UInt32.self, qualifier: PropertyQualifier(&qualifier))
+		return try getProperty(PropertyAddress(kAudioSelectorControlPropertyItemKind), qualifier: PropertyQualifier(&qualifier))
 	}
 }
 
@@ -79,8 +78,7 @@ extension SelectorControl.Item: CustomDebugStringConvertible {
 	public var debugDescription: String {
 		if let name = try? name() {
 			return "<\(type(of: self)): '\(id.fourCC)' \"\(name)\" on SelectorControl 0x\(String(control.objectID, radix: 16, uppercase: false))>"
-		}
-		else {
+		} else {
 			return "<\(type(of: self)): '\(id.fourCC)' on SelectorControl 0x\(String(control.objectID, radix: 16, uppercase: false)))>"
 		}
 	}
@@ -102,10 +100,11 @@ extension SelectorControl {
 
 	/// Registers `block` to be performed when `selector` changes
 	/// - parameter selector: The selector of the desired property
+	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<SelectorControl>, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<SelectorControl>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
 	}
 }
 

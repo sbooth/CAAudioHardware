@@ -153,13 +153,7 @@ public struct PropertyAddress: RawRepresentable {
 
 extension PropertyAddress: Hashable {
 	public static func == (lhs: PropertyAddress, rhs: PropertyAddress) -> Bool {
-		let l = lhs.rawValue
-		let r = rhs.rawValue
-		return l.mSelector == r.mSelector && l.mScope == r.mScope && l.mElement == r.mElement
-		// Congruence?
-//		return ((l.mSelector == r.mSelector) 	|| (l.mSelector == kAudioObjectPropertySelectorWildcard) 	|| (r.mSelector == kAudioObjectPropertySelectorWildcard))
-//			&& ((l.mScope == r.mScope) 			|| (l.mScope == kAudioObjectPropertyScopeWildcard) 			|| (r.mScope == kAudioObjectPropertyScopeWildcard))
-//			&& ((l.mElement == r.mElement) 		|| (l.mElement == kAudioObjectPropertyElementWildcard) 		|| (r.mElement == kAudioObjectPropertyElementWildcard))
+		lhs.rawValue.mSelector == rhs.rawValue.mSelector && lhs.rawValue.mScope == rhs.rawValue.mScope && lhs.rawValue.mElement == rhs.rawValue.mElement
 	}
 
 	public func hash(into hasher: inout Hasher) {
@@ -191,6 +185,38 @@ public struct PropertyQualifier {
 	public init<T>(_ value: UnsafePointer<T>) {
 		self.value = UnsafeRawPointer(value)
 		self.size = UInt32(MemoryLayout<T>.stride)
+	}
+}
+
+// MARK: - Congruence Relations
+
+infix operator ~==: ComparisonPrecedence
+extension PropertySelector {
+	public static func ~== (lhs: PropertySelector, rhs: PropertySelector) -> Bool {
+		lhs.rawValue == rhs.rawValue || lhs.rawValue == kAudioObjectPropertySelectorWildcard || rhs.rawValue == kAudioObjectPropertySelectorWildcard
+	}
+}
+
+extension PropertyScope {
+	public static func ~== (lhs: PropertyScope, rhs: PropertyScope) -> Bool {
+		lhs.rawValue == rhs.rawValue || lhs.rawValue == kAudioObjectPropertyScopeWildcard || rhs.rawValue == kAudioObjectPropertyScopeWildcard
+	}
+}
+
+extension PropertyElement {
+	public static func ~== (lhs: PropertyElement, rhs: PropertyElement) -> Bool {
+		lhs.rawValue == rhs.rawValue || lhs.rawValue == kAudioObjectPropertyElementWildcard || rhs.rawValue == kAudioObjectPropertyElementWildcard
+	}
+}
+
+extension PropertyAddress {
+	public static func ~== (lhs: PropertyAddress, rhs: PropertyAddress) -> Bool {
+//		lhs.selector ~== rhs.selector && lhs.scope ~== rhs.scope && lhs.element ~== rhs.element
+		let l = lhs.rawValue
+		let r = rhs.rawValue
+		return (l.mSelector == r.mSelector || l.mSelector == kAudioObjectPropertySelectorWildcard || r.mSelector == kAudioObjectPropertySelectorWildcard)
+		&& (l.mScope == r.mScope || l.mScope == kAudioObjectPropertyScopeWildcard || r.mScope == kAudioObjectPropertyScopeWildcard)
+		&& (l.mElement == r.mElement || l.mElement == kAudioObjectPropertyElementWildcard || r.mElement == kAudioObjectPropertyElementWildcard)
 	}
 }
 
@@ -259,7 +285,7 @@ public func writeAudioObjectProperty<T>(_ property: PropertyAddress, on objectID
 /// - parameter qualifier: An optional property qualifier
 /// - parameter initialValue: An optional initial value for `outData` when calling `AudioObjectGetPropertyData`
 /// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
+public func getAudioObjectProperty<T: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type = T.self, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
 	var value = initialValue
 	try readAudioObjectProperty(property, from: objectID, into: &value, qualifier: qualifier)
 	return value
@@ -272,7 +298,7 @@ public func getAudioObjectProperty<T: Numeric>(_ property: PropertyAddress, from
 /// - parameter type: The underlying `CFType`
 /// - parameter qualifier: An optional property qualifier
 /// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type, qualifier: PropertyQualifier? = nil) throws -> T {
+public func getAudioObjectProperty<T: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> T {
 	var value: Unmanaged<T>?
 	try readAudioObjectProperty(property, from: objectID, into: &value, qualifier: qualifier)
 	return value!.takeRetainedValue()
@@ -287,7 +313,7 @@ public func getAudioObjectProperty<T: CFTypeRef>(_ property: PropertyAddress, fr
 /// - parameter type: The underlying array element type
 /// - parameter qualifier: An optional property qualifier
 /// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T>(_ property: PropertyAddress, from objectID: AudioObjectID, elementType type: T.Type, qualifier: PropertyQualifier? = nil) throws -> [T] {
+public func getAudioObjectProperty<T>(_ property: PropertyAddress, from objectID: AudioObjectID, elementType type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> [T] {
 	let dataSize = try audioObjectPropertySize(property, from: objectID, qualifier: qualifier)
 	let count = dataSize / MemoryLayout<T>.stride
 	let array = try [T](unsafeUninitializedCapacity: count) { (buffer, initializedCount) in
@@ -323,19 +349,44 @@ extension UInt32 {
 
 extension PropertySelector: CustomStringConvertible {
 	public var description: String {
-		return "'\(rawValue.fourCC)'"
+		switch rawValue {
+		case kAudioObjectPropertySelectorWildcard:
+			return "wildcard"
+		default:
+			return "'\(rawValue.fourCC)'"
+		}
 	}
 }
 
 extension PropertyScope: CustomStringConvertible {
 	public var description: String {
-		return "'\(rawValue.fourCC)'"
+		switch rawValue {
+		case kAudioObjectPropertyScopeGlobal:
+			return "global"
+		case kAudioObjectPropertyScopeInput:
+			return "input"
+		case kAudioObjectPropertyScopeOutput:
+			return "output"
+		case kAudioObjectPropertyScopePlayThrough:
+			return "playthrough"
+		case kAudioObjectPropertyScopeWildcard:
+			return "wildcard"
+		default:
+			return "'\(rawValue.fourCC)'"
+		}
 	}
 }
 
 extension PropertyElement: CustomStringConvertible {
 	public var description: String {
-		return rawValue == kAudioObjectPropertyElementMain ? "main" : "\(rawValue)"
+		switch rawValue {
+		case kAudioObjectPropertyElementMain:
+			return "main"
+		case kAudioObjectPropertyElementWildcard:
+			return "wildcard"
+		default:
+			return "\(rawValue)"
+		}
 	}
 }
 
