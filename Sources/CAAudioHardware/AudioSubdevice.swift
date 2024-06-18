@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2023 Stephen F. Booth <me@sbooth.org>
+// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -44,7 +44,7 @@ extension AudioSubdevice {
 
 extension AudioSubdevice {
 	/// A thin wrapper around a HAL audio subdevice drift compensation quality setting
-	public struct DriftCompensationQuality: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
+	public struct DriftCompensationQuality: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Sendable {
 		/// Minimum quality
 		@available(macOS 13, *)
 		public static let min 		= DriftCompensationQuality(rawValue: kAudioSubDeviceDriftCompensationMinQuality)

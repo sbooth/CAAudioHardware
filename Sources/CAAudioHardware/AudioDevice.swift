@@ -996,7 +996,7 @@ extension AudioDevice {
 
 extension AudioDevice {
 	/// A thin wrapper around a HAL audio device transport type
-	public struct TransportType: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
+	public struct TransportType: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Sendable {
 		/// Unknown
 		public static let unknown 			= TransportType(rawValue: kAudioDeviceTransportTypeUnknown)
 		/// Built-in

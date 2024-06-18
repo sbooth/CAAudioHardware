@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2023 Stephen F. Booth <me@sbooth.org>
+// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -92,7 +92,7 @@ extension AudioStream {
 
 extension AudioStream {
 	/// A thin wrapper around a HAL audio stream terminal type
-	public struct TerminalType: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
+	public struct TerminalType: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Sendable {
 		/// Unknown
 		public static let unknown 					= TerminalType(rawValue: kAudioStreamTerminalTypeUnknown)
 		/// Line level
