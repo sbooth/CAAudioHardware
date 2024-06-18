@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2023 Stephen F. Booth <me@sbooth.org>
+// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -332,22 +332,6 @@ extension AudioObject {
 
 // MARK: - Helpers
 
-extension AudioObjectPropertyAddress: Hashable {
-	public static func == (lhs: AudioObjectPropertyAddress, rhs: AudioObjectPropertyAddress) -> Bool {
-		return lhs.mSelector == rhs.mSelector && lhs.mScope == rhs.mScope && lhs.mElement == rhs.mElement
-		// Congruence?
-//		return ((lhs.mSelector == rhs.mSelector) 	|| (lhs.mSelector == kAudioObjectPropertySelectorWildcard) 	|| (rhs.mSelector == kAudioObjectPropertySelectorWildcard))
-//			&& ((lhs.mScope == rhs.mScope) 			|| (lhs.mScope == kAudioObjectPropertyScopeWildcard) 		|| (rhs.mScope == kAudioObjectPropertyScopeWildcard))
-//			&& ((lhs.mElement == rhs.mElement) 		|| (lhs.mElement == kAudioObjectPropertyElementWildcard) 	|| (rhs.mElement == kAudioObjectPropertyElementWildcard))
-	}
-
-	public func hash(into hasher: inout Hasher) {
-		hasher.combine(mSelector)
-		hasher.combine(mScope)
-		hasher.combine(mElement)
-	}
-}
-
 /// Returns the value of `kAudioObjectPropertyClass` for `objectID`
 func AudioObjectClass(_ objectID: AudioObjectID) throws -> AudioClassID {
 	var value: AudioClassID = 0
@@ -485,7 +469,7 @@ extension AudioObject {
 // MARK: -
 
 /// A thin wrapper around a HAL audio object property selector for a specific `AudioObject` subclass
-public struct AudioObjectSelector<T: AudioObject> {
+public struct AudioObjectSelector<T: AudioObject>: Sendable {
 	/// The underlying `AudioObjectPropertySelector` value
 	let rawValue: AudioObjectPropertySelector
 
