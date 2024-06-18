@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2023 Stephen F. Booth <me@sbooth.org>
+// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -13,7 +13,7 @@ import CoreAudio
 /// - remark: This class correponds to the object with id `kAudioObjectSystemObject` and class `kAudioSystemObjectClassID`
 public class AudioSystemObject: AudioObject {
 	/// The singleton audio system object
-	public static var instance = AudioSystemObject()
+	public static let instance = AudioSystemObject()
 
 	@available(*, unavailable, message: "Use instance instead")
 	private override init(_ objectID: AudioObjectID) {
