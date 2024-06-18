@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2023 Stephen F. Booth <me@sbooth.org>
+// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -9,7 +9,7 @@ import CoreAudio
 import os.log
 
 /// A thin wrapper around a HAL audio object property selector
-public struct PropertySelector: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
+public struct PropertySelector: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Sendable {
 	public let rawValue: AudioObjectPropertySelector
 
 	/// Creates a new instance with the specified value
@@ -37,7 +37,7 @@ extension PropertySelector {
 }
 
 /// A thin wrapper around a HAL audio object property scope
-public struct PropertyScope: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
+public struct PropertyScope: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Sendable {
 	public let rawValue: AudioObjectPropertyScope
 
 	/// Creates a new instance with the specified value
@@ -73,7 +73,7 @@ extension PropertyScope {
 }
 
 /// A thin wrapper around a HAL audio object property element
-public struct PropertyElement: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
+public struct PropertyElement: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Sendable {
 	public let rawValue: AudioObjectPropertyElement
 
 	/// Creates a new instance with the specified value
@@ -106,7 +106,7 @@ extension PropertyElement {
 }
 
 /// A thin wrapper around a HAL audio object property address
-public struct PropertyAddress: RawRepresentable {
+public struct PropertyAddress: RawRepresentable, Sendable {
 	public let rawValue: AudioObjectPropertyAddress
 
 	/// Creates a new instance with the specified value
