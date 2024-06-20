@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2006 - 2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2006-2023 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
