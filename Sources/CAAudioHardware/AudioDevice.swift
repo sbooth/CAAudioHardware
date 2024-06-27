@@ -16,25 +16,25 @@ public class AudioDevice: AudioObject {
 	/// Returns the available audio devices
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDevices` on `kAudioObjectSystemObject`
 	public class func devices() throws -> [AudioDevice] {
-		try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDevices)).map { try AudioObject.make($0).cast() }
+		return try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDevices), from: AudioObjectID(kAudioObjectSystemObject)).map { try makeAudioDevice($0) }
 	}
 
 	/// Returns the default input device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultInputDevice` on `kAudioObjectSystemObject`
 	public class func defaultInputDevice() throws -> AudioDevice {
-		return try AudioObject.make(AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDefaultInputDevice))).cast()
+		return try makeAudioDevice(getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDefaultInputDevice), from: AudioObjectID(kAudioObjectSystemObject)))
 	}
 
 	/// Returns the default output device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultOutputDevice` on `kAudioObjectSystemObject`
 	public class func defaultOutputDevice() throws -> AudioDevice {
-		return try AudioObject.make( AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice))).cast()
+		return try makeAudioDevice(getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice), from: AudioObjectID(kAudioObjectSystemObject)))
 	}
 
 	/// Returns the default system output device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultSystemOutputDevice` on `kAudioObjectSystemObject`
 	public class func defaultSystemOutputDevice() throws -> AudioDevice {
-		return try AudioObject.make( AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice))).cast()
+		return try makeAudioDevice(getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice), from: AudioObjectID(kAudioObjectSystemObject)))
 	}
 
 	/// Returns an initialized `AudioDevice` with `uid` or `nil` if unknown
@@ -44,7 +44,7 @@ public class AudioDevice: AudioObject {
 		guard let objectID = try AudioSystemObject.instance.deviceID(forUID: uid) else {
 			return nil
 		}
-		return try AudioObject.make(objectID).cast()
+		return try makeAudioDevice(objectID)
 	}
 
 	/// Returns `true` if the device supports input
@@ -101,7 +101,7 @@ extension AudioDevice {
 	/// Returns related audio devices
 	/// - remark: This corresponds to the property `kAudioDevicePropertyRelatedDevices`
 	public func relatedDevices() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyRelatedDevices)).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioDevicePropertyRelatedDevices)).map { try makeAudioDevice($0) }
 	}
 
 	/// Returns the clock domain
@@ -153,13 +153,14 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertyStreams`
 	/// - parameter scope: The desired scope
 	public func streams(inScope scope: PropertyScope) throws -> [AudioStream] {
-		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyStreams), scope: scope)).map { try AudioObject.make($0).cast() }
+		// Revisit if a subclass of `AudioStream` is added
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyStreams), scope: scope)).map { AudioStream($0) }
 	}
 
 	/// Returns the device's audio controls
 	/// - remark: This corresponds to the property `kAudioObjectPropertyControlList`
 	public func controlList() throws -> [AudioControl] {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyControlList)).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioObjectPropertyControlList)).map { try makeAudioControl($0, baseClass: AudioObjectBaseClass($0)) }
 	}
 
 	/// Returns the safety offset
@@ -1435,4 +1436,25 @@ extension AudioObjectSelector where T == AudioDevice {
 	/// The property selector `kAudioDevicePropertyVoiceActivityDetectionState`
 	@available(macOS 14, *)
 	public static let voiceActivityDetectionState = AudioObjectSelector(kAudioDevicePropertyVoiceActivityDetectionState)
+}
+
+// MARK: -
+
+/// Creates and returns an initialized `AudioDevice` or subclass.
+func makeAudioDevice(_ objectID: AudioObjectID) throws -> AudioDevice {
+	precondition(objectID != kAudioObjectUnknown)
+	precondition(objectID != kAudioObjectSystemObject)
+
+	let objectClass = try AudioObjectClass(objectID)
+
+	switch objectClass {
+	case kAudioDeviceClassID: 			return AudioDevice(objectID)
+	case kAudioAggregateDeviceClassID: 	return AudioAggregateDevice(objectID)
+	case kAudioEndPointDeviceClassID:	return AudioEndpointDevice(objectID)
+	case kAudioEndPointClassID:			return AudioEndpoint(objectID)
+	case kAudioSubDeviceClassID:		return AudioSubdevice(objectID)
+	default:
+		os_log(.debug, log: audioObjectLog, "Unknown audio device class '%{public}@'", objectClass.fourCC)
+		return AudioDevice(objectID)
+	}
 }

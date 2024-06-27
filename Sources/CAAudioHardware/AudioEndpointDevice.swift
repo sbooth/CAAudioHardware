@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -22,7 +22,8 @@ extension AudioEndpointDevice {
 	/// Returns the audio endpoints owned by `self`
 	/// - remark: This corresponds to the property `kAudioEndPointDevicePropertyEndPointList`
 	public func endpointList() throws -> [AudioEndpoint] {
-		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyEndPointList)).map { try AudioObject.make($0).cast() }
+		// Revisit if a subclass of `AudioEndpoint` is added
+		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyEndPointList)).map { AudioEndpoint($0) }
 	}
 
 	/// Returns the owning `pid_t`or `0` for public devices
