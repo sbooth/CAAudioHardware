@@ -162,7 +162,7 @@ func makeSelectorControl(_ objectID: AudioObjectID) throws -> SelectorControl {
 	case kAudioLineLevelControlClassID: 		return LineLevelControl(objectID)
 	case kAudioHighPassFilterControlClassID: 	return HighPassFilterControl(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown selector control class '%{public}@'", objectClass.fourCC)
+		os_log(.debug, log: audioObjectLog, "Unknown selector control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
 		return SelectorControl(objectID)
 	}
 }

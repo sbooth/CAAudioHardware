@@ -394,7 +394,7 @@ extension AudioObject {
 		case kAudioStreamClassID: 			return AudioStream(objectID) 			// Revisit if a subclass of `AudioStream` is added
 
 		default:
-			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@'", objectBaseClass.fourCC)
+			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@' for audio object 0x%{public}@", objectBaseClass.fourCC, String(objectID, radix: 16, uppercase: false))
 			return AudioObject(objectID)
 		}
 	}
@@ -504,7 +504,7 @@ func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
 	case kAudioPlugInClassID: 		return AudioPlugIn(objectID)
 	case kAudioStreamClassID: 		return AudioStream(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@'", objectClass.fourCC)
+		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
 		return AudioObject(objectID)
 	}
 }

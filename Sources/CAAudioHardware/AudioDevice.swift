@@ -1457,7 +1457,7 @@ func makeAudioDevice(_ objectID: AudioObjectID) throws -> AudioDevice {
 	case kAudioEndPointClassID:			return AudioEndpoint(objectID)
 	case kAudioSubDeviceClassID:		return AudioSubdevice(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown audio device class '%{public}@'", objectClass.fourCC)
+		os_log(.debug, log: audioObjectLog, "Unknown audio device class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
 		return AudioDevice(objectID)
 	}
 }

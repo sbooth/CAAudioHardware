@@ -129,7 +129,7 @@ func makeLevelControl(_ objectID: AudioObjectID) throws -> LevelControl {
 	case kAudioVolumeControlClassID: 			return VolumeControl(objectID)
 	case kAudioLFEVolumeControlClassID: 		return LFEVolumeControl(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown level control class '%{public}@'", objectClass.fourCC)
+		os_log(.debug, log: audioObjectLog, "Unknown level control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
 		return LevelControl(objectID)
 	}
 }
