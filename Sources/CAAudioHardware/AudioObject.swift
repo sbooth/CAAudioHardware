@@ -285,9 +285,9 @@ extension AudioObject {
 	/// - remark: This corresponds to the property `kAudioObjectPropertyOwnedObjects`
 	/// - parameter type: An optional array of `AudioClassID`s to which the returned objects will be restricted
 	public func ownedObjects(ofType type: [AudioClassID]? = nil) throws -> [AudioObject] {
-		if type != nil {
-			var qualifierData = type!
-			let qualifierDataSize = MemoryLayout<AudioClassID>.stride * type!.count
+		if let type {
+			var qualifierData = type
+			let qualifierDataSize = MemoryLayout<AudioClassID>.stride * type.count
 			let qualifier = PropertyQualifier(value: &qualifierData, size: UInt32(qualifierDataSize))
 			return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), qualifier: qualifier).map { try AudioObject.make($0) }
 		}
