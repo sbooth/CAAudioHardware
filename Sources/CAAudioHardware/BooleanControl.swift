@@ -131,7 +131,7 @@ func makeBooleanControl(_ objectID: AudioObjectID) throws -> BooleanControl {
 	case kAudioTalkbackControlClassID:		return TalkbackControl(objectID)
 	case kAudioListenbackControlClassID: 	return ListenbackControl(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown boolean control class '%{public}@'", objectClass.fourCC)
+		os_log(.debug, log: audioObjectLog, "Unknown boolean control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
 		return BooleanControl(objectID)
 	}
 }
