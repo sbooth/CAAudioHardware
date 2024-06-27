@@ -1,11 +1,12 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
 
 import Foundation
 import CoreAudio
+import os.log
 
 /// A HAL audio selector control object
 /// - remark: This class correponds to objects with base class `kAudioSelectorControlClassID`
@@ -144,4 +145,24 @@ public class LineLevelControl: SelectorControl {
 /// A HAL audio high pass filter control
 /// - remark: This class correponds to objects with base class `kAudioHighPassFilterControlClassID`
 public class HighPassFilterControl: SelectorControl {
+}
+
+/// Creates and returns an initialized `SelectorControl` or subclass.
+func makeSelectorControl(_ objectID: AudioObjectID) throws -> SelectorControl {
+	precondition(objectID != kAudioObjectUnknown)
+	precondition(objectID != kAudioObjectSystemObject)
+
+	let objectClass = try AudioObjectClass(objectID)
+
+	switch objectClass {
+	case kAudioSelectorControlClassID: 			return SelectorControl(objectID)
+	case kAudioDataSourceControlClassID: 		return DataSourceControl(objectID)
+	case kAudioDataDestinationControlClassID: 	return DataDestinationControl(objectID)
+	case kAudioClockSourceControlClassID: 		return ClockSourceControl(objectID)
+	case kAudioLineLevelControlClassID: 		return LineLevelControl(objectID)
+	case kAudioHighPassFilterControlClassID: 	return HighPassFilterControl(objectID)
+	default:
+		os_log(.debug, log: audioObjectLog, "Unknown selector control class '%{public}@'", objectClass.fourCC)
+		return SelectorControl(objectID)
+	}
 }

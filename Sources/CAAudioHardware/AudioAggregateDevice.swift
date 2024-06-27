@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -25,9 +25,11 @@ public class AudioAggregateDevice: AudioDevice {
 		return AudioAggregateDevice(objectID)
 	}
 
+#if false
 	public func destroy() throws {
 		removeAllPropertyListeners()
 	}
+#endif
 
 	/// Destroys `device`
 	/// - note: Futher use of `device` following this function is undefined
@@ -53,7 +55,7 @@ extension AudioAggregateDevice {
 	/// Returns the active subdevices in the aggregate device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyActiveSubDeviceList`
 	public func activeSubdeviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyActiveSubDeviceList)).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyActiveSubDeviceList)).map { try makeAudioDevice($0) }
 	}
 
 	/// Returns the composition
@@ -65,20 +67,21 @@ extension AudioAggregateDevice {
 	/// Returns the main subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMainSubDevice`
 	public func mainSubdevice() throws -> AudioDevice {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice))).cast()
+		return try makeAudioDevice(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice)))
 	}
 
 	/// Returns the master subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMasterSubDevice`
 	@available(macOS, introduced: 10.0, deprecated: 12.0, renamed: "mainSubdevice")
 	public func masterSubdevice() throws -> AudioDevice {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice))).cast()
+		return try makeAudioDevice(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice)))
 	}
 
 	/// Returns the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`
 	public func clockDevice() throws -> AudioClockDevice {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice))).cast()
+		// Revisit if a subclass of `AudioClockDevice` is added
+		return AudioClockDevice(try getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice)))
 	}
 	/// Sets the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`
