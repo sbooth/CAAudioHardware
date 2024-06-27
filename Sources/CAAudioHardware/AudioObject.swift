@@ -363,25 +363,25 @@ extension AudioObject {
 			return AudioSystemObject.instance
 		}
 
-		let objectBaseClass = try AudioObjectBaseClass(objectID)
+		let baseClass = try AudioObjectBaseClass(objectID)
 
-		switch objectBaseClass {
+		switch baseClass {
 		case kAudioObjectClassID: 			return try makeAudioObject(objectID);
 
 		case kAudioBoxClassID: 				return AudioBox(objectID) 				// Revisit if a subclass of `AudioBox` is added
 		case kAudioClockDeviceClassID: 		return AudioClockDevice(objectID) 		// Revisit if a subclass of `AudioClockDevice` is added
 
-		case kAudioControlClassID: 			return try makeAudioControl(objectID, baseClass: objectBaseClass)
-		case kAudioBooleanControlClassID: 	return try makeAudioControl(objectID, baseClass: objectBaseClass)
-		case kAudioLevelControlClassID: 	return try makeAudioControl(objectID, baseClass: objectBaseClass)
-		case kAudioSelectorControlClassID: 	return try makeAudioControl(objectID, baseClass: objectBaseClass)
+		case kAudioControlClassID: 			return try makeAudioControl(objectID, baseClass: baseClass)
+		case kAudioBooleanControlClassID: 	return try makeAudioControl(objectID, baseClass: baseClass)
+		case kAudioLevelControlClassID: 	return try makeAudioControl(objectID, baseClass: baseClass)
+		case kAudioSelectorControlClassID: 	return try makeAudioControl(objectID, baseClass: baseClass)
 
 		case kAudioDeviceClassID: 			return try makeAudioDevice(objectID)
 		case kAudioPlugInClassID: 			return try makeAudioPlugIn(objectID)
 		case kAudioStreamClassID: 			return AudioStream(objectID) 			// Revisit if a subclass of `AudioStream` is added
 
 		default:
-			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@' for audio object 0x%{public}@", objectBaseClass.fourCC, String(objectID, radix: 16, uppercase: false))
+			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@' for audio object 0x%{public}@", baseClass.fourCC, String(objectID, radix: 16, uppercase: false))
 			return AudioObject(objectID)
 		}
 	}
