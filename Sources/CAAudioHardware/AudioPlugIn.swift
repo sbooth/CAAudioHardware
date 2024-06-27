@@ -181,7 +181,7 @@ func makeAudioPlugIn(_ objectID: AudioObjectID) throws -> AudioPlugIn {
 	case kAudioPlugInClassID: 				return AudioPlugIn(objectID)
 	case kAudioTransportManagerClassID: 	return AudioTransportManager(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown audio plug-in class '%{public}@'", objectClass.fourCC)
+		os_log(.debug, log: audioObjectLog, "Unknown audio plug-in class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
 		return AudioPlugIn(objectID)
 	}
 }
