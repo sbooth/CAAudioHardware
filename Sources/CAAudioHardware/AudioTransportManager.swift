@@ -23,9 +23,12 @@ public class AudioTransportManager: AudioPlugIn {
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyTranslateBundleIDToTransportManager` on `kAudioObjectSystemObject`
 	/// - parameter bundleID: The bundle ID of the desired transport manager
 	public class func makeTransportManager(forBundleID bundleID: String) throws -> AudioTransportManager? {
-		guard let objectID = try AudioSystemObject.instance.transportManagerID(forBundleID: bundleID) else {
+		var qualifier = bundleID as CFString
+		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslateBundleIDToTransportManager), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
+		guard objectID != kAudioObjectUnknown else {
 			return nil
 		}
+
 		// Revisit if a subclass of `AudioTransportManager` is added
 		return AudioTransportManager(objectID)
 	}
