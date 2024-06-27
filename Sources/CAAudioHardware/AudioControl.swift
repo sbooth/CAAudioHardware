@@ -1,11 +1,12 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
 
 import Foundation
 import CoreAudio
+import os.log
 
 /// A HAL audio control object
 ///
@@ -65,4 +66,34 @@ extension AudioObjectSelector where T == AudioControl {
 	public static let scope = AudioObjectSelector(kAudioControlPropertyScope)
 	/// The property selector `kAudioControlPropertyElement`
 	public static let element = AudioObjectSelector(kAudioControlPropertyElement)
+}
+
+// MARK: -
+
+/// Creates and returns an initialized `AudioControl` or subclass.
+func makeAudioControl(_ objectID: AudioObjectID, baseClass: AudioClassID /*= kAudioControlClassID*/) throws -> AudioControl {
+	precondition(objectID != kAudioObjectUnknown)
+	precondition(objectID != kAudioObjectSystemObject)
+
+	let objectClass = try AudioObjectClass(objectID)
+
+	switch baseClass {
+	case kAudioControlClassID:
+		switch objectClass {
+		case kAudioBooleanControlClassID:		return BooleanControl(objectID)
+		case kAudioLevelControlClassID:			return LevelControl(objectID)
+		case kAudioSelectorControlClassID: 		return SelectorControl(objectID)
+		case kAudioSliderControlClassID:		return SliderControl(objectID)
+		case kAudioStereoPanControlClassID: 	return StereoPanControl(objectID)
+		default:
+			os_log(.debug, log: audioObjectLog, "Unknown audio control class '%{public}@'", objectClass.fourCC)
+			return AudioControl(objectID)
+		}
+	case kAudioBooleanControlClassID: 	return try makeBooleanControl(objectID)
+	case kAudioLevelControlClassID: 	return try makeLevelControl(objectID)
+	case kAudioSelectorControlClassID: 	return try makeSelectorControl(objectID)
+	default:
+		os_log(.debug, log: audioObjectLog, "Unknown audio control base class '%{public}@'", baseClass.fourCC)
+		return AudioControl(objectID)
+	}
 }

@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -15,7 +15,8 @@ public class AudioClockDevice: AudioObject {
 	/// Returns the available audio clock devices
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyClockDeviceList` on `kAudioObjectSystemObject`
 	public class func clockDevices() throws -> [AudioClockDevice] {
-		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyClockDeviceList)).map { try AudioObject.make($0).cast() }
+		// Revisit if a subclass of `AudioClockDevice` is added
+		return try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyClockDeviceList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioClockDevice($0) }
 	}
 
 	/// Returns an initialized `AudioClockDevice` with `uid` or `nil` if unknown
@@ -25,7 +26,8 @@ public class AudioClockDevice: AudioObject {
 		guard let objectID = try AudioSystemObject.instance.clockDeviceID(forUID: uid) else {
 			return nil
 		}
-		return try AudioObject.make(objectID).cast()
+		// Revisit if a subclass of `AudioClockDevice` is added
+		return AudioClockDevice(objectID)
 	}
 }
 
@@ -69,7 +71,7 @@ extension AudioClockDevice {
 	/// Returns the audio controls owned by `self`
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyControlList`
 	public func controlList() throws -> [AudioControl] {
-		return try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList)).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList)).map { try makeAudioControl($0, baseClass: AudioObjectBaseClass($0)) }
 	}
 
 	/// Returns the sample rate

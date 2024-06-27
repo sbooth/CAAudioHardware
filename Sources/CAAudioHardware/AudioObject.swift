@@ -128,17 +128,6 @@ public class AudioObject: CustomDebugStringConvertible {
 	}
 }
 
-extension AudioObject {
-	/// Attempts to cast `self` to the specified type and throws an error if the cast fails.
-	func cast<T: AudioObject>(to type: T.Type = T.self) throws -> T {
-		guard let object = self as? T else {
-			os_log(.error, log: audioObjectLog, "Could not cast %{public}@ to '%{public}@'", debugDescription, String(describing: T.self))
-			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError), userInfo: nil)
-		}
-		return object
-	}
-}
-
 extension AudioObject: Hashable {
 	public static func == (lhs: AudioObject, rhs: AudioObject) -> Bool {
 		return lhs.objectID == rhs.objectID
@@ -387,90 +376,22 @@ extension AudioObject {
 			return AudioSystemObject.instance
 		}
 
-		let objectClass = try AudioObjectClass(objectID)
 		let objectBaseClass = try AudioObjectBaseClass(objectID)
 
 		switch objectBaseClass {
-		case kAudioObjectClassID:
-			switch objectClass {
-			case kAudioBoxClassID: 			return AudioBox(objectID)
-			case kAudioClockDeviceClassID: 	return AudioClockDevice(objectID)
-			case kAudioControlClassID: 		return AudioControl(objectID)
-			case kAudioDeviceClassID: 		return AudioDevice(objectID)
-			case kAudioPlugInClassID: 		return AudioPlugIn(objectID)
-			case kAudioStreamClassID: 		return AudioStream(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@'", objectClass.fourCC)
-				return AudioObject(objectID)
-			}
+		case kAudioObjectClassID: 			return try makeAudioObject(objectID);
 
-		case kAudioControlClassID:
-			switch objectClass {
-			case kAudioBooleanControlClassID:		return BooleanControl(objectID)
-			case kAudioLevelControlClassID:			return LevelControl(objectID)
-			case kAudioSelectorControlClassID: 		return SelectorControl(objectID)
-			case kAudioSliderControlClassID:		return SliderControl(objectID)
-			case kAudioStereoPanControlClassID: 	return StereoPanControl(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown audio control class '%{public}@'", objectClass.fourCC)
-				return AudioControl(objectID)
-			}
+		case kAudioBoxClassID: 				return AudioBox(objectID) 				// Revisit if a subclass of `AudioBox` is added
+		case kAudioClockDeviceClassID: 		return AudioClockDevice(objectID) 		// Revisit if a subclass of `AudioClockDevice` is added
 
-		case kAudioBooleanControlClassID:
-			switch objectClass {
-			case kAudioMuteControlClassID: 			return MuteControl(objectID)
-			case kAudioSoloControlClassID:			return SoloControl(objectID)
-			case kAudioJackControlClassID:			return JackControl(objectID)
-			case kAudioLFEMuteControlClassID:		return LFEMuteControl(objectID)
-			case kAudioPhantomPowerControlClassID:	return PhantomPowerControl(objectID)
-			case kAudioPhaseInvertControlClassID:	return PhaseInvertControl(objectID)
-			case kAudioClipLightControlClassID:		return ClipLightControl(objectID)
-			case kAudioTalkbackControlClassID:		return TalkbackControl(objectID)
-			case kAudioListenbackControlClassID: 	return ListenbackControl(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown boolean control class '%{public}@'", objectClass.fourCC)
-				return BooleanControl(objectID)
-			}
+		case kAudioControlClassID: 			return try makeAudioControl(objectID, baseClass: objectBaseClass)
+		case kAudioBooleanControlClassID: 	return try makeAudioControl(objectID, baseClass: objectBaseClass)
+		case kAudioLevelControlClassID: 	return try makeAudioControl(objectID, baseClass: objectBaseClass)
+		case kAudioSelectorControlClassID: 	return try makeAudioControl(objectID, baseClass: objectBaseClass)
 
-		case kAudioLevelControlClassID:
-			switch objectClass {
-			case kAudioVolumeControlClassID: 			return VolumeControl(objectID)
-			case kAudioLFEVolumeControlClassID: 		return LFEVolumeControl(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown level control class '%{public}@'", objectClass.fourCC)
-				return LevelControl(objectID)
-			}
-
-		case kAudioSelectorControlClassID:
-			switch objectClass {
-			case kAudioDataSourceControlClassID: 		return DataSourceControl(objectID)
-			case kAudioDataDestinationControlClassID: 	return DataDestinationControl(objectID)
-			case kAudioClockSourceControlClassID: 		return ClockSourceControl(objectID)
-			case kAudioLineLevelControlClassID: 		return LineLevelControl(objectID)
-			case kAudioHighPassFilterControlClassID: 	return HighPassFilterControl(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown selector control class '%{public}@'", objectClass.fourCC)
-				return SelectorControl(objectID)
-			}
-
-		case kAudioDeviceClassID:
-			switch objectClass {
-			case kAudioAggregateDeviceClassID: 	return AudioAggregateDevice(objectID)
-			case kAudioEndPointDeviceClassID:	return AudioEndpointDevice(objectID)
-			case kAudioEndPointClassID:			return AudioEndpoint(objectID)
-			case kAudioSubDeviceClassID:		return AudioSubdevice(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown audio device class '%{public}@'", objectClass.fourCC)
-				return AudioDevice(objectID)
-			}
-
-		case kAudioPlugInClassID:
-			switch objectClass {
-			case kAudioTransportManagerClassID: 	return AudioTransportManager(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown audio plug-in class '%{public}@'", objectClass.fourCC)
-				return AudioPlugIn(objectID)
-			}
+		case kAudioDeviceClassID: 			return try makeAudioDevice(objectID)
+		case kAudioPlugInClassID: 			return try makeAudioPlugIn(objectID)
+		case kAudioStreamClassID: 			return AudioStream(objectID) 			// Revisit if a subclass of `AudioStream` is added
 
 		default:
 			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@'", objectBaseClass.fourCC)
@@ -562,5 +483,28 @@ extension AudioObjectSelector where T == AudioObject {
 extension AudioObjectSelector: CustomStringConvertible {
 	public var description: String {
 		return "\(type(of: T.self)): '\(rawValue.fourCC)'"
+	}
+}
+
+// MARK: -
+
+/// Creates and returns an initialized `AudioObject` or subclass.
+func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
+	precondition(objectID != kAudioObjectUnknown)
+	precondition(objectID != kAudioObjectSystemObject)
+
+	let objectClass = try AudioObjectClass(objectID)
+
+	switch objectClass {
+	case kAudioObjectClassID: 		return AudioObject(objectID)
+	case kAudioBoxClassID: 			return AudioBox(objectID)
+	case kAudioClockDeviceClassID: 	return AudioClockDevice(objectID)
+	case kAudioControlClassID: 		return AudioControl(objectID)
+	case kAudioDeviceClassID: 		return AudioDevice(objectID)
+	case kAudioPlugInClassID: 		return AudioPlugIn(objectID)
+	case kAudioStreamClassID: 		return AudioStream(objectID)
+	default:
+		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@'", objectClass.fourCC)
+		return AudioObject(objectID)
 	}
 }

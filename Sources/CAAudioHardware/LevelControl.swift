@@ -1,11 +1,12 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
 
 import Foundation
 import CoreAudio
+import os.log
 
 /// A HAL audio level control object
 /// - remark: This class correponds to objects with base class `kAudioLevelControlClassID`
@@ -112,4 +113,23 @@ public class VolumeControl: LevelControl {
 /// A HAL audio LFE volume control object
 /// - remark: This class correponds to objects with base class `kAudioLFEVolumeControlClassID`
 public class LFEVolumeControl: LevelControl {
+}
+
+// MARK: -
+
+/// Creates and returns an initialized `LevelControl` or subclass.
+func makeLevelControl(_ objectID: AudioObjectID) throws -> LevelControl {
+	precondition(objectID != kAudioObjectUnknown)
+	precondition(objectID != kAudioObjectSystemObject)
+
+	let objectClass = try AudioObjectClass(objectID)
+
+	switch objectClass {
+	case kAudioLevelControlClassID: 			return LevelControl(objectID)
+	case kAudioVolumeControlClassID: 			return VolumeControl(objectID)
+	case kAudioLFEVolumeControlClassID: 		return LFEVolumeControl(objectID)
+	default:
+		os_log(.debug, log: audioObjectLog, "Unknown level control class '%{public}@'", objectClass.fourCC)
+		return LevelControl(objectID)
+	}
 }

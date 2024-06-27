@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -15,7 +15,8 @@ public class AudioBox: AudioObject {
 	/// Returns the available audio boxes
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyBoxList` on `kAudioObjectSystemObject`
 	public class func boxes() throws -> [AudioBox] {
-		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyBoxList)).map { try AudioObject.make($0).cast() }
+		// Revisit if a subclass of `AudioBox` is added
+		return try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyBoxList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioBox($0) }
 	}
 
 	/// Returns an initialized `AudioBox` with `uid` or `nil` if unknown
@@ -25,7 +26,8 @@ public class AudioBox: AudioObject {
 		guard let objectID = try AudioSystemObject.instance.boxID(forUID: uid) else {
 			return nil
 		}
-		return try AudioObject.make(objectID).cast()
+		// Revisit if a subclass of `AudioBox` is added
+		return AudioBox(objectID)
 	}
 
 	// A textual representation of this instance, suitable for debugging.
@@ -94,13 +96,14 @@ extension AudioBox {
 	/// Returns the audio devices provided by the box
 	/// - remark: This corresponds to the property `kAudioBoxPropertyDeviceList`
 	public func deviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyDeviceList)).map { try AudioObject.make($0).cast() }
+		return try getProperty(PropertyAddress(kAudioBoxPropertyDeviceList)).map { try makeAudioDevice($0) }
 	}
 
 	/// Returns the audio clock devices provided by the box
 	/// - remark: This corresponds to the property `kAudioBoxPropertyClockDeviceList`
 	public func clockDeviceList() throws -> [AudioClockDevice] {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyClockDeviceList)).map { try AudioObject.make($0).cast() }
+		// Revisit if a subclass of `AudioClockDevice` is added
+		return try getProperty(PropertyAddress(kAudioBoxPropertyClockDeviceList)).map { AudioClockDevice($0) }
 	}
 }
 

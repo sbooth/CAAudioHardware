@@ -1,11 +1,12 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
 
 import Foundation
 import CoreAudio
+import os.log
 
 /// A HAL audio boolean control object
 /// - remark: This class correponds to objects with base class `kAudioBooleanControlClassID`
@@ -107,4 +108,30 @@ public class TalkbackControl: BooleanControl {
 /// A HAL audio listenback control object
 /// - remark: This class correponds to objects with base class `kAudioListenbackControlClassID`
 public class ListenbackControl: BooleanControl {
+}
+
+// MARK: -
+
+/// Creates and returns an initialized `BooleanControl` or subclass.
+func makeBooleanControl(_ objectID: AudioObjectID) throws -> BooleanControl {
+	precondition(objectID != kAudioObjectUnknown)
+	precondition(objectID != kAudioObjectSystemObject)
+
+	let objectClass = try AudioObjectClass(objectID)
+
+	switch objectClass {
+	case kAudioBooleanControlClassID: 		return BooleanControl(objectID)
+	case kAudioMuteControlClassID: 			return MuteControl(objectID)
+	case kAudioSoloControlClassID:			return SoloControl(objectID)
+	case kAudioJackControlClassID:			return JackControl(objectID)
+	case kAudioLFEMuteControlClassID:		return LFEMuteControl(objectID)
+	case kAudioPhantomPowerControlClassID:	return PhantomPowerControl(objectID)
+	case kAudioPhaseInvertControlClassID:	return PhaseInvertControl(objectID)
+	case kAudioClipLightControlClassID:		return ClipLightControl(objectID)
+	case kAudioTalkbackControlClassID:		return TalkbackControl(objectID)
+	case kAudioListenbackControlClassID: 	return ListenbackControl(objectID)
+	default:
+		os_log(.debug, log: audioObjectLog, "Unknown boolean control class '%{public}@'", objectClass.fourCC)
+		return BooleanControl(objectID)
+	}
 }
