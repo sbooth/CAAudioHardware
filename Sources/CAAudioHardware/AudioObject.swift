@@ -27,14 +27,19 @@ public class AudioObject: CustomDebugStringConvertible {
 	/// Registered audio object property listeners
 	private var propertyListeners = [PropertyAddress: PropertyListener]()
 
+	/// The lock protecting access to `propertyListeners`
+	private let lock = UnfairLock()
+
 	/// Removes all property listeners
 	/// - note: Errors are logged but otherwise ignored
 	func removeAllPropertyListeners() {
-		for (property, listener) in propertyListeners {
-			var address = property.rawValue
-			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
-			if result != kAudioHardwareNoError {
-				os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
+		lock.withLock {
+			for (property, listener) in propertyListeners {
+				var address = property.rawValue
+				let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
+				if result != kAudioHardwareNoError {
+					os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
+				}
 			}
 		}
 	}
@@ -80,7 +85,7 @@ public class AudioObject: CustomDebugStringConvertible {
 		var address = property.rawValue
 
 		// Remove the existing listener, if any, for the property
-		if let listener = propertyListeners.removeValue(forKey: property) {
+		if let listener = lock.withLock({ propertyListeners.removeValue(forKey: property) }) {
 			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
 			guard result == kAudioHardwareNoError else {
 				os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
@@ -111,7 +116,9 @@ public class AudioObject: CustomDebugStringConvertible {
 				throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
 			}
 
-			propertyListeners[property] = listener
+			lock.withLock {
+				propertyListeners[property] = listener
+			}
 		}
 	}
 
@@ -296,9 +303,9 @@ extension AudioObject {
 	/// - remark: This corresponds to the property `kAudioObjectPropertyOwnedObjects`
 	/// - parameter type: An optional array of `AudioClassID`s to which the returned objects will be restricted
 	public func ownedObjects(ofType type: [AudioClassID]? = nil) throws -> [AudioObject] {
-		if type != nil {
-			var qualifierData = type!
-			let qualifierDataSize = MemoryLayout<AudioClassID>.stride * type!.count
+		if let type {
+			var qualifierData = type
+			let qualifierDataSize = MemoryLayout<AudioClassID>.stride * type.count
 			let qualifier = PropertyQualifier(value: &qualifierData, size: UInt32(qualifierDataSize))
 			return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), qualifier: qualifier).map { try AudioObject.make($0) }
 		}
