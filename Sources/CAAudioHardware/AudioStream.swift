@@ -158,30 +158,6 @@ extension AudioStream.TerminalType: CustomDebugStringConvertible {
 	}
 }
 
-extension AudioStream {
-	/// Returns `true` if `self` has `selector`
-	/// - parameter selector: The selector of the desired property
-	public func hasSelector(_ selector: AudioObjectSelector<AudioStream>) -> Bool {
-		return hasProperty(PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Returns `true` if `selector` is settable
-	/// - parameter selector: The selector of the desired property
-	/// - throws: An error if `self` does not have the requested property
-	public func isSelectorSettable(_ selector: AudioObjectSelector<AudioStream>) throws -> Bool {
-		return try isPropertySettable(PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Registers `block` to be performed when `selector` changes
-	/// - parameter selector: The selector of the desired property
-	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
-	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
-	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioStream>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
-	}
-}
-
 extension AudioObjectSelector where T == AudioStream {
 	/// The property selector `kAudioStreamPropertyIsActive`
 	public static let isActive = AudioObjectSelector(kAudioStreamPropertyIsActive)

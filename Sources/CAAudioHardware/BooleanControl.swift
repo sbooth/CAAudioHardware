@@ -34,30 +34,6 @@ extension BooleanControl {
 	}
 }
 
-extension BooleanControl {
-	/// Returns `true` if `self` has `selector`
-	/// - parameter selector: The selector of the desired property
-	public func hasSelector(_ selector: AudioObjectSelector<BooleanControl>) -> Bool {
-		return hasProperty(PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Returns `true` if `selector` is settable
-	/// - parameter selector: The selector of the desired property
-	/// - throws: An error if `self` does not have the requested property
-	public func isSelectorSettable(_ selector: AudioObjectSelector<BooleanControl>) throws -> Bool {
-		return try isPropertySettable(PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Registers `block` to be performed when `selector` changes
-	/// - parameter selector: The selector of the desired property
-	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
-	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
-	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<BooleanControl>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
-	}
-}
-
 extension AudioObjectSelector where T == BooleanControl {
 	/// The property selector `kAudioBooleanControlPropertyValue`
 	public static let value = AudioObjectSelector(kAudioBooleanControlPropertyValue)
