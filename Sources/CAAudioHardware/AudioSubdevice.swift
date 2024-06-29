@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -32,13 +32,13 @@ extension AudioSubdevice {
 
 	/// Returns the drift compensation quality
 	/// - remark: This corresponds to the property `kAudioSubDevicePropertyDriftCompensationQuality`
-	public func driftCompensationQuality() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioSubDevicePropertyDriftCompensationQuality))
+	public func driftCompensationQuality() throws -> DriftCompensationQuality {
+		return DriftCompensationQuality(try getProperty(PropertyAddress(kAudioSubDevicePropertyDriftCompensationQuality), type: UInt32.self))
 	}
 	/// Sets the drift compensation quality
 	/// - remark: This corresponds to the property `kAudioSubDevicePropertyDriftCompensationQuality`
-	public func setDriftCompensationQuality(_ value: UInt32) throws {
-		try setProperty(PropertyAddress(kAudioSubDevicePropertyDriftCompensationQuality), to: value)
+	public func setDriftCompensationQuality(_ value: DriftCompensationQuality) throws {
+		try setProperty(PropertyAddress(kAudioSubDevicePropertyDriftCompensationQuality), to: value.rawValue)
 	}
 }
 
