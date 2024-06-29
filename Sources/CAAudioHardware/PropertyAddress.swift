@@ -8,17 +8,14 @@ import Foundation
 import CoreAudio
 
 /// A thin wrapper around a HAL audio object property address
-public struct PropertyAddress: RawRepresentable {
+public struct PropertyAddress {
+	/// The Core Audio `AudioObjectPropertyAddress`
 	public let rawValue: AudioObjectPropertyAddress
 
 	/// Creates a new instance with the specified value
 	/// - parameter value: The value to use for the new instance
 	public init(_ value: AudioObjectPropertyAddress) {
 		self.rawValue = value
-	}
-
-	public init(rawValue: AudioObjectPropertyAddress) {
-		self.rawValue = rawValue
 	}
 
 	/// The property's selector
