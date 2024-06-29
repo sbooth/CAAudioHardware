@@ -9,7 +9,7 @@ import CoreAudio
 
 /// A thin wrapper around a HAL audio object property selector
 public struct PropertySelector {
-	/// The Core Audio `AudioObjectPropertySelector`
+	/// The underlying Core Audio `AudioObjectPropertySelector`
 	public let rawValue: AudioObjectPropertySelector
 
 	/// Creates a new instance with the specified value

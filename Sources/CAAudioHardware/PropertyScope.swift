@@ -9,7 +9,7 @@ import CoreAudio
 
 /// A thin wrapper around a HAL audio object property scope
 public struct PropertyScope {
-	/// The Core Audio `AudioObjectPropertyScope`
+	/// The underlying Core Audio `AudioObjectPropertyScope`
 	public let rawValue: AudioObjectPropertyScope
 
 	/// Creates a new instance with the specified value

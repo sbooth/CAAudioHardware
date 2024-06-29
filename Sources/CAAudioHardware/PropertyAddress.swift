@@ -9,7 +9,7 @@ import CoreAudio
 
 /// A thin wrapper around a HAL audio object property address
 public struct PropertyAddress {
-	/// The Core Audio `AudioObjectPropertyAddress`
+	/// The underlying Core Audio `AudioObjectPropertyAddress`
 	public let rawValue: AudioObjectPropertyAddress
 
 	/// Creates a new instance with the specified value
