@@ -824,13 +824,13 @@ extension AudioDevice {
 	/// Returns the available play-through destinations
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestinations`
 	public func availablePlayThroughDestinations() throws -> [PlayThroughDestination] {
-		return try playThroughDestination().map { PlayThroughDestination(device: self, id: $0) }
+		return try playThroughDestinations().map { PlayThroughDestination(device: self, id: $0) }
 	}
 
 	/// Returns the selected play-through destinations
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestination`
 	public func selectedPlayThroughDestinations() throws -> [PlayThroughDestination] {
-		return try playThroughDestinations().map { PlayThroughDestination(device: self, id: $0) }
+		return try playThroughDestination().map { PlayThroughDestination(device: self, id: $0) }
 	}
 
 	/// Returns the IDs of the selected channel nominal line levels
