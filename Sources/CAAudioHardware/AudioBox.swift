@@ -57,7 +57,7 @@ extension AudioBox {
 	/// Returns the transport type
 	/// - remark: This corresponds to the property `kAudioBoxPropertyTransportType`
 	public func transportType() throws -> AudioDevice.TransportType {
-		return AudioDevice.TransportType(rawValue: try getProperty(PropertyAddress(kAudioBoxPropertyTransportType), type: UInt32.self))
+		return AudioDevice.TransportType(try getProperty(PropertyAddress(kAudioBoxPropertyTransportType), type: UInt32.self))
 	}
 
 	/// Returns `true` if the box has audio
