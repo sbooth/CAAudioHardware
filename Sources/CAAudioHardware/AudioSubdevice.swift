@@ -44,47 +44,56 @@ extension AudioSubdevice {
 
 extension AudioSubdevice {
 	/// A thin wrapper around a HAL audio subdevice drift compensation quality setting
-	public struct DriftCompensationQuality: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
-		/// Minimum quality
-		@available(macOS 13, *)
-		public static let min 		= DriftCompensationQuality(rawValue: kAudioSubDeviceDriftCompensationMinQuality)
-//		@available(macOS 14, *)
-//		public static let min 		= DriftCompensationQuality(rawValue: kAudioAggregateDriftCompensationMinQuality)
-		/// Low quality
-		@available(macOS 13, *)
-		public static let low 		= DriftCompensationQuality(rawValue: kAudioSubDeviceDriftCompensationLowQuality)
-//		@available(macOS 14, *)
-//		public static let low 		= DriftCompensationQuality(rawValue: kAudioAggregateDriftCompensationLowQuality)
-		/// Medium quality
-		@available(macOS 13, *)
-		public static let medium 	= DriftCompensationQuality(rawValue: kAudioSubDeviceDriftCompensationMediumQuality)
-//		@available(macOS 14, *)
-//		public static let medium 	= DriftCompensationQuality(rawValue: kAudioAggregateDriftCompensationMediumQuality)
-		/// High quality
-		@available(macOS 13, *)
-		public static let high 		= DriftCompensationQuality(rawValue: kAudioSubDeviceDriftCompensationHighQuality)
-//		@available(macOS 14, *)
-//		public static let high 		= DriftCompensationQuality(rawValue: kAudioAggregateDriftCompensationHighQuality)
-		/// Maximum quality
-		@available(macOS 13, *)
-		public static let max 		= DriftCompensationQuality(rawValue: kAudioSubDeviceDriftCompensationMaxQuality)
-//		@available(macOS 14, *)
-//		public static let max 		= DriftCompensationQuality(rawValue: kAudioAggregateDriftCompensationMaxQuality)
-
+	public struct DriftCompensationQuality: Equatable, Hashable, Sendable {
+		/// The underlying Core Audio audio subdevice drift compensation quality setting
 		public let rawValue: UInt32
 
-		public init(rawValue: UInt32) {
+		/// Creates a new instance with the specified value
+		/// - parameter value: The value to use for the new instance
+		public init(_ rawValue: UInt32) {
 			self.rawValue = rawValue
 		}
-
-		public init(integerLiteral value: UInt32) {
-			self.rawValue = value
-		}
-
-		public init(stringLiteral value: StringLiteralType) {
-			self.rawValue = value.fourCC
-		}
 	}
+}
+
+extension AudioSubdevice.DriftCompensationQuality: ExpressibleByIntegerLiteral {
+	public init(integerLiteral value: UInt32) {
+		self.rawValue = value
+	}
+}
+
+extension AudioSubdevice.DriftCompensationQuality: ExpressibleByStringLiteral {
+	public init(stringLiteral value: StringLiteralType) {
+		self.rawValue = value.fourCC
+	}
+}
+
+extension AudioSubdevice.DriftCompensationQuality {
+	/// Minimum quality
+	@available(macOS 13, *)
+	public static let min 		= AudioSubdevice.DriftCompensationQuality(kAudioSubDeviceDriftCompensationMinQuality)
+//	@available(macOS 14, *)
+//	public static let min 		= AudioSubdevice.DriftCompensationQuality(kAudioAggregateDriftCompensationMinQuality)
+	/// Low quality
+	@available(macOS 13, *)
+	public static let low 		= AudioSubdevice.DriftCompensationQuality(kAudioSubDeviceDriftCompensationLowQuality)
+//	@available(macOS 14, *)
+//	public static let low 		= AudioSubdevice.DriftCompensationQuality(kAudioAggregateDriftCompensationLowQuality)
+	/// Medium quality
+	@available(macOS 13, *)
+	public static let medium 	= AudioSubdevice.DriftCompensationQuality(kAudioSubDeviceDriftCompensationMediumQuality)
+//	@available(macOS 14, *)
+//	public static let medium 	= AudioSubdevice.DriftCompensationQuality(kAudioAggregateDriftCompensationMediumQuality)
+	/// High quality
+	@available(macOS 13, *)
+	public static let high 		= AudioSubdevice.DriftCompensationQuality(kAudioSubDeviceDriftCompensationHighQuality)
+//	@available(macOS 14, *)
+//	public static let high 		= AudioSubdevice.DriftCompensationQuality(kAudioAggregateDriftCompensationHighQuality)
+	/// Maximum quality
+	@available(macOS 13, *)
+	public static let max 		= AudioSubdevice.DriftCompensationQuality(kAudioSubDeviceDriftCompensationMaxQuality)
+//	@available(macOS 14, *)
+//	public static let max 		= AudioSubdevice.DriftCompensationQuality(kAudioAggregateDriftCompensationMaxQuality)
 }
 
 extension AudioSubdevice.DriftCompensationQuality: CustomDebugStringConvertible {

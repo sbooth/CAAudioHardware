@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -38,7 +38,7 @@ extension AudioStream {
 	/// Returns the terminal type
 	/// - remark: This corresponds to the property `kAudioStreamPropertyTerminalType`
 	public func terminalType() throws -> TerminalType {
-		return TerminalType(rawValue: try getProperty(PropertyAddress(kAudioStreamPropertyTerminalType), type: UInt32.self))
+		return AudioStream.TerminalType(try getProperty(PropertyAddress(kAudioStreamPropertyTerminalType), type: UInt32.self))
 	}
 
 	/// Returns the starting channel
@@ -92,48 +92,57 @@ extension AudioStream {
 
 extension AudioStream {
 	/// A thin wrapper around a HAL audio stream terminal type
-	public struct TerminalType: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
-		/// Unknown
-		public static let unknown 					= TerminalType(rawValue: kAudioStreamTerminalTypeUnknown)
-		/// Line level
-		public static let line 						= TerminalType(rawValue: kAudioStreamTerminalTypeLine)
-		/// Digital audio interface
-		public static let digitalAudioInterface 	= TerminalType(rawValue: kAudioStreamTerminalTypeDigitalAudioInterface)
-		/// Spekaer
-		public static let speaker 					= TerminalType(rawValue: kAudioStreamTerminalTypeSpeaker)
-		/// Headphones
-		public static let headphones 				= TerminalType(rawValue: kAudioStreamTerminalTypeHeadphones)
-		/// LFE speaker
-		public static let lfeSpeaker 				= TerminalType(rawValue: kAudioStreamTerminalTypeLFESpeaker)
-		/// Telephone handset speaker
-		public static let receiverSpeaker 			= TerminalType(rawValue: kAudioStreamTerminalTypeReceiverSpeaker)
-		/// Microphone
-		public static let microphone 				= TerminalType(rawValue: kAudioStreamTerminalTypeMicrophone)
-		/// Headset microphone
-		public static let headsetMicrophone 		= TerminalType(rawValue: kAudioStreamTerminalTypeHeadsetMicrophone)
-		/// Telephone handset microphone
-		public static let receiverMicrophone 		= TerminalType(rawValue: kAudioStreamTerminalTypeReceiverMicrophone)
-		/// TTY
-		public static let tty 						= TerminalType(rawValue: kAudioStreamTerminalTypeTTY)
-		/// HDMI
-		public static let hdmi 						= TerminalType(rawValue: kAudioStreamTerminalTypeHDMI)
-		/// DisplayPort
-		public static let displayPort 				= TerminalType(rawValue: kAudioStreamTerminalTypeDisplayPort)
-
+	public struct TerminalType: Equatable, Hashable, Sendable {
+		/// The underlying Core Audio audio stream terminal type
 		public let rawValue: UInt32
 
-		public init(rawValue: UInt32) {
+		/// Creates a new instance with the specified value
+		/// - parameter value: The value to use for the new instance
+		public init(_ rawValue: UInt32) {
 			self.rawValue = rawValue
 		}
-
-		public init(integerLiteral value: UInt32) {
-			self.rawValue = value
-		}
-
-		public init(stringLiteral value: StringLiteralType) {
-			self.rawValue = value.fourCC
-		}
 	}
+}
+
+extension AudioStream.TerminalType: ExpressibleByIntegerLiteral {
+	public init(integerLiteral value: UInt32) {
+		self.rawValue = value
+	}
+}
+
+extension AudioStream.TerminalType: ExpressibleByStringLiteral {
+	public init(stringLiteral value: StringLiteralType) {
+		self.rawValue = value.fourCC
+	}
+}
+
+extension AudioStream.TerminalType {
+	/// Unknown
+	public static let unknown 					= AudioStream.TerminalType(kAudioStreamTerminalTypeUnknown)
+	/// Line level
+	public static let line 						= AudioStream.TerminalType(kAudioStreamTerminalTypeLine)
+	/// Digital audio interface
+	public static let digitalAudioInterface 	= AudioStream.TerminalType(kAudioStreamTerminalTypeDigitalAudioInterface)
+	/// Spekaer
+	public static let speaker 					= AudioStream.TerminalType(kAudioStreamTerminalTypeSpeaker)
+	/// Headphones
+	public static let headphones 				= AudioStream.TerminalType(kAudioStreamTerminalTypeHeadphones)
+	/// LFE speaker
+	public static let lfeSpeaker 				= AudioStream.TerminalType(kAudioStreamTerminalTypeLFESpeaker)
+	/// Telephone handset speaker
+	public static let receiverSpeaker 			= AudioStream.TerminalType(kAudioStreamTerminalTypeReceiverSpeaker)
+	/// Microphone
+	public static let microphone 				= AudioStream.TerminalType(kAudioStreamTerminalTypeMicrophone)
+	/// Headset microphone
+	public static let headsetMicrophone 		= AudioStream.TerminalType(kAudioStreamTerminalTypeHeadsetMicrophone)
+	/// Telephone handset microphone
+	public static let receiverMicrophone 		= AudioStream.TerminalType(kAudioStreamTerminalTypeReceiverMicrophone)
+	/// TTY
+	public static let tty 						= AudioStream.TerminalType(kAudioStreamTerminalTypeTTY)
+	/// HDMI
+	public static let hdmi 						= AudioStream.TerminalType(kAudioStreamTerminalTypeHDMI)
+	/// DisplayPort
+	public static let displayPort 				= AudioStream.TerminalType(kAudioStreamTerminalTypeDisplayPort)
 }
 
 extension AudioStream.TerminalType: CustomDebugStringConvertible {

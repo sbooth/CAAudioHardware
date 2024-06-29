@@ -98,7 +98,7 @@ extension AudioDevice {
 	/// Returns the transport type
 	/// - remark: This corresponds to the property `kAudioDevicePropertyTransportType`
 	public func transportType() throws -> TransportType {
-		return TransportType(rawValue: try getProperty(PropertyAddress(kAudioDevicePropertyTransportType)))
+		return TransportType(try getProperty(PropertyAddress(kAudioDevicePropertyTransportType)))
 	}
 
 	/// Returns related audio devices
@@ -1000,57 +1000,66 @@ extension AudioDevice {
 
 extension AudioDevice {
 	/// A thin wrapper around a HAL audio device transport type
-	public struct TransportType: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
-		/// Unknown
-		public static let unknown 			= TransportType(rawValue: kAudioDeviceTransportTypeUnknown)
-		/// Built-in
-		public static let builtIn 			= TransportType(rawValue: kAudioDeviceTransportTypeBuiltIn)
-		/// Aggregate device
-		public static let aggregate 		= TransportType(rawValue: kAudioDeviceTransportTypeAggregate)
-		/// Virtual device
-		public static let virtual 			= TransportType(rawValue: kAudioDeviceTransportTypeVirtual)
-		/// PCI
-		public static let pci 				= TransportType(rawValue: kAudioDeviceTransportTypePCI)
-		/// USB
-		public static let usb 				= TransportType(rawValue: kAudioDeviceTransportTypeUSB)
-		/// FireWire
-		public static let fireWire 			= TransportType(rawValue: kAudioDeviceTransportTypeFireWire)
-		/// Bluetooth
-		public static let bluetooth 		= TransportType(rawValue: kAudioDeviceTransportTypeBluetooth)
-		/// Bluetooth Low Energy
-		public static let bluetoothLE 		= TransportType(rawValue: kAudioDeviceTransportTypeBluetoothLE)
-		/// HDMI
-		public static let hdmi 				= TransportType(rawValue: kAudioDeviceTransportTypeHDMI)
-		/// DisplayPort
-		public static let displayPort 		= TransportType(rawValue: kAudioDeviceTransportTypeDisplayPort)
-		/// AirPlay
-		public static let airPlay 			= TransportType(rawValue: kAudioDeviceTransportTypeAirPlay)
-		/// AVB
-		public static let avb 				= TransportType(rawValue: kAudioDeviceTransportTypeAVB)
-		/// Thunderbolt
-		public static let thunderbolt 		= TransportType(rawValue: kAudioDeviceTransportTypeThunderbolt)
-		/// Continuity Capture Wired
-		public static let continuityCaptureWired 		= TransportType(rawValue: kAudioDeviceTransportTypeContinuityCaptureWired)
-		/// Continuity Capture Wireless
-		public static let continuityCaptureWireless 	= TransportType(rawValue: kAudioDeviceTransportTypeContinuityCaptureWireless)
-		/// Continuity Capture
-		@available(macOS, introduced: 13.0, deprecated: 13.0, message: "Please use .continuityCaptureWired and .continuityCaptureWireless to describe Continuity Capture devices.")
-		public static let continuityCapture 			= TransportType(rawValue: kAudioDeviceTransportTypeContinuityCapture)
-
+	public struct TransportType: Equatable, Hashable, Sendable {
+		/// The underlying Core Audio audio device transport type
 		public let rawValue: UInt32
 
-		public init(rawValue: UInt32) {
-			self.rawValue = rawValue
-		}
-
-		public init(integerLiteral value: UInt32) {
+		/// Creates a new instance with the specified value
+		/// - parameter value: The value to use for the new instance
+		public init(_ value: UInt32) {
 			self.rawValue = value
 		}
-
-		public init(stringLiteral value: StringLiteralType) {
-			self.rawValue = value.fourCC
-		}
 	}
+}
+
+extension AudioDevice.TransportType: ExpressibleByIntegerLiteral {
+	public init(integerLiteral value: UInt32) {
+		self.rawValue = value
+	}
+}
+
+extension AudioDevice.TransportType: ExpressibleByStringLiteral {
+	public init(stringLiteral value: StringLiteralType) {
+		self.rawValue = value.fourCC
+	}
+}
+
+extension AudioDevice.TransportType {
+	/// Unknown
+	public static let unknown 			= AudioDevice.TransportType(kAudioDeviceTransportTypeUnknown)
+	/// Built-in
+	public static let builtIn 			= AudioDevice.TransportType(kAudioDeviceTransportTypeBuiltIn)
+	/// Aggregate device
+	public static let aggregate 		= AudioDevice.TransportType(kAudioDeviceTransportTypeAggregate)
+	/// Virtual device
+	public static let virtual 			= AudioDevice.TransportType(kAudioDeviceTransportTypeVirtual)
+	/// PCI
+	public static let pci 				= AudioDevice.TransportType(kAudioDeviceTransportTypePCI)
+	/// USB
+	public static let usb 				= AudioDevice.TransportType(kAudioDeviceTransportTypeUSB)
+	/// FireWire
+	public static let fireWire 			= AudioDevice.TransportType(kAudioDeviceTransportTypeFireWire)
+	/// Bluetooth
+	public static let bluetooth 		= AudioDevice.TransportType(kAudioDeviceTransportTypeBluetooth)
+	/// Bluetooth Low Energy
+	public static let bluetoothLE 		= AudioDevice.TransportType(kAudioDeviceTransportTypeBluetoothLE)
+	/// HDMI
+	public static let hdmi 				= AudioDevice.TransportType(kAudioDeviceTransportTypeHDMI)
+	/// DisplayPort
+	public static let displayPort 		= AudioDevice.TransportType(kAudioDeviceTransportTypeDisplayPort)
+	/// AirPlay
+	public static let airPlay 			= AudioDevice.TransportType(kAudioDeviceTransportTypeAirPlay)
+	/// AVB
+	public static let avb 				= AudioDevice.TransportType(kAudioDeviceTransportTypeAVB)
+	/// Thunderbolt
+	public static let thunderbolt 		= AudioDevice.TransportType(kAudioDeviceTransportTypeThunderbolt)
+	/// Continuity Capture Wired
+	public static let continuityCaptureWired 		= AudioDevice.TransportType(kAudioDeviceTransportTypeContinuityCaptureWired)
+	/// Continuity Capture Wireless
+	public static let continuityCaptureWireless 	= AudioDevice.TransportType(kAudioDeviceTransportTypeContinuityCaptureWireless)
+	/// Continuity Capture
+	@available(macOS, introduced: 13.0, deprecated: 13.0, message: "Please use .continuityCaptureWired and .continuityCaptureWireless to describe Continuity Capture devices.")
+	public static let continuityCapture 			= AudioDevice.TransportType(kAudioDeviceTransportTypeContinuityCapture)
 }
 
 extension AudioDevice.TransportType: CustomDebugStringConvertible {
