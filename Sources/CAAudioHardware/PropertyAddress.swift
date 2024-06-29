@@ -8,7 +8,8 @@ import Foundation
 import CoreAudio
 
 /// A thin wrapper around a HAL audio object property address
-public struct PropertyAddress: RawRepresentable {
+public struct PropertyAddress: Equatable, Hashable, Sendable {
+	/// The underlying Core Audio `AudioObjectPropertyAddress`
 	public let rawValue: AudioObjectPropertyAddress
 
 	/// Creates a new instance with the specified value
@@ -17,25 +18,20 @@ public struct PropertyAddress: RawRepresentable {
 		self.rawValue = value
 	}
 
-	public init(rawValue: AudioObjectPropertyAddress) {
-		self.rawValue = rawValue
+	// Equatable
+	public static func == (lhs: PropertyAddress, rhs: PropertyAddress) -> Bool {
+		lhs.rawValue.mSelector == rhs.rawValue.mSelector && lhs.rawValue.mScope == rhs.rawValue.mScope && lhs.rawValue.mElement == rhs.rawValue.mElement
 	}
 
-	/// The property's selector
-	public var selector: PropertySelector {
-		return PropertySelector(rawValue.mSelector)
+	// Hashable
+	public func hash(into hasher: inout Hasher) {
+		hasher.combine(rawValue.mSelector)
+		hasher.combine(rawValue.mScope)
+		hasher.combine(rawValue.mElement)
 	}
+}
 
-	/// The property's scope
-	public var scope: PropertyScope {
-		return PropertyScope(rawValue.mScope)
-	}
-
-	/// The property's element
-	public var element: PropertyElement {
-		return PropertyElement(rawValue.mElement)
-	}
-
+extension PropertyAddress {
 	/// Initializes a new `PropertyAddress` with the specified raw selector, scope, and element values
 	/// - parameter selector: The desired raw selector value
 	/// - parameter scope: The desired raw scope value
@@ -53,15 +49,20 @@ public struct PropertyAddress: RawRepresentable {
 	}
 }
 
-extension PropertyAddress: Hashable {
-	public static func == (lhs: PropertyAddress, rhs: PropertyAddress) -> Bool {
-		lhs.rawValue.mSelector == rhs.rawValue.mSelector && lhs.rawValue.mScope == rhs.rawValue.mScope && lhs.rawValue.mElement == rhs.rawValue.mElement
+extension PropertyAddress {
+	/// The property's selector
+	public var selector: PropertySelector {
+		return PropertySelector(rawValue.mSelector)
 	}
 
-	public func hash(into hasher: inout Hasher) {
-		hasher.combine(rawValue.mSelector)
-		hasher.combine(rawValue.mScope)
-		hasher.combine(rawValue.mElement)
+	/// The property's scope
+	public var scope: PropertyScope {
+		return PropertyScope(rawValue.mScope)
+	}
+
+	/// The property's element
+	public var element: PropertyElement {
+		return PropertyElement(rawValue.mElement)
 	}
 }
 

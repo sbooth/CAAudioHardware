@@ -8,7 +8,8 @@ import Foundation
 import CoreAudio
 
 /// A thin wrapper around a HAL audio object property scope
-public struct PropertyScope: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
+public struct PropertyScope: Equatable, Hashable, Sendable {
+	/// The underlying Core Audio `AudioObjectPropertyScope`
 	public let rawValue: AudioObjectPropertyScope
 
 	/// Creates a new instance with the specified value
@@ -16,15 +17,15 @@ public struct PropertyScope: RawRepresentable, ExpressibleByIntegerLiteral, Expr
 	public init(_ value: AudioObjectPropertyScope) {
 		self.rawValue = value
 	}
+}
 
-	public init(rawValue: AudioObjectPropertyScope) {
-		self.rawValue = rawValue
-	}
-
+extension PropertyScope: ExpressibleByIntegerLiteral {
 	public init(integerLiteral value: UInt32) {
 		self.rawValue = value
 	}
+}
 
+extension PropertyScope: ExpressibleByStringLiteral {
 	public init(stringLiteral value: StringLiteralType) {
 		self.rawValue = value.fourCC
 	}
