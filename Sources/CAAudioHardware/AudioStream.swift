@@ -38,7 +38,7 @@ extension AudioStream {
 	/// Returns the terminal type
 	/// - remark: This corresponds to the property `kAudioStreamPropertyTerminalType`
 	public func terminalType() throws -> TerminalType {
-		return AudioStream.TerminalType(try getProperty(PropertyAddress(kAudioStreamPropertyTerminalType), type: UInt32.self))
+		return TerminalType(try getProperty(PropertyAddress(kAudioStreamPropertyTerminalType), type: UInt32.self))
 	}
 
 	/// Returns the starting channel
