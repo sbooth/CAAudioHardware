@@ -8,7 +8,7 @@ import Foundation
 import CoreAudio
 
 /// A thin wrapper around a HAL audio object property scope
-public struct PropertyScope {
+public struct PropertyScope: Equatable, Hashable, Sendable {
 	/// The underlying Core Audio `AudioObjectPropertyScope`
 	public let rawValue: AudioObjectPropertyScope
 

@@ -8,7 +8,7 @@ import Foundation
 import CoreAudio
 
 /// A thin wrapper around a HAL audio object property selector
-public struct PropertySelector {
+public struct PropertySelector: Equatable, Hashable, Sendable {
 	/// The underlying Core Audio `AudioObjectPropertySelector`
 	public let rawValue: AudioObjectPropertySelector
 
