@@ -35,7 +35,6 @@ extension AudioSubdevice {
 	public func driftCompensationQuality() throws -> DriftCompensationQuality {
 		return DriftCompensationQuality(try getProperty(PropertyAddress(kAudioSubDevicePropertyDriftCompensationQuality), type: UInt32.self))
 	}
-
 	/// Sets the drift compensation quality
 	/// - remark: This corresponds to the property `kAudioSubDevicePropertyDriftCompensationQuality`
 	public func setDriftCompensationQuality(_ value: DriftCompensationQuality) throws {
