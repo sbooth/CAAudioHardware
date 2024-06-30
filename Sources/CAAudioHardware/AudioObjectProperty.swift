@@ -110,3 +110,49 @@ public func getAudioObjectProperty<T>(_ property: PropertyAddress, from objectID
 	}
 	return array
 }
+
+// MARK: - Translated Property Retrieval
+
+/// Returns `value` translated to a numeric type using `property`
+/// - note: The underlying audio object property must be backed by `AudioValueTranslation`
+/// - note: The `AudioValueTranslation` input type must be `In`
+/// - note: The `AudioValueTranslation` output type must be `Out`
+/// - parameter property: The address of the desired property
+/// - parameter objectID: The audio object to query
+/// - parameter value: The input value to translate
+/// - parameter type: The output type of the translation
+/// - parameter qualifier: An optional property qualifier
+/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
+public func getAudioObjectProperty<In, Out: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+	var inputData = value
+	var outputData: Out = 0
+	try withUnsafeMutablePointer(to: &inputData) { inputPointer in
+		try withUnsafeMutablePointer(to: &outputData) { outputPointer in
+			var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<In>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<Out>.stride))
+			try readAudioObjectProperty(property, from: objectID, into: &translation, qualifier: qualifier)
+		}
+	}
+	return outputData
+}
+
+/// Returns `value` translated to a Core Foundation type using `property`
+/// - note: The underlying audio object property must be backed by `AudioValueTranslation`
+/// - note: The `AudioValueTranslation` input type must be `In`
+/// - note: The `AudioValueTranslation` output type must be a `CFType` with a +1 retain count
+/// - parameter property: The address of the desired property
+/// - parameter objectID: The audio object to query
+/// - parameter value: The input value to translate
+/// - parameter type: The output type of the translation
+/// - parameter qualifier: An optional property qualifier
+/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
+public func getAudioObjectProperty<In, Out: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+	var inputData = value
+	var outputData: Unmanaged<Out>?
+	try withUnsafeMutablePointer(to: &inputData) { inputPointer in
+		try withUnsafeMutablePointer(to: &outputData) { outputPointer in
+			var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<In>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<Out>.stride))
+			try readAudioObjectProperty(property, from: objectID, into: &translation, qualifier: qualifier)
+		}
+	}
+	return outputData!.takeRetainedValue()
+}
