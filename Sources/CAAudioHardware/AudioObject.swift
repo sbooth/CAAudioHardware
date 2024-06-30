@@ -128,11 +128,13 @@ public class AudioObject: CustomDebugStringConvertible {
 	}
 }
 
-extension AudioObject: Hashable {
+extension AudioObject: Equatable {
 	public static func == (lhs: AudioObject, rhs: AudioObject) -> Bool {
-		return lhs.objectID == rhs.objectID
+		lhs.objectID == rhs.objectID
 	}
+}
 
+extension AudioObject: Hashable {
 	public func hash(into hasher: inout Hasher) {
 		hasher.combine(objectID)
 	}

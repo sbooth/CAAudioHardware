@@ -83,7 +83,7 @@ extension AudioTransportManager {
 	/// Returns the transport type
 	/// - remark: This corresponds to the property `kAudioTransportManagerPropertyTransportType`
 	public func transportType() throws -> AudioDevice.TransportType {
-		return AudioDevice.TransportType(rawValue: try getProperty(PropertyAddress(kAudioTransportManagerPropertyTransportType), type: UInt32.self))
+		return AudioDevice.TransportType(try getProperty(PropertyAddress(kAudioTransportManagerPropertyTransportType), type: UInt32.self))
 	}
 }
 

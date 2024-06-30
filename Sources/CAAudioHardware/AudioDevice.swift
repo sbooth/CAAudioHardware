@@ -98,7 +98,7 @@ extension AudioDevice {
 	/// Returns the transport type
 	/// - remark: This corresponds to the property `kAudioDevicePropertyTransportType`
 	public func transportType() throws -> TransportType {
-		return TransportType(rawValue: try getProperty(PropertyAddress(kAudioDevicePropertyTransportType)))
+		return TransportType(try getProperty(PropertyAddress(kAudioDevicePropertyTransportType)))
 	}
 
 	/// Returns related audio devices
@@ -824,13 +824,13 @@ extension AudioDevice {
 	/// Returns the available play-through destinations
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestinations`
 	public func availablePlayThroughDestinations() throws -> [PlayThroughDestination] {
-		return try playThroughDestination().map { PlayThroughDestination(device: self, id: $0) }
+		return try playThroughDestinations().map { PlayThroughDestination(device: self, id: $0) }
 	}
 
 	/// Returns the selected play-through destinations
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestination`
 	public func selectedPlayThroughDestinations() throws -> [PlayThroughDestination] {
-		return try playThroughDestinations().map { PlayThroughDestination(device: self, id: $0) }
+		return try playThroughDestination().map { PlayThroughDestination(device: self, id: $0) }
 	}
 
 	/// Returns the IDs of the selected channel nominal line levels
@@ -995,238 +995,6 @@ extension AudioDevice {
 	@available(macOS 14, *)
 	public func voiceActivityDetectionState(inScope scope: PropertyScope, onElement element: PropertyElement = .main) throws -> Bool {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionState), scope: scope, element: element), type: UInt32.self) != 0
-	}
-}
-
-extension AudioDevice {
-	/// A thin wrapper around a HAL audio device transport type
-	public struct TransportType: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Sendable {
-		/// Unknown
-		public static let unknown 			= TransportType(rawValue: kAudioDeviceTransportTypeUnknown)
-		/// Built-in
-		public static let builtIn 			= TransportType(rawValue: kAudioDeviceTransportTypeBuiltIn)
-		/// Aggregate device
-		public static let aggregate 		= TransportType(rawValue: kAudioDeviceTransportTypeAggregate)
-		/// Virtual device
-		public static let virtual 			= TransportType(rawValue: kAudioDeviceTransportTypeVirtual)
-		/// PCI
-		public static let pci 				= TransportType(rawValue: kAudioDeviceTransportTypePCI)
-		/// USB
-		public static let usb 				= TransportType(rawValue: kAudioDeviceTransportTypeUSB)
-		/// FireWire
-		public static let fireWire 			= TransportType(rawValue: kAudioDeviceTransportTypeFireWire)
-		/// Bluetooth
-		public static let bluetooth 		= TransportType(rawValue: kAudioDeviceTransportTypeBluetooth)
-		/// Bluetooth Low Energy
-		public static let bluetoothLE 		= TransportType(rawValue: kAudioDeviceTransportTypeBluetoothLE)
-		/// HDMI
-		public static let hdmi 				= TransportType(rawValue: kAudioDeviceTransportTypeHDMI)
-		/// DisplayPort
-		public static let displayPort 		= TransportType(rawValue: kAudioDeviceTransportTypeDisplayPort)
-		/// AirPlay
-		public static let airPlay 			= TransportType(rawValue: kAudioDeviceTransportTypeAirPlay)
-		/// AVB
-		public static let avb 				= TransportType(rawValue: kAudioDeviceTransportTypeAVB)
-		/// Thunderbolt
-		public static let thunderbolt 		= TransportType(rawValue: kAudioDeviceTransportTypeThunderbolt)
-		/// Continuity Capture Wired
-		public static let continuityCaptureWired 		= TransportType(rawValue: kAudioDeviceTransportTypeContinuityCaptureWired)
-		/// Continuity Capture Wireless
-		public static let continuityCaptureWireless 	= TransportType(rawValue: kAudioDeviceTransportTypeContinuityCaptureWireless)
-		/// Continuity Capture
-		@available(macOS, introduced: 13.0, deprecated: 13.0, message: "Please use .continuityCaptureWired and .continuityCaptureWireless to describe Continuity Capture devices.")
-		public static let continuityCapture 			= TransportType(rawValue: kAudioDeviceTransportTypeContinuityCapture)
-
-		public let rawValue: UInt32
-
-		public init(rawValue: UInt32) {
-			self.rawValue = rawValue
-		}
-
-		public init(integerLiteral value: UInt32) {
-			self.rawValue = value
-		}
-
-		public init(stringLiteral value: StringLiteralType) {
-			self.rawValue = value.fourCC
-		}
-	}
-}
-
-extension AudioDevice.TransportType: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		switch self.rawValue {
-		case kAudioDeviceTransportTypeUnknown:			return "Unknown"
-		case kAudioDeviceTransportTypeBuiltIn:			return "Built-in"
-		case kAudioDeviceTransportTypeAggregate: 		return "Aggregate"
-		case kAudioDeviceTransportTypeVirtual:			return "Virtual"
-		case kAudioDeviceTransportTypePCI:				return "PCI"
-		case kAudioDeviceTransportTypeUSB:				return "USB"
-		case kAudioDeviceTransportTypeFireWire:			return "FireWire"
-		case kAudioDeviceTransportTypeBluetooth:		return "Bluetooth"
-		case kAudioDeviceTransportTypeBluetoothLE: 		return "Bluetooth Low Energy"
-		case kAudioDeviceTransportTypeHDMI:				return "HDMI"
-		case kAudioDeviceTransportTypeDisplayPort:		return "DisplayPort"
-		case kAudioDeviceTransportTypeAirPlay:			return "AirPlay"
-		case kAudioDeviceTransportTypeAVB:				return "AVB"
-		case kAudioDeviceTransportTypeThunderbolt: 		return "Thunderbolt"
-			// kAudioDeviceTransportTypeContinuityCaptureWired
-		case 0x63637764 /* 'ccwd' */: 					return "Continuity Capture Wired"
-			// kAudioDeviceTransportTypeContinuityCaptureWireless
-		case 0x6363776c /* 'ccwl' */: 					return "Continuity Capture Wireless"
-			// kAudioDeviceTransportTypeContinuityCapture
-		case 0x63636170 /* 'ccap' */: 					return "Continuity Capture"
-		default:										return "\(self.rawValue)"
-		}
-	}
-}
-
-extension AudioDevice {
-	/// A data source for an audio device
-	public struct DataSource {
-		/// Returns the owning audio device
-		public let device: AudioDevice
-		/// Returns the data source scope
-		public let scope: PropertyScope
-		/// Returns the data source ID
-		public let id: UInt32
-
-		/// Returns the data source name
-		public func name() throws -> String {
-			return try device.nameOfDataSource(id, inScope: scope)
-		}
-
-		/// Returns the data source kind
-		public func kind() throws -> UInt32 {
-			return try device.kindOfDataSource(id, inScope: scope)
-		}
-	}
-}
-
-extension AudioDevice.DataSource: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\" on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false))>"
-		} else {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false)))>"
-		}
-	}
-}
-
-extension AudioDevice {
-	/// A clock source for an audio device
-	public struct ClockSource {
-		/// Returns the owning audio device
-		public let device: AudioDevice
-		/// Returns the clock source scope
-		public let scope: PropertyScope
-		/// Returns the clock source ID
-		public let id: UInt32
-
-		/// Returns the clock source name
-		public func name() throws -> String {
-			return try device.nameOfClockSource(id, inScope: scope)
-		}
-
-		/// Returns the clock source kind
-		public func kind() throws -> UInt32 {
-			return try device.kindOfClockSource(id, inScope: scope)
-		}
-	}
-}
-
-extension AudioDevice.ClockSource: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\" on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false))>"
-		} else {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false)))>"
-		}
-	}
-}
-
-extension AudioDevice {
-	/// A play-through destination for an audio device
-	public struct PlayThroughDestination {
-		/// Returns the owning audio device
-		public let device: AudioDevice
-		/// Returns the play-through destination ID
-		public let id: UInt32
-
-		/// Returns the play-through destination name
-		public func name() throws -> String {
-			return try device.nameOfPlayThroughDestination(id)
-		}
-	}
-}
-
-extension AudioDevice.PlayThroughDestination: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): '\(id.fourCC)' \"\(name)\" on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false))>"
-		} else {
-			return "<\(type(of: self)): '\(id.fourCC)' on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false)))>"
-		}
-	}
-}
-
-extension AudioDevice {
-	/// A channel nominal line level for an audio device
-	public struct ChannelNominalLineLevel {
-		/// Returns the owning audio device
-		public let device: AudioDevice
-		/// Returns the channel nominal line level scope
-		public let scope: PropertyScope
-		/// Returns the channel nominal line level ID
-		public let id: UInt32
-
-		/// Returns the channel nominal line level name
-		public func name() throws -> String {
-			return try device.nameOfChannelNominalLineLevel(id, inScope: scope)
-		}
-	}
-}
-
-extension AudioDevice.ChannelNominalLineLevel: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\" on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false))>"
-		} else {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false)))>"
-		}
-	}
-}
-
-extension AudioDevice {
-	/// A high-pass filter setting for an audio device
-	public struct HighPassFilterSetting {
-		/// Returns the owning audio device
-		public let device: AudioDevice
-		/// Returns the high-pass filter setting scope
-		public let scope: PropertyScope
-		/// Returns the high-pass filter setting ID
-		public let id: UInt32
-
-		/// Returns the high-pass filter setting name
-		public func name() throws -> String {
-			return try device.nameOfHighPassFilterSetting(id, inScope: scope)
-		}
-	}
-}
-
-extension AudioDevice.HighPassFilterSetting: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\" on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false))>"
-		} else {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') on AudioDevice 0x\(String(device.objectID, radix: 16, uppercase: false)))>"
-		}
 	}
 }
 

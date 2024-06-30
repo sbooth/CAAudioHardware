@@ -38,7 +38,7 @@ extension AudioStream {
 	/// Returns the terminal type
 	/// - remark: This corresponds to the property `kAudioStreamPropertyTerminalType`
 	public func terminalType() throws -> TerminalType {
-		return TerminalType(rawValue: try getProperty(PropertyAddress(kAudioStreamPropertyTerminalType), type: UInt32.self))
+		return TerminalType(try getProperty(PropertyAddress(kAudioStreamPropertyTerminalType), type: UInt32.self))
 	}
 
 	/// Returns the starting channel
@@ -87,74 +87,6 @@ extension AudioStream {
 	public func availablePhysicalFormats() throws -> [(AudioStreamBasicDescription, ClosedRange<Double>)] {
 		let value = try getProperty(PropertyAddress(kAudioStreamPropertyAvailablePhysicalFormats), elementType: AudioStreamRangedDescription.self)
 		return value.map { ($0.mFormat, $0.mSampleRateRange.mMinimum ... $0.mSampleRateRange.mMaximum) }
-	}
-}
-
-extension AudioStream {
-	/// A thin wrapper around a HAL audio stream terminal type
-	public struct TerminalType: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Sendable {
-		/// Unknown
-		public static let unknown 					= TerminalType(rawValue: kAudioStreamTerminalTypeUnknown)
-		/// Line level
-		public static let line 						= TerminalType(rawValue: kAudioStreamTerminalTypeLine)
-		/// Digital audio interface
-		public static let digitalAudioInterface 	= TerminalType(rawValue: kAudioStreamTerminalTypeDigitalAudioInterface)
-		/// Spekaer
-		public static let speaker 					= TerminalType(rawValue: kAudioStreamTerminalTypeSpeaker)
-		/// Headphones
-		public static let headphones 				= TerminalType(rawValue: kAudioStreamTerminalTypeHeadphones)
-		/// LFE speaker
-		public static let lfeSpeaker 				= TerminalType(rawValue: kAudioStreamTerminalTypeLFESpeaker)
-		/// Telephone handset speaker
-		public static let receiverSpeaker 			= TerminalType(rawValue: kAudioStreamTerminalTypeReceiverSpeaker)
-		/// Microphone
-		public static let microphone 				= TerminalType(rawValue: kAudioStreamTerminalTypeMicrophone)
-		/// Headset microphone
-		public static let headsetMicrophone 		= TerminalType(rawValue: kAudioStreamTerminalTypeHeadsetMicrophone)
-		/// Telephone handset microphone
-		public static let receiverMicrophone 		= TerminalType(rawValue: kAudioStreamTerminalTypeReceiverMicrophone)
-		/// TTY
-		public static let tty 						= TerminalType(rawValue: kAudioStreamTerminalTypeTTY)
-		/// HDMI
-		public static let hdmi 						= TerminalType(rawValue: kAudioStreamTerminalTypeHDMI)
-		/// DisplayPort
-		public static let displayPort 				= TerminalType(rawValue: kAudioStreamTerminalTypeDisplayPort)
-
-		public let rawValue: UInt32
-
-		public init(rawValue: UInt32) {
-			self.rawValue = rawValue
-		}
-
-		public init(integerLiteral value: UInt32) {
-			self.rawValue = value
-		}
-
-		public init(stringLiteral value: StringLiteralType) {
-			self.rawValue = value.fourCC
-		}
-	}
-}
-
-extension AudioStream.TerminalType: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		switch self.rawValue {
-		case kAudioStreamTerminalTypeUnknown:					return "Unknown"
-		case kAudioStreamTerminalTypeLine:						return "Line Level"
-		case kAudioStreamTerminalTypeDigitalAudioInterface: 	return "Digital Audio Interface"
-		case kAudioStreamTerminalTypeSpeaker:					return "Speaker"
-		case kAudioStreamTerminalTypeHeadphones:				return "Headphones"
-		case kAudioStreamTerminalTypeLFESpeaker:				return "LFE Speaker"
-		case kAudioStreamTerminalTypeReceiverSpeaker:			return "Receiver Speaker"
-		case kAudioStreamTerminalTypeMicrophone: 				return "Microphone"
-		case kAudioStreamTerminalTypeHeadsetMicrophone:			return "Headset Microphone"
-		case kAudioStreamTerminalTypeReceiverMicrophone:		return "Receiver Microphone"
-		case kAudioStreamTerminalTypeTTY:						return "TTY"
-		case kAudioStreamTerminalTypeHDMI:						return "HDMI"
-		case kAudioStreamTerminalTypeDisplayPort:				return "DisplayPort"
-		default: 												return "\(self.rawValue)"
-		}
 	}
 }
 

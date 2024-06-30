@@ -44,7 +44,7 @@ extension AudioClockDevice {
 	/// Returns the transport type
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyTransportType`
 	public func transportType() throws -> AudioDevice.TransportType {
-		return AudioDevice.TransportType(rawValue: try getProperty(PropertyAddress(kAudioClockDevicePropertyTransportType), type: UInt32.self))
+		return AudioDevice.TransportType(try getProperty(PropertyAddress(kAudioClockDevicePropertyTransportType), type: UInt32.self))
 	}
 
 	/// Returns the domain
