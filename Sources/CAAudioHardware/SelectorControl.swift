@@ -55,37 +55,6 @@ extension SelectorControl {
 }
 
 extension SelectorControl {
-	/// An item in a selector control
-	public struct Item {
-		/// The owning selector control
-		public let control: SelectorControl
-		/// The item ID
-		public let id: UInt32
-
-		/// Returns the item name
-		public func name() throws -> String {
-			return try control.nameOfItem(id)
-		}
-
-		/// Returns the item kind
-		public func kind() throws -> UInt32 {
-			return try control.kindOfItem(id)
-		}
-	}
-}
-
-extension SelectorControl.Item: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): '\(id.fourCC)' \"\(name)\" on SelectorControl 0x\(String(control.objectID, radix: 16, uppercase: false))>"
-		} else {
-			return "<\(type(of: self)): '\(id.fourCC)' on SelectorControl 0x\(String(control.objectID, radix: 16, uppercase: false)))>"
-		}
-	}
-}
-
-extension SelectorControl {
 	/// Returns `true` if `self` has `selector`
 	/// - parameter selector: The selector of the desired property
 	public func hasSelector(_ selector: AudioObjectSelector<SelectorControl>) -> Bool {
