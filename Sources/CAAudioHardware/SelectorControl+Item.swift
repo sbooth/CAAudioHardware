@@ -9,7 +9,7 @@ import CoreAudio
 
 extension SelectorControl {
 	/// An item in a selector control
-	public struct Item {
+	public struct Item: Equatable, Hashable/*, Sendable*/ {
 		/// The owning selector control
 		public let control: SelectorControl
 		/// The item ID
