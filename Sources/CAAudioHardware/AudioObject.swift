@@ -329,15 +329,19 @@ extension AudioObject {
 
 	/// Returns the audio objects owned by `self`
 	/// - remark: This corresponds to the property `kAudioObjectPropertyOwnedObjects`
-	/// - parameter type: An optional array of `AudioClassID`s to which the returned objects will be restricted
-	public func ownedObjects(ofType type: [AudioClassID]? = nil) throws -> [AudioObject] {
-		if let type {
-			var qualifierData = type
-			let qualifierDataSize = MemoryLayout<AudioClassID>.stride * type.count
-			let qualifier = PropertyQualifier(value: &qualifierData, size: UInt32(qualifierDataSize))
-			return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), qualifier: qualifier).map { try AudioObject.make($0) }
+	public var ownedObjects: [AudioObject] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects)).map { try AudioObject.make($0) }
 		}
-		return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects)).map { try AudioObject.make($0) }
+	}
+	/// Returns the audio objects owned by `self`
+	/// - remark: This corresponds to the property `kAudioObjectPropertyOwnedObjects`
+	/// - parameter type: An array of `AudioClassID`s to which the returned objects will be restricted
+	public func ownedObjectsOfType(_ type: [AudioClassID]) throws -> [AudioObject] {
+		var qualifierData = type
+		let qualifierDataSize = MemoryLayout<AudioClassID>.stride * type.count
+		let qualifier = PropertyQualifier(value: &qualifierData, size: UInt32(qualifierDataSize))
+		return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), qualifier: qualifier).map { try AudioObject.make($0) }
 	}
 
 	/// Returns `true` if the audio object's hardware is drawing attention to itself
