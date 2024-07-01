@@ -9,17 +9,19 @@ import CoreAudio
 
 extension AudioDevice {
 	/// A high-pass filter setting for an audio device
-	public struct HighPassFilterSetting: Equatable, Hashable/*, Sendable*/ {
-		/// Returns the owning audio device
-		public let device: AudioDevice
+	public struct HighPassFilterSetting: Equatable, Hashable, Sendable {
+		/// Returns the owning audio device ID
+		public let deviceID: AudioObjectID
 		/// Returns the high-pass filter setting scope
 		public let scope: PropertyScope
 		/// Returns the high-pass filter setting ID
 		public let id: UInt32
 
 		/// Returns the high-pass filter setting name
-		public func name() throws -> String {
-			return try device.nameOfHighPassFilterSetting(id, inScope: scope)
+		public var name: String {
+			get throws {
+				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyHighPassFilterSettingNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+			}
 		}
 	}
 }
@@ -27,10 +29,10 @@ extension AudioDevice {
 extension AudioDevice.HighPassFilterSetting: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\" on \(device.debugDescription)>"
-		} else {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') on \(device.debugDescription))>"
+		do {
+			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(try name)\">"
+		} catch {
+			return "<\(type(of: self)): (\(scope), '\(id.fourCC)')>"
 		}
 	}
 }

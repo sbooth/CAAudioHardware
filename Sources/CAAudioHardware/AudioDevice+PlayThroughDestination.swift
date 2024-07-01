@@ -9,15 +9,17 @@ import CoreAudio
 
 extension AudioDevice {
 	/// A play-through destination for an audio device
-	public struct PlayThroughDestination: Equatable, Hashable/*, Sendable*/ {
-		/// Returns the owning audio device
-		public let device: AudioDevice
+	public struct PlayThroughDestination: Equatable, Hashable, Sendable {
+		/// Returns the owning audio device ID
+		public let deviceID: AudioObjectID
 		/// Returns the play-through destination ID
 		public let id: UInt32
 
 		/// Returns the play-through destination name
-		public func name() throws -> String {
-			return try device.nameOfPlayThroughDestination(id)
+		public var name: String {
+			get throws {
+				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruDestinationNameForIDCFString), scope: .playThrough), from: deviceID, translatingValue: id, toType: CFString.self) as String
+			}
 		}
 	}
 }
@@ -25,10 +27,10 @@ extension AudioDevice {
 extension AudioDevice.PlayThroughDestination: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): '\(id.fourCC)' \"\(name)\" on \(device.debugDescription)>"
-		} else {
-			return "<\(type(of: self)): '\(id.fourCC)' on \(device.debugDescription))>"
+		do {
+			return "<\(type(of: self)): '\(id.fourCC)' \"\(try name)\">"
+		} catch {
+			return "<\(type(of: self)): '\(id.fourCC)'>"
 		}
 	}
 }

@@ -14,9 +14,11 @@ import CoreAudio
 public class AudioTransportManager: AudioPlugIn {
 	/// Returns the available audio transport managers
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyTransportManagerList` on `kAudioObjectSystemObject`
-	public class func transportManagers() throws -> [AudioTransportManager] {
-		// Revisit if a subclass of `AudioTransportManager` is added
-		return try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTransportManagerList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioTransportManager($0) }
+	public static var transportManagers: [AudioTransportManager] {
+		get throws {
+			// Revisit if a subclass of `AudioTransportManager` is added
+			try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTransportManagerList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioTransportManager($0) }
+		}
 	}
 
 	/// Returns an initialized `AudioTransportManager` with `bundleID` or `nil` if unknown
@@ -36,7 +38,7 @@ public class AudioTransportManager: AudioPlugIn {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), [\(try endpointList().map({ $0.debugDescription }).joined(separator: ", "))]>"
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), [\(try endpointList.map({ $0.debugDescription }).joined(separator: ", "))]>"
 		} catch {
 			return super.debugDescription
 		}
@@ -62,9 +64,11 @@ extension AudioTransportManager {
 
 	/// Returns the audio endpoints provided by the transport manager
 	/// - remark: This corresponds to the property `kAudioTransportManagerPropertyEndPointList`
-	public func endpointList() throws -> [AudioEndpoint] {
-		// Revisit if a subclass of `AudioEndpoint` is added
-		return try getProperty(PropertyAddress(kAudioTransportManagerPropertyEndPointList)).map { AudioEndpoint($0) }
+	public var endpointList: [AudioEndpoint] {
+		get throws {
+			// Revisit if a subclass of `AudioEndpoint` is added
+			try getProperty(PropertyAddress(kAudioTransportManagerPropertyEndPointList)).map { AudioEndpoint($0) }
+		}
 	}
 
 	/// Returns the audio endpoint provided by the transport manager with the specified UID or `nil` if unknown
@@ -82,8 +86,10 @@ extension AudioTransportManager {
 
 	/// Returns the transport type
 	/// - remark: This corresponds to the property `kAudioTransportManagerPropertyTransportType`
-	public func transportType() throws -> AudioDevice.TransportType {
-		return AudioDevice.TransportType(try getProperty(PropertyAddress(kAudioTransportManagerPropertyTransportType), type: UInt32.self))
+	public var transportType: AudioDevice.TransportType {
+		get throws {
+			AudioDevice.TransportType(try getProperty(PropertyAddress(kAudioTransportManagerPropertyTransportType), type: UInt32.self))
+		}
 	}
 }
 

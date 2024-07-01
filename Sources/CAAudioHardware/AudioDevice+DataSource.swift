@@ -9,22 +9,26 @@ import CoreAudio
 
 extension AudioDevice {
 	/// A data source for an audio device
-	public struct DataSource: Equatable, Hashable/*, Sendable*/ {
-		/// Returns the owning audio device
-		public let device: AudioDevice
+	public struct DataSource: Equatable, Hashable, Sendable {
+		/// Returns the owning audio device ID
+		public let deviceID: AudioObjectID
 		/// Returns the data source scope
 		public let scope: PropertyScope
 		/// Returns the data source ID
 		public let id: UInt32
 
 		/// Returns the data source name
-		public func name() throws -> String {
-			return try device.nameOfDataSource(id, inScope: scope)
+		public var name: String {
+			get throws {
+				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+			}
 		}
 
 		/// Returns the data source kind
-		public func kind() throws -> UInt32 {
-			return try device.kindOfDataSource(id, inScope: scope)
+		public var kind: UInt32 {
+			get throws {
+				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceKindForID), scope: scope), from: deviceID, translatingValue: id)
+			}
 		}
 	}
 }
@@ -32,10 +36,10 @@ extension AudioDevice {
 extension AudioDevice.DataSource: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\" on \(device.debugDescription)>"
-		} else {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') on \(device.debugDescription))>"
+		do {
+			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(try name)\">"
+		} catch {
+			return "<\(type(of: self)): (\(scope), '\(id.fourCC)')>"
 		}
 	}
 }

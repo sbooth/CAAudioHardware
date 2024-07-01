@@ -14,7 +14,7 @@ public class BooleanControl: AudioControl {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element())), \(try value() ? "On" : "Off")>"
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope), \(try element)), \(try value ? "On" : "Off")>"
 		} catch {
 			return super.debugDescription
 		}
@@ -24,8 +24,10 @@ public class BooleanControl: AudioControl {
 extension BooleanControl {
 	/// Returns the control's value
 	/// - remark: This corresponds to the property `kAudioBooleanControlPropertyValue`
-	public func value() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioBooleanControlPropertyValue), type: UInt32.self) != 0
+	public var value: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioBooleanControlPropertyValue), type: UInt32.self) != 0
+		}
 	}
 	/// Sets the control's value
 	/// - remark: This corresponds to the property `kAudioBooleanControlPropertyValue`

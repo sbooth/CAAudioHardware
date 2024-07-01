@@ -9,20 +9,26 @@ import CoreAudio
 
 extension SelectorControl {
 	/// An item in a selector control
-	public struct Item: Equatable, Hashable/*, Sendable*/ {
-		/// The owning selector control
-		public let control: SelectorControl
+	public struct Item: Equatable, Hashable, Sendable {
+		/// The owning selector control ID
+		public let controlID: AudioObjectID
 		/// The item ID
 		public let id: UInt32
 
 		/// Returns the item name
-		public func name() throws -> String {
-			return try control.nameOfItem(id)
+		public var name: String {
+			get throws {
+				var qualifier = id
+				return try getAudioObjectProperty(PropertyAddress(kAudioSelectorControlPropertyItemName), from: controlID, type: CFString.self, qualifier: PropertyQualifier(&qualifier)) as String
+			}
 		}
 
 		/// Returns the item kind
-		public func kind() throws -> UInt32 {
-			return try control.kindOfItem(id)
+		public var kind: UInt32 {
+			get throws {
+				var qualifier = id
+				return try getAudioObjectProperty(PropertyAddress(kAudioSelectorControlPropertyItemKind), from: controlID, qualifier: PropertyQualifier(&qualifier))
+			}
 		}
 	}
 }
@@ -30,10 +36,10 @@ extension SelectorControl {
 extension SelectorControl.Item: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): '\(id.fourCC)' \"\(name)\" on \(control.debugDescription)>"
-		} else {
-			return "<\(type(of: self)): '\(id.fourCC)' on \(control.debugDescription)>"
+		do {
+			return "<\(type(of: self)): '\(id.fourCC)' \"\(try name)\">"
+		} catch {
+			return "<\(type(of: self)): '\(id.fourCC)'>"
 		}
 	}
 }
