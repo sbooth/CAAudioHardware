@@ -603,29 +603,13 @@ extension AudioDevice {
 	/// Returns the name of `dataSourceID`
 	/// - remark: This corresponds to the property `kAudioDevicePropertyDataSourceNameForIDCFString`
 	public func nameOfDataSource(_ dataSourceID: UInt32, inScope scope: PropertyScope) throws -> String {
-		var inputData = dataSourceID
-		var outputData: Unmanaged<CFString>?
-		try withUnsafeMutablePointer(to: &inputData) { inputPointer in
-			try withUnsafeMutablePointer(to: &outputData) { outputPointer in
-				var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<UInt32>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<CFString>.stride))
-				try readAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceNameForIDCFString), scope: scope), from: objectID, into: &translation)
-			}
-		}
-		return outputData!.takeRetainedValue() as String
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceNameForIDCFString), scope: scope), translatingValue: dataSourceID, toType: CFString.self) as String
 	}
 
 	/// Returns the kind of `dataSourceID`
 	/// - remark: This corresponds to the property `kAudioDevicePropertyDataSourceKindForID`
 	public func kindOfDataSource(_ dataSourceID: UInt32, inScope scope: PropertyScope) throws -> UInt32 {
-		var inputData = dataSourceID
-		var outputData: UInt32 = 0
-		try withUnsafeMutablePointer(to: &inputData) { inputPointer in
-			try withUnsafeMutablePointer(to: &outputData) { outputPointer in
-				var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<UInt32>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<UInt32>.stride))
-				try readAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceKindForID), scope: scope), from: objectID, into: &translation)
-			}
-		}
-		return outputData
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceKindForID), scope: scope), translatingValue: dataSourceID)
 	}
 
 	// Data source helpers
@@ -662,15 +646,7 @@ extension AudioDevice {
 	/// Returns the name of `clockSourceID`
 	/// - remark: This corresponds to the property `kAudioDevicePropertyClockSourceNameForIDCFString`
 	public func nameOfClockSource(_ clockSourceID: UInt32, inScope scope: PropertyScope) throws -> String {
-		var inputData = clockSourceID
-		var outputData: Unmanaged<CFString>?
-		try withUnsafeMutablePointer(to: &inputData) { inputPointer in
-			try withUnsafeMutablePointer(to: &outputData) { outputPointer in
-				var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<UInt32>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<CFString>.stride))
-				try readAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceNameForIDCFString), scope: scope), from: objectID, into: &translation)
-			}
-		}
-		return outputData!.takeRetainedValue() as String
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceNameForIDCFString), scope: scope), translatingValue: clockSourceID, toType: CFString.self) as String
 	}
 
 	/// Returns the kind of `clockSourceID`
@@ -679,15 +655,7 @@ extension AudioDevice {
 	/// - parameter scope: The desired scope
 	/// - throws: An error if the property could not be retrieved
 	public func kindOfClockSource(_ clockSourceID: UInt32, inScope scope: PropertyScope) throws -> UInt32 {
-		var inputData = clockSourceID
-		var outputData: UInt32 = 0
-		try withUnsafeMutablePointer(to: &inputData) { inputPointer in
-			try withUnsafeMutablePointer(to: &outputData) { outputPointer in
-				var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<UInt32>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<UInt32>.stride))
-				try readAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceKindForID), scope: scope), from: objectID, into: &translation)
-			}
-		}
-		return outputData
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceKindForID), scope: scope), translatingValue: clockSourceID)
 	}
 
 	// Clock source helpers
@@ -808,15 +776,7 @@ extension AudioDevice {
 	/// Returns the name of `playThroughDestinationID`
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestinationNameForIDCFString`
 	public func nameOfPlayThroughDestination(_ playThroughDestinationID: UInt32) throws -> String {
-		var inputData = playThroughDestinationID
-		var outputData: Unmanaged<CFString>?
-		try withUnsafeMutablePointer(to: &inputData) { inputPointer in
-			try withUnsafeMutablePointer(to: &outputData) { outputPointer in
-				var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<UInt32>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<CFString>.stride))
-				try readAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruDestinationNameForIDCFString), scope: .playThrough), from: objectID, into: &translation)
-			}
-		}
-		return outputData!.takeRetainedValue() as String
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruDestinationNameForIDCFString), scope: .playThrough), translatingValue: playThroughDestinationID, toType: CFString.self) as String
 	}
 
 	// Play-through destination helpers
@@ -853,15 +813,7 @@ extension AudioDevice {
 	/// Returns the name of `channelNominalLineLevelID`
 	/// - remark: This corresponds to the property `kAudioDevicePropertyChannelNominalLineLevelNameForIDCFString`
 	public func nameOfChannelNominalLineLevel(_ channelNominalLineLevelID: UInt32, inScope scope: PropertyScope) throws -> String {
-		var inputData = channelNominalLineLevelID
-		var outputData: Unmanaged<CFString>?
-		try withUnsafeMutablePointer(to: &inputData) { inputPointer in
-			try withUnsafeMutablePointer(to: &outputData) { outputPointer in
-				var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<UInt32>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<CFString>.stride))
-				try readAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyChannelNominalLineLevelNameForIDCFString), scope: scope), from: objectID, into: &translation)
-			}
-		}
-		return outputData!.takeRetainedValue() as String
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyChannelNominalLineLevelNameForIDCFString), scope: scope), translatingValue: channelNominalLineLevelID, toType: CFString.self) as String
 	}
 
 	// Channel nominal line level helpers
@@ -898,15 +850,7 @@ extension AudioDevice {
 	/// Returns the name of `highPassFilterSettingID`
 	/// - remark: This corresponds to the property `kAudioDevicePropertyHighPassFilterSettingNameForIDCFString`
 	public func nameOfHighPassFilterSetting(_ highPassFilterSettingID: UInt32, inScope scope: PropertyScope) throws -> String {
-		var inputData = highPassFilterSettingID
-		var outputData: Unmanaged<CFString>?
-		try withUnsafeMutablePointer(to: &inputData) { inputPointer in
-			try withUnsafeMutablePointer(to: &outputData) { outputPointer in
-				var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<UInt32>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<CFString>.stride))
-				try readAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyHighPassFilterSettingNameForIDCFString), scope: scope), from: objectID, into: &translation)
-			}
-		}
-		return outputData!.takeRetainedValue() as String
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyHighPassFilterSettingNameForIDCFString), scope: scope), translatingValue: highPassFilterSettingID, toType: CFString.self) as String
 	}
 
 	// High-pass filter setting helpers

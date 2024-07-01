@@ -220,6 +220,36 @@ extension AudioObject {
 	}
 }
 
+// MARK: - Translated Properties
+
+extension AudioObject {
+	/// Returns `value` translated to a numeric type using `property`
+	/// - note: The underlying audio object property must be backed by `AudioValueTranslation`
+	/// - note: The `AudioValueTranslation` input type must be `In`
+	/// - note: The `AudioValueTranslation` output type must be `Out`
+	/// - parameter property: The address of the desired property
+	/// - parameter value: The input value to translate
+	/// - parameter type: The output type of the translation
+	/// - parameter qualifier: An optional property qualifier
+	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
+	public func getProperty<In, Out: Numeric>(_ property: PropertyAddress, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+		return try getAudioObjectProperty(property, from: objectID, translatingValue: value, toType: type, qualifier: qualifier)
+	}
+
+	/// Returns `value` translated to a Core Foundation type using `property`
+	/// - note: The underlying audio object property must be backed by `AudioValueTranslation`
+	/// - note: The `AudioValueTranslation` input type must be `In`
+	/// - note: The `AudioValueTranslation` output type must be a `CFType` with a +1 retain count
+	/// - parameter property: The address of the desired property
+	/// - parameter value: The input value to translate
+	/// - parameter type: The output type of the translation
+	/// - parameter qualifier: An optional property qualifier
+	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
+	public func getProperty<In, Out: CFTypeRef>(_ property: PropertyAddress, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+		return try getAudioObjectProperty(property, from: objectID, translatingValue: value, toType: type, qualifier: qualifier)
+	}
+}
+
 // MARK: - Base Audio Object Properties
 
 extension AudioObject {
@@ -405,7 +435,7 @@ extension AudioObject {
 // MARK: -
 
 /// A thin wrapper around a HAL audio object property selector for a specific `AudioObject` subclass
-public struct AudioObjectSelector<T: AudioObject>: Sendable {
+public struct AudioObjectSelector<T: AudioObject>: Equatable, Hashable, Sendable {
 	/// The underlying `AudioObjectPropertySelector` value
 	let rawValue: AudioObjectPropertySelector
 
