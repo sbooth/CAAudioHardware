@@ -103,6 +103,7 @@ extension AudioAggregateDevice {
 
 	/// Returns the tap list
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyTapList`
+	@available(macOS 14.2, *)
 	public var tapList: [UUID] {
 		get throws {
 			(try getProperty(PropertyAddress(kAudioAggregateDevicePropertyTapList), type: CFArray.self) as! [String]).map { UUID(uuidString: $0)! }
@@ -111,6 +112,7 @@ extension AudioAggregateDevice {
 
 	/// Returns the sub tap list
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertySubTapList`
+	@available(macOS 14.2, *)
 	public var subTapList: [AudioObject] {
 		get throws {
 			try getProperty(PropertyAddress(kAudioAggregateDevicePropertySubTapList)).map { try makeAudioObject($0) }
