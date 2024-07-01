@@ -100,6 +100,22 @@ extension AudioAggregateDevice {
 	public func setAggregateClockDevice(_ value: String) throws {
 		try setProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), to: value as CFString)
 	}
+
+	/// Returns the tap list
+	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyTapList`
+	public var tapList: [UUID] {
+		get throws {
+			(try getProperty(PropertyAddress(kAudioAggregateDevicePropertyTapList), type: CFArray.self) as! [String]).map { UUID(uuidString: $0)! }
+		}
+	}
+
+	/// Returns the sub tap list
+	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertySubTapList`
+	public var subTapList: [AudioObject] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertySubTapList)).map { try makeAudioObject($0) }
+		}
+	}
 }
 
 extension AudioAggregateDevice {
