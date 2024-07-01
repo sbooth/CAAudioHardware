@@ -106,7 +106,7 @@ extension AudioAggregateDevice {
 	@available(macOS 14.2, *)
 	public var tapList: [UUID] {
 		get throws {
-			(try getProperty(PropertyAddress(kAudioAggregateDevicePropertyTapList), type: CFArray.self) as! [String]).map { UUID(uuidString: $0)! }
+			(try getProperty(PropertyAddress(0x74617023 /* 'tap#' */), type: CFArray.self) as! [String]).map { UUID(uuidString: $0)! }
 		}
 	}
 
@@ -115,7 +115,7 @@ extension AudioAggregateDevice {
 	@available(macOS 14.2, *)
 	public var subTapList: [AudioObject] {
 		get throws {
-			try getProperty(PropertyAddress(kAudioAggregateDevicePropertySubTapList)).map { try makeAudioObject($0) }
+			try getProperty(PropertyAddress(0x61746170 /* 'atap' */)).map { try makeAudioObject($0) }
 		}
 	}
 }
