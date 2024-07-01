@@ -14,9 +14,11 @@ import CoreAudio
 public class AudioBox: AudioObject {
 	/// Returns the available audio boxes
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyBoxList` on `kAudioObjectSystemObject`
-	public class func boxes() throws -> [AudioBox] {
-		// Revisit if a subclass of `AudioBox` is added
-		return try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyBoxList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioBox($0) }
+	public static var boxes: [AudioBox] {
+		get throws {
+			// Revisit if a subclass of `AudioBox` is added
+			try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyBoxList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioBox($0) }
+		}
 	}
 
 	/// Returns an initialized `AudioBox` with `uid` or `nil` if unknown
@@ -37,10 +39,10 @@ public class AudioBox: AudioObject {
 	public override var debugDescription: String {
 		do {
 			var media = [String]()
-			if try hasAudio() { media.append("audio") }
-			if try hasVideo() { media.append("video") }
-			if try hasMIDI() { media.append("MIDI") }
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), \(media.joined(separator: ", ")), [\(try deviceList().map({ $0.debugDescription }).joined(separator: ", "))]>"
+			if try hasAudio { media.append("audio") }
+			if try hasVideo { media.append("video") }
+			if try hasMIDI { media.append("MIDI") }
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), \(media.joined(separator: ", ")), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
 		} catch {
 			return super.debugDescription
 		}
@@ -50,63 +52,83 @@ public class AudioBox: AudioObject {
 extension AudioBox {
 	/// Returns the box UID
 	/// - remark: This corresponds to the property `kAudioBoxPropertyBoxUID`
-	public func boxUID() throws -> String {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyBoxUID), type: CFString.self) as String
+	public var boxUID: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioBoxPropertyBoxUID), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the transport type
 	/// - remark: This corresponds to the property `kAudioBoxPropertyTransportType`
-	public func transportType() throws -> AudioDevice.TransportType {
-		return AudioDevice.TransportType(try getProperty(PropertyAddress(kAudioBoxPropertyTransportType), type: UInt32.self))
+	public var transportType: AudioDevice.TransportType {
+		get throws {
+			AudioDevice.TransportType(try getProperty(PropertyAddress(kAudioBoxPropertyTransportType), type: UInt32.self))
+		}
 	}
 
 	/// Returns `true` if the box has audio
 	/// - remark: This corresponds to the property `kAudioBoxPropertyHasAudio`
-	public func hasAudio() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyHasAudio), type: UInt32.self) != 0
+	public var hasAudio: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioBoxPropertyHasAudio), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns `true` if the box has video
 	/// - remark: This corresponds to the property `kAudioBoxPropertyHasVideo`
-	public func hasVideo() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyHasVideo), type: UInt32.self) != 0
+	public var hasVideo: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioBoxPropertyHasVideo), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns `true` if the box has MIDI
 	/// - remark: This corresponds to the property `kAudioBoxPropertyHasMIDI`
-	public func hasMIDI() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyHasMIDI), type: UInt32.self) != 0
+	public var hasMIDI: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioBoxPropertyHasMIDI), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns `true` if the box is protected
 	/// - remark: This corresponds to the property `kAudioBoxPropertyIsProtected`
-	public func isProtected() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyIsProtected), type: UInt32.self) != 0
+	public var isProtected: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioBoxPropertyIsProtected), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns `true` if the box is acquired
 	/// - remark: This corresponds to the property `kAudioBoxPropertyAcquired`
-	public func acquired() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyAcquired), type: UInt32.self) != 0
+	public var acquired: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioBoxPropertyAcquired), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns the reason an attempt to acquire the box failed
 	/// - remark: This corresponds to the property `kAudioBoxPropertyAcquisitionFailed`
-	public func acquisitionFailed() throws -> OSStatus {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyAcquisitionFailed))
+	public var acquisitionFailed: OSStatus {
+		get throws {
+			try getProperty(PropertyAddress(kAudioBoxPropertyAcquisitionFailed))
+		}
 	}
 
 	/// Returns the audio devices provided by the box
 	/// - remark: This corresponds to the property `kAudioBoxPropertyDeviceList`
-	public func deviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioBoxPropertyDeviceList)).map { try makeAudioDevice($0) }
+	public var deviceList: [AudioDevice] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioBoxPropertyDeviceList)).map { try makeAudioDevice($0) }
+		}
 	}
 
 	/// Returns the audio clock devices provided by the box
 	/// - remark: This corresponds to the property `kAudioBoxPropertyClockDeviceList`
-	public func clockDeviceList() throws -> [AudioClockDevice] {
-		// Revisit if a subclass of `AudioClockDevice` is added
-		return try getProperty(PropertyAddress(kAudioBoxPropertyClockDeviceList)).map { AudioClockDevice($0) }
+	public var clockDeviceList: [AudioClockDevice] {
+		get throws {
+			// Revisit if a subclass of `AudioClockDevice` is added
+			try getProperty(PropertyAddress(kAudioBoxPropertyClockDeviceList)).map { AudioClockDevice($0) }
+		}
 	}
 }
 
