@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -121,22 +121,13 @@ public class AudioObject: CustomDebugStringConvertible {
 	}
 }
 
-extension AudioObject {
-	/// Attempts to cast `self` to the specified type and throws an error if the cast fails.
-	func cast<T: AudioObject>(to type: T.Type = T.self) throws -> T {
-		guard let object = self as? T else {
-			os_log(.error, log: audioObjectLog, "Could not cast %{public}@ to '%{public}@'", debugDescription, String(describing: T.self))
-			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError), userInfo: nil)
-		}
-		return object
+extension AudioObject: Equatable {
+	public static func == (lhs: AudioObject, rhs: AudioObject) -> Bool {
+		lhs.objectID == rhs.objectID
 	}
 }
 
 extension AudioObject: Hashable {
-	public static func == (lhs: AudioObject, rhs: AudioObject) -> Bool {
-		return lhs.objectID == rhs.objectID
-	}
-
 	public func hash(into hasher: inout Hasher) {
 		hasher.combine(objectID)
 	}
@@ -222,52 +213,96 @@ extension AudioObject {
 	}
 }
 
+// MARK: - Translated Properties
+
+extension AudioObject {
+	/// Returns `value` translated to a numeric type using `property`
+	/// - note: The underlying audio object property must be backed by `AudioValueTranslation`
+	/// - note: The `AudioValueTranslation` input type must be `In`
+	/// - note: The `AudioValueTranslation` output type must be `Out`
+	/// - parameter property: The address of the desired property
+	/// - parameter value: The input value to translate
+	/// - parameter type: The output type of the translation
+	/// - parameter qualifier: An optional property qualifier
+	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
+	public func getProperty<In, Out: Numeric>(_ property: PropertyAddress, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+		return try getAudioObjectProperty(property, from: objectID, translatingValue: value, toType: type, qualifier: qualifier)
+	}
+
+	/// Returns `value` translated to a Core Foundation type using `property`
+	/// - note: The underlying audio object property must be backed by `AudioValueTranslation`
+	/// - note: The `AudioValueTranslation` input type must be `In`
+	/// - note: The `AudioValueTranslation` output type must be a `CFType` with a +1 retain count
+	/// - parameter property: The address of the desired property
+	/// - parameter value: The input value to translate
+	/// - parameter type: The output type of the translation
+	/// - parameter qualifier: An optional property qualifier
+	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
+	public func getProperty<In, Out: CFTypeRef>(_ property: PropertyAddress, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+		return try getAudioObjectProperty(property, from: objectID, translatingValue: value, toType: type, qualifier: qualifier)
+	}
+}
+
 // MARK: - Base Audio Object Properties
 
 extension AudioObject {
 	/// Returns the bundle ID of the plug-in that instantiated the object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyCreator`
-	public func creator() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyCreator), type: CFString.self) as String
+	public var creator: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyCreator), type: CFString.self) as String
+		}
 	}
 
 	// kAudioObjectPropertyListenerAdded and kAudioObjectPropertyListenerRemoved omitted
 
 	/// Returns the base class of the underlying HAL audio object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyBaseClass`
-	public func baseClass() throws -> AudioClassID {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyBaseClass))
+	public var baseClass: AudioClassID {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyBaseClass))
+		}
 	}
 
 	/// Returns the class of the underlying HAL audio object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyClass`
-	public func `class`() throws -> AudioClassID {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyClass))
+	public var `class`: AudioClassID {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyClass))
+		}
 	}
 
 	/// Returns the audio object's owning object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyOwner`
 	/// - note: The system audio object does not have an owner
-	public func owner() throws -> AudioObject {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioObjectPropertyOwner)))
+	public var owner: AudioObject {
+		get throws {
+			try AudioObject.make(getProperty(PropertyAddress(kAudioObjectPropertyOwner)))
+		}
 	}
 
 	/// Returns the audio object's name
 	/// - remark: This corresponds to the property `kAudioObjectPropertyName`
-	public func name() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyName), type: CFString.self) as String
+	public var name: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyName), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the audio object's model name
 	/// - remark: This corresponds to the property `kAudioObjectPropertyModelName`
-	public func modelName() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyModelName), type: CFString.self) as String
+	public var modelName: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyModelName), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the audio object's manufacturer
 	/// - remark: This corresponds to the property `kAudioObjectPropertyManufacturer`
-	public func manufacturer() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyManufacturer), type: CFString.self) as String
+	public var manufacturer: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyManufacturer), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the name of `element`
@@ -294,21 +329,27 @@ extension AudioObject {
 
 	/// Returns the audio objects owned by `self`
 	/// - remark: This corresponds to the property `kAudioObjectPropertyOwnedObjects`
-	/// - parameter type: An optional array of `AudioClassID`s to which the returned objects will be restricted
-	public func ownedObjects(ofType type: [AudioClassID]? = nil) throws -> [AudioObject] {
-		if type != nil {
-			var qualifierData = type!
-			let qualifierDataSize = MemoryLayout<AudioClassID>.stride * type!.count
-			let qualifier = PropertyQualifier(value: &qualifierData, size: UInt32(qualifierDataSize))
-			return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), qualifier: qualifier).map { try AudioObject.make($0) }
+	public var ownedObjects: [AudioObject] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects)).map { try AudioObject.make($0) }
 		}
-		return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects)).map { try AudioObject.make($0) }
+	}
+	/// Returns the audio objects owned by `self`
+	/// - remark: This corresponds to the property `kAudioObjectPropertyOwnedObjects`
+	/// - parameter type: An array of `AudioClassID`s to which the returned objects will be restricted
+	public func ownedObjectsOfType(_ type: [AudioClassID]) throws -> [AudioObject] {
+		var qualifierData = type
+		let qualifierDataSize = MemoryLayout<AudioClassID>.stride * type.count
+		let qualifier = PropertyQualifier(value: &qualifierData, size: UInt32(qualifierDataSize))
+		return try getProperty(PropertyAddress(kAudioObjectPropertyOwnedObjects), qualifier: qualifier).map { try AudioObject.make($0) }
 	}
 
 	/// Returns `true` if the audio object's hardware is drawing attention to itself
 	/// - remark: This corresponds to the property `kAudioObjectPropertyIdentify`
-	public func identify() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyIdentify), type: UInt32.self) != 0
+	public var identify: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyIdentify), type: UInt32.self) != 0
+		}
 	}
 	/// Sets whether the audio object's hardware should draw attention to itself
 	/// - remark: This corresponds to the property `kAudioObjectPropertyIdentify`
@@ -319,34 +360,22 @@ extension AudioObject {
 
 	/// Returns the audio object's serial number
 	/// - remark: This corresponds to the property `kAudioObjectPropertySerialNumber`
-	public func serialNumber() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertySerialNumber), type: CFString.self) as String
+	public var serialNumber: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertySerialNumber), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the audio object's firmware version
 	/// - remark: This corresponds to the property `kAudioObjectPropertyFirmwareVersion`
-	public func firmwareVersion() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyFirmwareVersion), type: CFString.self) as String
+	public var firmwareVersion: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyFirmwareVersion), type: CFString.self) as String
+		}
 	}
 }
 
 // MARK: - Helpers
-
-extension AudioObjectPropertyAddress: Hashable {
-	public static func == (lhs: AudioObjectPropertyAddress, rhs: AudioObjectPropertyAddress) -> Bool {
-		return lhs.mSelector == rhs.mSelector && lhs.mScope == rhs.mScope && lhs.mElement == rhs.mElement
-		// Congruence?
-//		return ((lhs.mSelector == rhs.mSelector) 	|| (lhs.mSelector == kAudioObjectPropertySelectorWildcard) 	|| (rhs.mSelector == kAudioObjectPropertySelectorWildcard))
-//			&& ((lhs.mScope == rhs.mScope) 			|| (lhs.mScope == kAudioObjectPropertyScopeWildcard) 		|| (rhs.mScope == kAudioObjectPropertyScopeWildcard))
-//			&& ((lhs.mElement == rhs.mElement) 		|| (lhs.mElement == kAudioObjectPropertyElementWildcard) 	|| (rhs.mElement == kAudioObjectPropertyElementWildcard))
-	}
-
-	public func hash(into hasher: inout Hasher) {
-		hasher.combine(mSelector)
-		hasher.combine(mScope)
-		hasher.combine(mElement)
-	}
-}
 
 /// Returns the value of `kAudioObjectPropertyClass` for `objectID`
 func AudioObjectClass(_ objectID: AudioObjectID) throws -> AudioClassID {
@@ -390,93 +419,25 @@ extension AudioObject {
 			return AudioSystemObject.instance
 		}
 
-		let objectClass = try AudioObjectClass(objectID)
-		let objectBaseClass = try AudioObjectBaseClass(objectID)
+		let baseClass = try AudioObjectBaseClass(objectID)
 
-		switch objectBaseClass {
-		case kAudioObjectClassID:
-			switch objectClass {
-			case kAudioBoxClassID: 			return AudioBox(objectID)
-			case kAudioClockDeviceClassID: 	return AudioClockDevice(objectID)
-			case kAudioControlClassID: 		return AudioControl(objectID)
-			case kAudioDeviceClassID: 		return AudioDevice(objectID)
-			case kAudioPlugInClassID: 		return AudioPlugIn(objectID)
-			case kAudioStreamClassID: 		return AudioStream(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@'", objectClass.fourCC)
-				return AudioObject(objectID)
-			}
+		switch baseClass {
+		case kAudioObjectClassID: 			return try makeAudioObject(objectID);
 
-		case kAudioControlClassID:
-			switch objectClass {
-			case kAudioBooleanControlClassID:		return BooleanControl(objectID)
-			case kAudioLevelControlClassID:			return LevelControl(objectID)
-			case kAudioSelectorControlClassID: 		return SelectorControl(objectID)
-			case kAudioSliderControlClassID:		return SliderControl(objectID)
-			case kAudioStereoPanControlClassID: 	return StereoPanControl(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown audio control class '%{public}@'", objectClass.fourCC)
-				return AudioControl(objectID)
-			}
+		case kAudioBoxClassID: 				return AudioBox(objectID) 				// Revisit if a subclass of `AudioBox` is added
+		case kAudioClockDeviceClassID: 		return AudioClockDevice(objectID) 		// Revisit if a subclass of `AudioClockDevice` is added
 
-		case kAudioBooleanControlClassID:
-			switch objectClass {
-			case kAudioMuteControlClassID: 			return MuteControl(objectID)
-			case kAudioSoloControlClassID:			return SoloControl(objectID)
-			case kAudioJackControlClassID:			return JackControl(objectID)
-			case kAudioLFEMuteControlClassID:		return LFEMuteControl(objectID)
-			case kAudioPhantomPowerControlClassID:	return PhantomPowerControl(objectID)
-			case kAudioPhaseInvertControlClassID:	return PhaseInvertControl(objectID)
-			case kAudioClipLightControlClassID:		return ClipLightControl(objectID)
-			case kAudioTalkbackControlClassID:		return TalkbackControl(objectID)
-			case kAudioListenbackControlClassID: 	return ListenbackControl(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown boolean control class '%{public}@'", objectClass.fourCC)
-				return BooleanControl(objectID)
-			}
+		case kAudioControlClassID: 			return try makeAudioControl(objectID, baseClass: baseClass)
+		case kAudioBooleanControlClassID: 	return try makeAudioControl(objectID, baseClass: baseClass)
+		case kAudioLevelControlClassID: 	return try makeAudioControl(objectID, baseClass: baseClass)
+		case kAudioSelectorControlClassID: 	return try makeAudioControl(objectID, baseClass: baseClass)
 
-		case kAudioLevelControlClassID:
-			switch objectClass {
-			case kAudioVolumeControlClassID: 			return VolumeControl(objectID)
-			case kAudioLFEVolumeControlClassID: 		return LFEVolumeControl(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown level control class '%{public}@'", objectClass.fourCC)
-				return LevelControl(objectID)
-			}
-
-		case kAudioSelectorControlClassID:
-			switch objectClass {
-			case kAudioDataSourceControlClassID: 		return DataSourceControl(objectID)
-			case kAudioDataDestinationControlClassID: 	return DataDestinationControl(objectID)
-			case kAudioClockSourceControlClassID: 		return ClockSourceControl(objectID)
-			case kAudioLineLevelControlClassID: 		return LineLevelControl(objectID)
-			case kAudioHighPassFilterControlClassID: 	return HighPassFilterControl(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown selector control class '%{public}@'", objectClass.fourCC)
-				return SelectorControl(objectID)
-			}
-
-		case kAudioDeviceClassID:
-			switch objectClass {
-			case kAudioAggregateDeviceClassID: 	return AudioAggregateDevice(objectID)
-			case kAudioEndPointDeviceClassID:	return AudioEndpointDevice(objectID)
-			case kAudioEndPointClassID:			return AudioEndpoint(objectID)
-			case kAudioSubDeviceClassID:		return AudioSubdevice(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown audio device class '%{public}@'", objectClass.fourCC)
-				return AudioDevice(objectID)
-			}
-
-		case kAudioPlugInClassID:
-			switch objectClass {
-			case kAudioTransportManagerClassID: 	return AudioTransportManager(objectID)
-			default:
-				os_log(.debug, log: audioObjectLog, "Unknown audio plug-in class '%{public}@'", objectClass.fourCC)
-				return AudioPlugIn(objectID)
-			}
+		case kAudioDeviceClassID: 			return try makeAudioDevice(objectID)
+		case kAudioPlugInClassID: 			return try makeAudioPlugIn(objectID)
+		case kAudioStreamClassID: 			return AudioStream(objectID) 			// Revisit if a subclass of `AudioStream` is added
 
 		default:
-			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@'", objectBaseClass.fourCC)
+			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@' for audio object 0x%{public}@", baseClass.fourCC, String(objectID, radix: 16, uppercase: false))
 			return AudioObject(objectID)
 		}
 	}
@@ -485,7 +446,7 @@ extension AudioObject {
 // MARK: -
 
 /// A thin wrapper around a HAL audio object property selector for a specific `AudioObject` subclass
-public struct AudioObjectSelector<T: AudioObject> {
+public struct AudioObjectSelector<T: AudioObject>: Equatable, Hashable, Sendable {
 	/// The underlying `AudioObjectPropertySelector` value
 	let rawValue: AudioObjectPropertySelector
 
@@ -565,5 +526,28 @@ extension AudioObjectSelector where T == AudioObject {
 extension AudioObjectSelector: CustomStringConvertible {
 	public var description: String {
 		return "\(type(of: T.self)): '\(rawValue.fourCC)'"
+	}
+}
+
+// MARK: -
+
+/// Creates and returns an initialized `AudioObject` or subclass.
+func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
+	precondition(objectID != kAudioObjectUnknown)
+	precondition(objectID != kAudioObjectSystemObject)
+
+	let objectClass = try AudioObjectClass(objectID)
+
+	switch objectClass {
+	case kAudioObjectClassID: 		return AudioObject(objectID)
+	case kAudioBoxClassID: 			return AudioBox(objectID)
+	case kAudioClockDeviceClassID: 	return AudioClockDevice(objectID)
+	case kAudioControlClassID: 		return AudioControl(objectID)
+	case kAudioDeviceClassID: 		return AudioDevice(objectID)
+	case kAudioPlugInClassID: 		return AudioPlugIn(objectID)
+	case kAudioStreamClassID: 		return AudioStream(objectID)
+	default:
+		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
+		return AudioObject(objectID)
 	}
 }

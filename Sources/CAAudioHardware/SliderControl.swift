@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -13,7 +13,7 @@ public class SliderControl: AudioControl {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element())), \(try value())>"
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope), \(try element)), \(try value)>"
 		} catch {
 			return super.debugDescription
 		}
@@ -23,8 +23,10 @@ public class SliderControl: AudioControl {
 extension SliderControl {
 	/// Returns the control's value
 	/// - remark: This corresponds to the property `kAudioSliderControlPropertyValue`
-	public func value() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioSliderControlPropertyValue))
+	public var value: UInt32 {
+		get throws {
+			try getProperty(PropertyAddress(kAudioSliderControlPropertyValue))
+		}
 	}
 	/// Sets the control's value
 	/// - remark: This corresponds to the property `kAudioSliderControlPropertyValue`
@@ -34,10 +36,12 @@ extension SliderControl {
 
 	/// Returns the available control values
 	/// - remark: This corresponds to the property `kAudioSliderControlPropertyRange`
-	public func range() throws -> ClosedRange<UInt32> {
-		let value = try getProperty(PropertyAddress(kAudioSliderControlPropertyRange), elementType: UInt32.self)
-		precondition(value.count == 2, "Unexpected array length for kAudioSliderControlPropertyRange")
-		return value[0] ... value[1]
+	public var range: ClosedRange<UInt32> {
+		get throws {
+			let value = try getProperty(PropertyAddress(kAudioSliderControlPropertyRange), elementType: UInt32.self)
+			precondition(value.count == 2, "Unexpected array length for kAudioSliderControlPropertyRange")
+			return value[0] ... value[1]
+		}
 	}
 }
 

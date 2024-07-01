@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -13,8 +13,8 @@ public class StereoPanControl: AudioControl {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			let panningChannels = try self.panningChannels()
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element())), \(try value()), (\(panningChannels.0), \(panningChannels.1))>"
+			let panningChannels = try self.panningChannels
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope), \(try element)), \(try value), (\(panningChannels.0), \(panningChannels.1))>"
 		} catch {
 			return super.debugDescription
 		}
@@ -24,8 +24,10 @@ public class StereoPanControl: AudioControl {
 extension StereoPanControl {
 	/// Returns the control's value
 	/// - remark: This corresponds to the property `kAudioStereoPanControlPropertyValue`
-	public func value() throws -> Float {
-		return try getProperty(PropertyAddress(kAudioStereoPanControlPropertyValue))
+	public var value: Float {
+		get throws {
+			try getProperty(PropertyAddress(kAudioStereoPanControlPropertyValue))
+		}
 	}
 	/// Sets the control's value
 	/// - remark: This corresponds to the property `kAudioStereoPanControlPropertyValue`
@@ -35,10 +37,12 @@ extension StereoPanControl {
 
 	/// Returns the control's panning channels
 	/// - remark: This corresponds to the property `kAudioStereoPanControlPropertyPanningChannels`
-	public func panningChannels() throws -> (PropertyElement, PropertyElement) {
-		let channels = try getProperty(PropertyAddress(kAudioStereoPanControlPropertyPanningChannels), elementType: UInt32.self)
-		precondition(channels.count == 2)
-		return (PropertyElement(channels[0]), PropertyElement(channels[1]))
+	public var panningChannels: (PropertyElement, PropertyElement) {
+		get throws {
+			let channels = try getProperty(PropertyAddress(kAudioStereoPanControlPropertyPanningChannels), elementType: UInt32.self)
+			precondition(channels.count == 2)
+			return (PropertyElement(channels[0]), PropertyElement(channels[1]))
+		}
 	}
 	/// Sets the control's panning channels
 	/// - remark: This corresponds to the property `kAudioStereoPanControlPropertyPanningChannels`

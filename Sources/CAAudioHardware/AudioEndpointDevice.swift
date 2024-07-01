@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -15,20 +15,27 @@ public class AudioEndpointDevice: AudioDevice {
 extension AudioEndpointDevice {
 	/// Returns the composition
 	/// - remark: This corresponds to the property `kAudioEndPointDevicePropertyComposition`
-	public func composition() throws -> [AnyHashable: Any] {
-		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyComposition), type: CFDictionary.self) as! [AnyHashable: Any]
+	public var composition: [AnyHashable: Any] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioEndPointDevicePropertyComposition), type: CFDictionary.self) as! [AnyHashable: Any]
+		}
 	}
 
 	/// Returns the audio endpoints owned by `self`
 	/// - remark: This corresponds to the property `kAudioEndPointDevicePropertyEndPointList`
-	public func endpointList() throws -> [AudioEndpoint] {
-		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyEndPointList)).map { try AudioObject.make($0).cast() }
+	public var endpointList: [AudioEndpoint] {
+		get throws {
+			// Revisit if a subclass of `AudioEndpoint` is added
+			try getProperty(PropertyAddress(kAudioEndPointDevicePropertyEndPointList)).map { AudioEndpoint($0) }
+		}
 	}
 
 	/// Returns the owning `pid_t`or `0` for public devices
 	/// - remark: This corresponds to the property `kAudioEndPointDevicePropertyIsPrivate`
-	public func isPrivate() throws -> pid_t {
-		return try getProperty(PropertyAddress(kAudioEndPointDevicePropertyIsPrivate))
+	public var isPrivate: pid_t {
+		get throws {
+			try getProperty(PropertyAddress(kAudioEndPointDevicePropertyIsPrivate))
+		}
 	}
 }
 

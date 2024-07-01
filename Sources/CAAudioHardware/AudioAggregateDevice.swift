@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -25,9 +25,11 @@ public class AudioAggregateDevice: AudioDevice {
 		return AudioAggregateDevice(objectID)
 	}
 
+#if false
 	public func destroy() throws {
 		removeAllPropertyListeners()
 	}
+#endif
 
 	/// Destroys `device`
 	/// - note: Futher use of `device` following this function is undefined
@@ -46,60 +48,83 @@ public class AudioAggregateDevice: AudioDevice {
 extension AudioAggregateDevice {
 	/// Returns the UIDs of all subdevices in the aggregate device, active or inactive
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyFullSubDeviceList`
-	public func fullSubdeviceList() throws -> [String] {
-		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyFullSubDeviceList), type: CFArray.self) as! [String]
+	public var fullSubdeviceList: [String] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyFullSubDeviceList), type: CFArray.self) as! [String]
+		}
 	}
 
 	/// Returns the active subdevices in the aggregate device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyActiveSubDeviceList`
-	public func activeSubdeviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyActiveSubDeviceList)).map { try AudioObject.make($0).cast() }
+	public var activeSubdeviceList: [AudioDevice] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyActiveSubDeviceList)).map { try makeAudioDevice($0) }
+		}
 	}
 
 	/// Returns the composition
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyComposition`
-	public func composition() throws -> [AnyHashable: Any] {
-		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyComposition), type: CFDictionary.self) as! [AnyHashable: Any]
+	public var composition: [AnyHashable: Any] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyComposition), type: CFDictionary.self) as! [AnyHashable: Any]
+		}
 	}
 
-	/// Returns the main subdevice
+	/// Returns the UID of the main subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMainSubDevice`
-	public func mainSubdevice() throws -> AudioDevice {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice))).cast()
+	public var mainSubdevice: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice), type: CFString.self) as String
+		}
 	}
 
-	/// Returns the master subdevice
+	/// Returns the UID of the master subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMasterSubDevice`
 	@available(macOS, introduced: 10.0, deprecated: 12.0, renamed: "mainSubdevice")
-	public func masterSubdevice() throws -> AudioDevice {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice))).cast()
+	public var masterSubdevice: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice), type: CFString.self) as String
+		}
 	}
 
-	/// Returns the clock device
+	/// Returns the UID of the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`
-	public func clockDevice() throws -> AudioClockDevice {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice))).cast()
+	public var aggregateClockDevice: String {
+		get throws {
+			// Revisit if a subclass of `AudioClockDevice` is added
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), type: CFString.self) as String
+		}
 	}
-	/// Sets the clock device
+	/// Sets the UID of the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`
-	public func setClockDevice(_ value: AudioClockDevice) throws {
-		try setProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), to: value.objectID)
+	public func setAggregateClockDevice(_ value: String) throws {
+		try setProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), to: value as CFString)
 	}
 }
 
 extension AudioAggregateDevice {
 	/// Returns `true` if the aggregate device is private
-	/// - remark: This corresponds to the value of `kAudioAggregateDeviceIsPrivateKey` in `composition()`
-	public func isPrivate() throws -> Bool {
-		let isPrivate = try composition()[kAudioAggregateDeviceIsPrivateKey] as? NSNumber
-		return isPrivate?.boolValue ?? false
+	/// - remark: This corresponds to the value of `kAudioAggregateDeviceIsPrivateKey` in `composition`
+	/// - attention: If `kAudioAggregateDeviceIsPrivateKey` is not present in `composition` an error is thrown
+	public var isPrivate: Bool {
+		get throws {
+			guard let isPrivate = try composition[kAudioAggregateDeviceIsPrivateKey] as? NSNumber else {
+				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError), userInfo: nil)
+			}
+			return isPrivate.boolValue
+		}
 	}
 
 	/// Returns `true` if the aggregate device is stacked
-	/// - remark: This corresponds to the value of `kAudioAggregateDeviceIsStackedKey` in `composition()`
-	public func isStacked() throws -> Bool {
-		let isPrivate = try composition()[kAudioAggregateDeviceIsStackedKey] as? NSNumber
-		return isPrivate?.boolValue ?? false
+	/// - remark: This corresponds to the value of `kAudioAggregateDeviceIsStackedKey` in `composition`
+	/// - attention: If `kAudioAggregateDeviceIsStackedKey` is not present in `composition` an error is thrown
+	public var isStacked: Bool {
+		get throws {
+			guard let isStacked = try composition[kAudioAggregateDeviceIsStackedKey] as? NSNumber else {
+				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError), userInfo: nil)
+			}
+			return isStacked.boolValue
+		}
 	}
 }
 

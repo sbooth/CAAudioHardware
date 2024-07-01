@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -13,7 +13,7 @@ import CoreAudio
 /// - remark: This class correponds to the object with id `kAudioObjectSystemObject` and class `kAudioSystemObjectClassID`
 public class AudioSystemObject: AudioObject {
 	/// The singleton audio system object
-	public static var instance = AudioSystemObject()
+	public static let instance = AudioSystemObject()
 
 	@available(*, unavailable, message: "Use instance instead")
 	private override init(_ objectID: AudioObjectID) {
@@ -41,8 +41,10 @@ extension AudioSystemObject {
 
 	/// Returns `true` if audio devices should mix stereo to mono
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyMixStereoToMono`
-	public func mixStereoToMono() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioHardwarePropertyMixStereoToMono), type: UInt32.self) != 0
+	public var mixStereoToMono: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioHardwarePropertyMixStereoToMono), type: UInt32.self) != 0
+		}
 	}
 	/// Sets whether audio devices should mix stereo to mono
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyMixStereoToMono`
@@ -100,21 +102,27 @@ extension AudioSystemObject {
 
 	/// Returns `true` if the current process contains the main instance of the HAL
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyProcessIsMain`
-	public func processIsMain() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioHardwarePropertyProcessIsMain), type: UInt32.self) != 0
+	public var processIsMain: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioHardwarePropertyProcessIsMain), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns `true` if the current process contains the master HAL instance
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyProcessIsMaster`
 	@available(macOS, introduced: 10.0, deprecated: 12.0, renamed: "processIsMain")
-	public func processIsMaster() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioHardwarePropertyProcessIsMaster), type: UInt32.self) != 0
+	public var processIsMaster: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioHardwarePropertyProcessIsMaster), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns `true` if the HAL is initing or exiting the process
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyIsInitingOrExiting`
-	public func isInitingOrExiting() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioHardwarePropertyIsInitingOrExiting), type: UInt32.self) != 0
+	public var isInitingOrExiting: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioHardwarePropertyIsInitingOrExiting), type: UInt32.self) != 0
+		}
 	}
 
 	/// Informs the HAL the effective user id of the process has changed
@@ -126,24 +134,24 @@ extension AudioSystemObject {
 	/// Returns `true` if all data coming into the process for all devices will be silent
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyProcessInputMute`
 	@available(macOS 14, *)
-	public func processInputMute() throws -> Bool {
-		// FIXME: When GitHub CI supports the macOS 14 SDK
-//		return try getProperty(PropertyAddress(kAudioHardwarePropertyProcessInputMute), type: UInt32.self) != 0
-		return try getProperty(PropertyAddress(PropertySelector(0x706d696e /* 'pmin' */)), type: UInt32.self) != 0
+	public var processInputMute: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioHardwarePropertyProcessInputMute), type: UInt32.self) != 0
+		}
 	}
 	/// Sets whether all data coming into the process for all devices will be silent
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyProcessInputMute`
 	@available(macOS 14, *)
 	public func setProcessInputMute(_ value: Bool) throws {
-		// FIXME: When GitHub CI supports the macOS 14 SDK
-//		try setProperty(PropertyAddress(kAudioHardwarePropertyProcessInputMute), to: UInt32(value ? 1 : 0))
-		try setProperty(PropertyAddress(AudioObjectPropertySelector(0x706d696e /* 'pmin' */)), to: UInt32(value ? 1 : 0))
+		try setProperty(PropertyAddress(kAudioHardwarePropertyProcessInputMute), to: UInt32(value ? 1 : 0))
 	}
 
 	/// Returns `true` if the process will be heard
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyProcessIsAudible`
-	public func processIsAudible() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioHardwarePropertyProcessIsAudible), type: UInt32.self) != 0
+	public var processIsAudible: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioHardwarePropertyProcessIsAudible), type: UInt32.self) != 0
+		}
 	}
 	/// Sets whether the process is audible
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyProcessIsAudible`
@@ -153,8 +161,10 @@ extension AudioSystemObject {
 
 	/// Returns `true` if the process will allow the CPU to sleep while audio IO is in progress
 	/// - remark: This corresponds to the property `kAudioHardwarePropertySleepingIsAllowed`
-	public func sleepingIsAllowed() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioHardwarePropertySleepingIsAllowed), type: UInt32.self) != 0
+	public var sleepingIsAllowed: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioHardwarePropertySleepingIsAllowed), type: UInt32.self) != 0
+		}
 	}
 	/// Sets whether the process will allow the CPU to sleep while audio IO is in progress
 	/// - remark: This corresponds to the property `kAudioHardwarePropertySleepingIsAllowed`
@@ -164,8 +174,10 @@ extension AudioSystemObject {
 
 	/// Returns `true` if the process should be unloaded after a period of inactivity
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyUnloadingIsAllowed`
-	public func unloadingIsAllowed() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioHardwarePropertyUnloadingIsAllowed), type: UInt32.self) != 0
+	public var unloadingIsAllowed: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioHardwarePropertyUnloadingIsAllowed), type: UInt32.self) != 0
+		}
 	}
 	/// Sets whether the process should be unloaded after a period of inactivity
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyUnloadingIsAllowed`
@@ -175,8 +187,10 @@ extension AudioSystemObject {
 
 	/// Returns `true` if the HAL should automatically take hog mode on behalf of the process
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyHogModeIsAllowed`
-	public func hogModeIsAllowed() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioHardwarePropertyHogModeIsAllowed), type: UInt32.self) != 0
+	public var hogModeIsAllowed: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioHardwarePropertyHogModeIsAllowed), type: UInt32.self) != 0
+		}
 	}
 	/// Sets whether the HAL should automatically take hog mode on behalf of the process
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyHogModeIsAllowed`
@@ -186,14 +200,18 @@ extension AudioSystemObject {
 
 	/// Returns `true` if the login session of the user is a console or headless session
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyUserSessionIsActiveOrHeadless`
-	public func userSessionIsActiveOrHeadless() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioHardwarePropertyUserSessionIsActiveOrHeadless), type: UInt32.self) != 0
+	public var userSessionIsActiveOrHeadless: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioHardwarePropertyUserSessionIsActiveOrHeadless), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns the power hint
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyPowerHint`
-	public func powerHint() throws -> AudioHardwarePowerHint {
-		return AudioHardwarePowerHint(rawValue: try getProperty(PropertyAddress(kAudioHardwarePropertyPowerHint), type: UInt32.self))!
+	public var powerHint: AudioHardwarePowerHint {
+		get throws {
+			AudioHardwarePowerHint(rawValue: try getProperty(PropertyAddress(kAudioHardwarePropertyPowerHint), type: UInt32.self))!
+		}
 	}
 	/// Sets the power hint
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyPowerHint`
@@ -266,9 +284,7 @@ extension AudioObjectSelector where T == AudioSystemObject {
 	public static let userIDChanged = AudioObjectSelector(kAudioHardwarePropertyUserIDChanged)
 	/// The property selector `kAudioHardwarePropertyProcessInputMute`
 	@available(macOS 14, *)
-	// FIXME: When GitHub CI supports the macOS 14 SDK
-//	public static let processInputMute = AudioObjectSelector(kAudioHardwarePropertyProcessInputMute)
-	public static let processInputMute = AudioObjectSelector(0x706d696e /* 'pmin' */)
+	public static let processInputMute = AudioObjectSelector(kAudioHardwarePropertyProcessInputMute)
 	/// The property selector `kAudioHardwarePropertyProcessIsAudible`
 	public static let processIsAudible = AudioObjectSelector(kAudioHardwarePropertyProcessIsAudible)
 	/// The property selector `kAudioHardwarePropertySleepingIsAllowed`

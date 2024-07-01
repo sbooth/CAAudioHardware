@@ -1,11 +1,12 @@
 //
-// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
 
 import Foundation
 import CoreAudio
+import os.log
 
 /// A HAL audio selector control object
 /// - remark: This class correponds to objects with base class `kAudioSelectorControlClassID`
@@ -13,7 +14,7 @@ public class SelectorControl: AudioControl {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element())), [\(try currentItem().map({ "'\($0.fourCC)'" }).joined(separator: ", "))]>"
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope), \(try element)), [\(try currentItem.map({ "'\($0.fourCC)'" }).joined(separator: ", "))]>"
 		} catch {
 			return super.debugDescription
 		}
@@ -23,8 +24,10 @@ public class SelectorControl: AudioControl {
 extension SelectorControl {
 	/// Returns the selected items
 	/// - remark: This corresponds to the property `kAudioSelectorControlPropertyCurrentItem`
-	public func currentItem() throws -> [UInt32] {
-		return try getProperty(PropertyAddress(kAudioSelectorControlPropertyCurrentItem))
+	public var currentItem: [UInt32] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioSelectorControlPropertyCurrentItem))
+		}
 	}
 	/// Sets the selected items
 	/// - remark: This corresponds to the property `kAudioSelectorControlPropertyCurrentItem`
@@ -34,8 +37,10 @@ extension SelectorControl {
 
 	/// Returns the available items
 	/// - remark: This corresponds to the property `kAudioSelectorControlPropertyAvailableItems`
-	public func availableItems() throws -> [UInt32] {
-		return try getProperty(PropertyAddress(kAudioSelectorControlPropertyAvailableItems))
+	public var availableItems: [UInt32] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioSelectorControlPropertyAvailableItems))
+		}
 	}
 
 	/// Returns the name of `itemID`
@@ -50,37 +55,6 @@ extension SelectorControl {
 	public func kindOfItem(_ itemID: UInt32) throws -> UInt32 {
 		var qualifier = itemID
 		return try getProperty(PropertyAddress(kAudioSelectorControlPropertyItemKind), qualifier: PropertyQualifier(&qualifier))
-	}
-}
-
-extension SelectorControl {
-	/// An item in a selector control
-	public struct Item {
-		/// The owning selector control
-		public let control: SelectorControl
-		/// The item ID
-		public let id: UInt32
-
-		/// Returns the item name
-		public func name() throws -> String {
-			return try control.nameOfItem(id)
-		}
-
-		/// Returns the item kind
-		public func kind() throws -> UInt32 {
-			return try control.kindOfItem(id)
-		}
-	}
-}
-
-extension SelectorControl.Item: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): '\(id.fourCC)' \"\(name)\" on SelectorControl 0x\(String(control.objectID, radix: 16, uppercase: false))>"
-		} else {
-			return "<\(type(of: self)): '\(id.fourCC)' on SelectorControl 0x\(String(control.objectID, radix: 16, uppercase: false)))>"
-		}
 	}
 }
 
@@ -144,4 +118,24 @@ public class LineLevelControl: SelectorControl {
 /// A HAL audio high pass filter control
 /// - remark: This class correponds to objects with base class `kAudioHighPassFilterControlClassID`
 public class HighPassFilterControl: SelectorControl {
+}
+
+/// Creates and returns an initialized `SelectorControl` or subclass.
+func makeSelectorControl(_ objectID: AudioObjectID) throws -> SelectorControl {
+	precondition(objectID != kAudioObjectUnknown)
+	precondition(objectID != kAudioObjectSystemObject)
+
+	let objectClass = try AudioObjectClass(objectID)
+
+	switch objectClass {
+	case kAudioSelectorControlClassID: 			return SelectorControl(objectID)
+	case kAudioDataSourceControlClassID: 		return DataSourceControl(objectID)
+	case kAudioDataDestinationControlClassID: 	return DataDestinationControl(objectID)
+	case kAudioClockSourceControlClassID: 		return ClockSourceControl(objectID)
+	case kAudioLineLevelControlClassID: 		return LineLevelControl(objectID)
+	case kAudioHighPassFilterControlClassID: 	return HighPassFilterControl(objectID)
+	default:
+		os_log(.debug, log: audioObjectLog, "Unknown selector control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
+		return SelectorControl(objectID)
+	}
 }

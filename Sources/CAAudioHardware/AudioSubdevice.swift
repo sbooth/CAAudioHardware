@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -15,14 +15,18 @@ public class AudioSubdevice: AudioDevice {
 extension AudioSubdevice {
 	/// Returns the extra latency
 	/// - remark: This corresponds to the property `kAudioSubDevicePropertyExtraLatency`
-	public func extraLatency() throws -> Double {
-		return try getProperty(PropertyAddress(kAudioSubDevicePropertyExtraLatency))
+	public var extraLatency: Double {
+		get throws {
+			try getProperty(PropertyAddress(kAudioSubDevicePropertyExtraLatency))
+		}
 	}
 
 	/// Returns the drift compensation
 	/// - remark: This corresponds to the property `kAudioSubDevicePropertyDriftCompensation`
-	public func driftCompensation() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioSubDevicePropertyDriftCompensation), type: UInt32.self) != 0
+	public var driftCompensation: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioSubDevicePropertyDriftCompensation), type: UInt32.self) != 0
+		}
 	}
 	/// Sets the drift compensation
 	/// - remark: This corresponds to the property `kAudioSubDevicePropertyDriftCompensation`
@@ -32,76 +36,15 @@ extension AudioSubdevice {
 
 	/// Returns the drift compensation quality
 	/// - remark: This corresponds to the property `kAudioSubDevicePropertyDriftCompensationQuality`
-	public func driftCompensationQuality() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioSubDevicePropertyDriftCompensationQuality))
+	public var driftCompensationQuality: DriftCompensationQuality {
+		get throws {
+			DriftCompensationQuality(try getProperty(PropertyAddress(kAudioSubDevicePropertyDriftCompensationQuality), type: UInt32.self))
+		}
 	}
 	/// Sets the drift compensation quality
 	/// - remark: This corresponds to the property `kAudioSubDevicePropertyDriftCompensationQuality`
-	public func setDriftCompensationQuality(_ value: UInt32) throws {
-		try setProperty(PropertyAddress(kAudioSubDevicePropertyDriftCompensationQuality), to: value)
-	}
-}
-
-extension AudioSubdevice {
-	/// A thin wrapper around a HAL audio subdevice drift compensation quality setting
-	public struct DriftCompensationQuality: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
-		/// Minimum quality
-		@available(macOS 13, *)
-		public static let min 		= DriftCompensationQuality(rawValue: kAudioSubDeviceDriftCompensationMinQuality)
-//		@available(macOS 14, *)
-//		public static let min 		= DriftCompensationQuality(rawValue: kAudioAggregateDriftCompensationMinQuality)
-		/// Low quality
-		@available(macOS 13, *)
-		public static let low 		= DriftCompensationQuality(rawValue: kAudioSubDeviceDriftCompensationLowQuality)
-//		@available(macOS 14, *)
-//		public static let low 		= DriftCompensationQuality(rawValue: kAudioAggregateDriftCompensationLowQuality)
-		/// Medium quality
-		@available(macOS 13, *)
-		public static let medium 	= DriftCompensationQuality(rawValue: kAudioSubDeviceDriftCompensationMediumQuality)
-//		@available(macOS 14, *)
-//		public static let medium 	= DriftCompensationQuality(rawValue: kAudioAggregateDriftCompensationMediumQuality)
-		/// High quality
-		@available(macOS 13, *)
-		public static let high 		= DriftCompensationQuality(rawValue: kAudioSubDeviceDriftCompensationHighQuality)
-//		@available(macOS 14, *)
-//		public static let high 		= DriftCompensationQuality(rawValue: kAudioAggregateDriftCompensationHighQuality)
-		/// Maximum quality
-		@available(macOS 13, *)
-		public static let max 		= DriftCompensationQuality(rawValue: kAudioSubDeviceDriftCompensationMaxQuality)
-//		@available(macOS 14, *)
-//		public static let max 		= DriftCompensationQuality(rawValue: kAudioAggregateDriftCompensationMaxQuality)
-
-		public let rawValue: UInt32
-
-		public init(rawValue: UInt32) {
-			self.rawValue = rawValue
-		}
-
-		public init(integerLiteral value: UInt32) {
-			self.rawValue = value
-		}
-
-		public init(stringLiteral value: StringLiteralType) {
-			self.rawValue = value.fourCC
-		}
-	}
-}
-
-extension AudioSubdevice.DriftCompensationQuality: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		if #available(macOS 13.0, *) {
-			switch self.rawValue {
-			case kAudioSubDeviceDriftCompensationMinQuality:			return "Minimum (0x\(String(self.rawValue, radix: 16)))"
-			case kAudioSubDeviceDriftCompensationLowQuality:			return "Low (0x\(String(self.rawValue, radix: 16)))"
-			case kAudioSubDeviceDriftCompensationMediumQuality: 		return "Medium (0x\(String(self.rawValue, radix: 16)))"
-			case kAudioSubDeviceDriftCompensationHighQuality:			return "High (0x\(String(self.rawValue, radix: 16)))"
-			case kAudioSubDeviceDriftCompensationMaxQuality:			return "Maximum (0x\(String(self.rawValue, radix: 16)))"
-			default:													return "\(String(self.rawValue, radix: 16))"
-			}
-		} else {
-			return "\(String(self.rawValue, radix: 16))"
-		}
+	public func setDriftCompensationQuality(_ value: DriftCompensationQuality) throws {
+		try setProperty(PropertyAddress(kAudioSubDevicePropertyDriftCompensationQuality), to: value.rawValue)
 	}
 }
 

@@ -1,11 +1,12 @@
 //
-// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
 
 import Foundation
 import CoreAudio
+import os.log
 
 /// A HAL audio boolean control object
 /// - remark: This class correponds to objects with base class `kAudioBooleanControlClassID`
@@ -13,7 +14,7 @@ public class BooleanControl: AudioControl {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element())), \(try value() ? "On" : "Off")>"
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope), \(try element)), \(try value ? "On" : "Off")>"
 		} catch {
 			return super.debugDescription
 		}
@@ -23,8 +24,10 @@ public class BooleanControl: AudioControl {
 extension BooleanControl {
 	/// Returns the control's value
 	/// - remark: This corresponds to the property `kAudioBooleanControlPropertyValue`
-	public func value() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioBooleanControlPropertyValue), type: UInt32.self) != 0
+	public var value: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioBooleanControlPropertyValue), type: UInt32.self) != 0
+		}
 	}
 	/// Sets the control's value
 	/// - remark: This corresponds to the property `kAudioBooleanControlPropertyValue`
@@ -107,4 +110,30 @@ public class TalkbackControl: BooleanControl {
 /// A HAL audio listenback control object
 /// - remark: This class correponds to objects with base class `kAudioListenbackControlClassID`
 public class ListenbackControl: BooleanControl {
+}
+
+// MARK: -
+
+/// Creates and returns an initialized `BooleanControl` or subclass.
+func makeBooleanControl(_ objectID: AudioObjectID) throws -> BooleanControl {
+	precondition(objectID != kAudioObjectUnknown)
+	precondition(objectID != kAudioObjectSystemObject)
+
+	let objectClass = try AudioObjectClass(objectID)
+
+	switch objectClass {
+	case kAudioBooleanControlClassID: 		return BooleanControl(objectID)
+	case kAudioMuteControlClassID: 			return MuteControl(objectID)
+	case kAudioSoloControlClassID:			return SoloControl(objectID)
+	case kAudioJackControlClassID:			return JackControl(objectID)
+	case kAudioLFEMuteControlClassID:		return LFEMuteControl(objectID)
+	case kAudioPhantomPowerControlClassID:	return PhantomPowerControl(objectID)
+	case kAudioPhaseInvertControlClassID:	return PhaseInvertControl(objectID)
+	case kAudioClipLightControlClassID:		return ClipLightControl(objectID)
+	case kAudioTalkbackControlClassID:		return TalkbackControl(objectID)
+	case kAudioListenbackControlClassID: 	return ListenbackControl(objectID)
+	default:
+		os_log(.debug, log: audioObjectLog, "Unknown boolean control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
+		return BooleanControl(objectID)
+	}
 }

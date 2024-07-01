@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -44,13 +44,6 @@ public class AudioBufferListWrapper {
 extension AudioBufferListWrapper: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		return "<\(type(of: self)): mNumberBuffers = \(numberBuffers), mBuffers = [\(buffers.map({ $0.debugDescription }).joined(separator: ", "))]>"
-	}
-}
-
-extension AudioBuffer: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		return "<\(type(of: self)): mNumberChannels = \(mNumberChannels), mDataByteSize = \(mDataByteSize), mData = \(mData?.debugDescription ?? "nil")>"
+		return "<\(type(of: self)): mNumberBuffers = \(numberBuffers), mBuffers = [\(buffers.map({ "<\(type(of: $0)): mNumberChannels = \($0.mNumberChannels), mDataByteSize = \($0.mDataByteSize), mData = \($0.mData?.debugDescription ?? "nil")>" }).joined(separator: ", "))]>"
 	}
 }

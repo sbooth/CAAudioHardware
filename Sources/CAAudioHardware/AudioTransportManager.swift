@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 - 2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -14,24 +14,31 @@ import CoreAudio
 public class AudioTransportManager: AudioPlugIn {
 	/// Returns the available audio transport managers
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyTransportManagerList` on `kAudioObjectSystemObject`
-	public class func transportManagers() throws -> [AudioTransportManager] {
-		return try AudioSystemObject.instance.getProperty(PropertyAddress(kAudioHardwarePropertyTransportManagerList)).map { try AudioObject.make($0).cast() }
+	public static var transportManagers: [AudioTransportManager] {
+		get throws {
+			// Revisit if a subclass of `AudioTransportManager` is added
+			try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTransportManagerList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioTransportManager($0) }
+		}
 	}
 
 	/// Returns an initialized `AudioTransportManager` with `bundleID` or `nil` if unknown
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyTranslateBundleIDToTransportManager` on `kAudioObjectSystemObject`
 	/// - parameter bundleID: The bundle ID of the desired transport manager
 	public class func makeTransportManager(forBundleID bundleID: String) throws -> AudioTransportManager? {
-		guard let objectID = try AudioSystemObject.instance.transportManagerID(forBundleID: bundleID) else {
+		var qualifier = bundleID as CFString
+		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslateBundleIDToTransportManager), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
+		guard objectID != kAudioObjectUnknown else {
 			return nil
 		}
-		return try AudioObject.make(objectID).cast()
+
+		// Revisit if a subclass of `AudioTransportManager` is added
+		return AudioTransportManager(objectID)
 	}
 
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), [\(try endpointList().map({ $0.debugDescription }).joined(separator: ", "))]>"
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), [\(try endpointList.map({ $0.debugDescription }).joined(separator: ", "))]>"
 		} catch {
 			return super.debugDescription
 		}
@@ -44,8 +51,9 @@ extension AudioTransportManager {
 	/// - parameter composition: The composition of the new endpoint device
 	/// - note: The constants for `composition` are defined in `AudioHardware.h`
 	func createEndpointDevice(composition: [AnyHashable: Any]) throws -> AudioEndpointDevice {
+		// Revisit if a subclass of `AudioEndpointDevice` is added
 		var qualifier = composition as CFDictionary
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioTransportManagerCreateEndPointDevice), qualifier: PropertyQualifier(&qualifier))).cast()
+		return AudioEndpointDevice(try getProperty(PropertyAddress(kAudioTransportManagerCreateEndPointDevice), qualifier: PropertyQualifier(&qualifier)))
 	}
 
 	/// Destroys an endpoint device
@@ -56,8 +64,11 @@ extension AudioTransportManager {
 
 	/// Returns the audio endpoints provided by the transport manager
 	/// - remark: This corresponds to the property `kAudioTransportManagerPropertyEndPointList`
-	public func endpointList() throws -> [AudioEndpoint] {
-		return try getProperty(PropertyAddress(kAudioTransportManagerPropertyEndPointList)).map { try AudioObject.make($0).cast() }
+	public var endpointList: [AudioEndpoint] {
+		get throws {
+			// Revisit if a subclass of `AudioEndpoint` is added
+			try getProperty(PropertyAddress(kAudioTransportManagerPropertyEndPointList)).map { AudioEndpoint($0) }
+		}
 	}
 
 	/// Returns the audio endpoint provided by the transport manager with the specified UID or `nil` if unknown
@@ -69,13 +80,16 @@ extension AudioTransportManager {
 		guard endpointObjectID != kAudioObjectUnknown else {
 			return nil
 		}
-		return try AudioObject.make(endpointObjectID).cast()
+		// Revisit if a subclass of `AudioEndpoint` is added
+		return AudioEndpoint(endpointObjectID)
 	}
 
 	/// Returns the transport type
 	/// - remark: This corresponds to the property `kAudioTransportManagerPropertyTransportType`
-	public func transportType() throws -> AudioDevice.TransportType {
-		return AudioDevice.TransportType(rawValue: try getProperty(PropertyAddress(kAudioTransportManagerPropertyTransportType), type: UInt32.self))
+	public var transportType: AudioDevice.TransportType {
+		get throws {
+			AudioDevice.TransportType(try getProperty(PropertyAddress(kAudioTransportManagerPropertyTransportType), type: UInt32.self))
+		}
 	}
 }
 

@@ -2,11 +2,19 @@ import XCTest
 @testable import CAAudioHardware
 
 final class CAAudioHardwareTests: XCTestCase {
-    func testExample() throws {
-        // XCTest Documentation
-        // https://developer.apple.com/documentation/xctest
+    func testDevices() throws {
+		let devices = try AudioDevice.devices
+		for device in devices {
+			let ownedObjects = try device.ownedObjects
+			for ownedObject in ownedObjects {
+				let owner = try ownedObject.owner
+				XCTAssertEqual(owner, device)
+			}
 
-        // Defining Test Cases and Test Methods
-        // https://developer.apple.com/documentation/xctest/defining_test_cases_and_test_methods
+			_ = try device.controlList
+			
+			_ = try device.streams(inScope: .output)
+			_ = try device.streams(inScope: .input)
+		}
     }
 }
