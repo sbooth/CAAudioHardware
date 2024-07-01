@@ -18,8 +18,10 @@ extension AudioDevice {
 		public let id: UInt32
 
 		/// Returns the high-pass filter setting name
-		public func name() throws -> String {
-			return try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyHighPassFilterSettingNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+		public var name: String {
+			get throws {
+				return try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyHighPassFilterSettingNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+			}
 		}
 	}
 }
@@ -27,9 +29,9 @@ extension AudioDevice {
 extension AudioDevice.HighPassFilterSetting: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\">"
-		} else {
+		do {
+			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(try name)\">"
+		} catch {
 			return "<\(type(of: self)): (\(scope), '\(id.fourCC)')>"
 		}
 	}

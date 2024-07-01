@@ -18,8 +18,10 @@ extension AudioDevice {
 		public let id: UInt32
 
 		/// Returns the clock source name
-		public func name() throws -> String {
-			return try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+		public var name: String {
+			get throws {
+				return try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+			}
 		}
 
 		/// Returns the clock source kind
@@ -32,9 +34,9 @@ extension AudioDevice {
 extension AudioDevice.ClockSource: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\">"
-		} else {
+		do {
+			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(try name)\">"
+		} catch {
 			return "<\(type(of: self)): (\(scope), '\(id.fourCC)')>"
 		}
 	}

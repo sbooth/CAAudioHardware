@@ -16,15 +16,19 @@ extension SelectorControl {
 		public let id: UInt32
 
 		/// Returns the item name
-		public func name() throws -> String {
-			var qualifier = id
-			return try getAudioObjectProperty(PropertyAddress(kAudioSelectorControlPropertyItemName), from: controlID, type: CFString.self, qualifier: PropertyQualifier(&qualifier)) as String
+		public var name: String {
+			get throws {
+				var qualifier = id
+				return try getAudioObjectProperty(PropertyAddress(kAudioSelectorControlPropertyItemName), from: controlID, type: CFString.self, qualifier: PropertyQualifier(&qualifier)) as String
+			}
 		}
 
 		/// Returns the item kind
-		public func kind() throws -> UInt32 {
-			var qualifier = id
-			return try getAudioObjectProperty(PropertyAddress(kAudioSelectorControlPropertyItemKind), from: controlID, qualifier: PropertyQualifier(&qualifier))
+		public var kind: UInt32 {
+			get throws {
+				var qualifier = id
+				return try getAudioObjectProperty(PropertyAddress(kAudioSelectorControlPropertyItemKind), from: controlID, qualifier: PropertyQualifier(&qualifier))
+			}
 		}
 	}
 }
@@ -32,9 +36,9 @@ extension SelectorControl {
 extension SelectorControl.Item: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): '\(id.fourCC)' \"\(name)\">"
-		} else {
+		do {
+			return "<\(type(of: self)): '\(id.fourCC)' \"\(try name)\">"
+		} catch {
 			return "<\(type(of: self)): '\(id.fourCC)'>"
 		}
 	}
