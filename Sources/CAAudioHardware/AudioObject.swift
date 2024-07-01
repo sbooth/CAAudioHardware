@@ -422,7 +422,7 @@ extension AudioObject {
 // MARK: -
 
 /// A thin wrapper around a HAL audio object property selector for a specific `AudioObject` subclass
-public struct AudioObjectSelector<T: AudioObject> {
+public struct AudioObjectSelector<T: AudioObject>: Equatable, Hashable, Sendable {
 	/// The underlying `AudioObjectPropertySelector` value
 	let rawValue: AudioObjectPropertySelector
 
