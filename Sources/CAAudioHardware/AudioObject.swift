@@ -27,14 +27,19 @@ public class AudioObject: CustomDebugStringConvertible {
 	/// Registered audio object property listeners
 	private var propertyListeners = [PropertyAddress: PropertyListener]()
 
+	/// The lock protecting access to `propertyListeners`
+	private let lock = UnfairLock()
+
 	/// Removes all property listeners
 	/// - note: Errors are logged but otherwise ignored
 	func removeAllPropertyListeners() {
-		for (property, listener) in propertyListeners {
-			var address = property.rawValue
-			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
-			if result != kAudioHardwareNoError {
-				os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
+		lock.withLock {
+			for (property, listener) in propertyListeners {
+				var address = property.rawValue
+				let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
+				if result != kAudioHardwareNoError {
+					os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
+				}
 			}
 		}
 	}
@@ -80,7 +85,7 @@ public class AudioObject: CustomDebugStringConvertible {
 		var address = property.rawValue
 
 		// Remove the existing listener, if any, for the property
-		if let listener = propertyListeners.removeValue(forKey: property) {
+		if let listener = lock.withLock({ propertyListeners.removeValue(forKey: property) }) {
 			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
 			guard result == kAudioHardwareNoError else {
 				os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
@@ -111,7 +116,9 @@ public class AudioObject: CustomDebugStringConvertible {
 				throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
 			}
 
-			propertyListeners[property] = listener
+			lock.withLock {
+				propertyListeners[property] = listener
+			}
 		}
 	}
 
@@ -391,8 +398,14 @@ func AudioObjectBaseClass(_ objectID: AudioObjectID) throws -> AudioClassID {
 	return value
 }
 
+// See https://forums.developer.apple.com/forums/thread/747816
+// BL: `OSLog` should be `Sendable`
+
+#if swift(>=6.0)
+#warning("Reevaluate whether this decoration is necessary.")
+#endif
 /// The log for `AudioObject` and subclasses
-let audioObjectLog = OSLog(subsystem: "org.sbooth.CAAudioHardware", category: "AudioObject")
+nonisolated(unsafe) let audioObjectLog = OSLog(subsystem: "org.sbooth.CAAudioHardware", category: "AudioObject")
 
 // MARK: - AudioObject Creation
 
