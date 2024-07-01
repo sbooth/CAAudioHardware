@@ -48,40 +48,52 @@ public class AudioAggregateDevice: AudioDevice {
 extension AudioAggregateDevice {
 	/// Returns the UIDs of all subdevices in the aggregate device, active or inactive
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyFullSubDeviceList`
-	public func fullSubdeviceList() throws -> [String] {
-		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyFullSubDeviceList), type: CFArray.self) as! [String]
+	public var fullSubdeviceList: [String] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyFullSubDeviceList), type: CFArray.self) as! [String]
+		}
 	}
 
 	/// Returns the active subdevices in the aggregate device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyActiveSubDeviceList`
-	public func activeSubdeviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyActiveSubDeviceList)).map { try makeAudioDevice($0) }
+	public var activeSubdeviceList: [AudioDevice] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyActiveSubDeviceList)).map { try makeAudioDevice($0) }
+		}
 	}
 
 	/// Returns the composition
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyComposition`
-	public func composition() throws -> [AnyHashable: Any] {
-		return try getProperty(PropertyAddress(kAudioAggregateDevicePropertyComposition), type: CFDictionary.self) as! [AnyHashable: Any]
+	public var composition: [AnyHashable: Any] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyComposition), type: CFDictionary.self) as! [AnyHashable: Any]
+		}
 	}
 
 	/// Returns the main subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMainSubDevice`
-	public func mainSubdevice() throws -> AudioDevice {
-		return try makeAudioDevice(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice)))
+	public var mainSubdevice: AudioDevice {
+		get throws {
+			try makeAudioDevice(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice)))
+		}
 	}
 
 	/// Returns the master subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMasterSubDevice`
 	@available(macOS, introduced: 10.0, deprecated: 12.0, renamed: "mainSubdevice")
-	public func masterSubdevice() throws -> AudioDevice {
-		return try makeAudioDevice(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice)))
+	public var masterSubdevice: AudioDevice {
+		get throws {
+			try makeAudioDevice(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice)))
+		}
 	}
 
 	/// Returns the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`
-	public func clockDevice() throws -> AudioClockDevice {
-		// Revisit if a subclass of `AudioClockDevice` is added
-		return AudioClockDevice(try getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice)))
+	public var clockDevice: AudioClockDevice {
+		get throws {
+			// Revisit if a subclass of `AudioClockDevice` is added
+			AudioClockDevice(try getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice)))
+		}
 	}
 	/// Sets the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`
@@ -92,17 +104,27 @@ extension AudioAggregateDevice {
 
 extension AudioAggregateDevice {
 	/// Returns `true` if the aggregate device is private
-	/// - remark: This corresponds to the value of `kAudioAggregateDeviceIsPrivateKey` in `composition()`
-	public func isPrivate() throws -> Bool {
-		let isPrivate = try composition()[kAudioAggregateDeviceIsPrivateKey] as? NSNumber
-		return isPrivate?.boolValue ?? false
+	/// - remark: This corresponds to the value of `kAudioAggregateDeviceIsPrivateKey` in `composition`
+	/// - attention: If `kAudioAggregateDeviceIsPrivateKey` is not present in `composition` an error is thrown
+	public var isPrivate: Bool {
+		get throws {
+			guard let isPrivate = try composition[kAudioAggregateDeviceIsPrivateKey] as? NSNumber else {
+				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError), userInfo: nil)
+			}
+			return isPrivate.boolValue
+		}
 	}
 
 	/// Returns `true` if the aggregate device is stacked
-	/// - remark: This corresponds to the value of `kAudioAggregateDeviceIsStackedKey` in `composition()`
-	public func isStacked() throws -> Bool {
-		let isPrivate = try composition()[kAudioAggregateDeviceIsStackedKey] as? NSNumber
-		return isPrivate?.boolValue ?? false
+	/// - remark: This corresponds to the value of `kAudioAggregateDeviceIsStackedKey` in `composition`
+	/// - attention: If `kAudioAggregateDeviceIsStackedKey` is not present in `composition` an error is thrown
+	public var isStacked: Bool {
+		get throws {
+			guard let isStacked = try composition[kAudioAggregateDeviceIsStackedKey] as? NSNumber else {
+				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError), userInfo: nil)
+			}
+			return isStacked.boolValue
+		}
 	}
 }
 
