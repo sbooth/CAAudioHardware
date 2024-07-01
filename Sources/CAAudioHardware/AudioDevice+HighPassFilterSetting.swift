@@ -20,7 +20,7 @@ extension AudioDevice {
 		/// Returns the high-pass filter setting name
 		public var name: String {
 			get throws {
-				return try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyHighPassFilterSettingNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyHighPassFilterSettingNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
 			}
 		}
 	}

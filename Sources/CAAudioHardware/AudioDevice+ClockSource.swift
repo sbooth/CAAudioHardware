@@ -20,13 +20,15 @@ extension AudioDevice {
 		/// Returns the clock source name
 		public var name: String {
 			get throws {
-				return try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
 			}
 		}
 
 		/// Returns the clock source kind
-		public func kind() throws -> UInt32 {
-			return try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceKindForID), scope: scope), from: deviceID, translatingValue: id)
+		public var kind: UInt32 {
+			get throws {
+				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceKindForID), scope: scope), from: deviceID, translatingValue: id)
+			}
 		}
 	}
 }
