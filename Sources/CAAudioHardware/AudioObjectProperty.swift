@@ -15,7 +15,7 @@ import os.log
 /// - parameter objectID: The audio object to query
 /// - parameter qualifier: An optional property qualifier
 /// - throws: An exception if the object does not have the requested property or the property value could not be retrieved
-public func audioObjectPropertySize(_ property: PropertyAddress, from objectID: AudioObjectID, qualifier: PropertyQualifier? = nil) throws -> Int {
+func audioObjectPropertySize(_ property: PropertyAddress, from objectID: AudioObjectID, qualifier: PropertyQualifier? = nil) throws -> Int {
 	var propertyAddress = property.rawValue
 	var dataSize: UInt32 = 0
 	let result = AudioObjectGetPropertyDataSize(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, &dataSize)
@@ -34,7 +34,7 @@ public func audioObjectPropertySize(_ property: PropertyAddress, from objectID: 
 /// - parameter size: The number of bytes to read
 /// - parameter qualifier: An optional property qualifier
 /// - throws: An exception if the object does not have the requested property or the property value could not be retrieved
-public func readAudioObjectProperty<T>(_ property: PropertyAddress, from objectID: AudioObjectID, into ptr: UnsafeMutablePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
+func readAudioObjectProperty<T>(_ property: PropertyAddress, from objectID: AudioObjectID, into ptr: UnsafeMutablePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
 	var propertyAddress = property.rawValue
 	var dataSize = UInt32(size)
 	let result = AudioObjectGetPropertyData(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, &dataSize, ptr)
@@ -52,7 +52,7 @@ public func readAudioObjectProperty<T>(_ property: PropertyAddress, from objectI
 /// - parameter size: The number of bytes to write
 /// - parameter qualifier: An optional property qualifier
 /// - throws: An exception if the object does not have the requested property, the property is not settable, or the property value could not be set
-public func writeAudioObjectProperty<T>(_ property: PropertyAddress, on objectID: AudioObjectID, from ptr: UnsafePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
+func writeAudioObjectProperty<T>(_ property: PropertyAddress, on objectID: AudioObjectID, from ptr: UnsafePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
 	var propertyAddress = property.rawValue
 	let dataSize = UInt32(size)
 	let result = AudioObjectSetPropertyData(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, dataSize, ptr)
@@ -73,7 +73,7 @@ public func writeAudioObjectProperty<T>(_ property: PropertyAddress, on objectID
 /// - parameter qualifier: An optional property qualifier
 /// - parameter initialValue: An optional initial value for `outData` when calling `AudioObjectGetPropertyData`
 /// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type = T.self, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
+func getAudioObjectProperty<T: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type = T.self, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
 	var value = initialValue
 	try readAudioObjectProperty(property, from: objectID, into: &value, qualifier: qualifier)
 	return value
@@ -86,7 +86,7 @@ public func getAudioObjectProperty<T: Numeric>(_ property: PropertyAddress, from
 /// - parameter type: The underlying `CFType`
 /// - parameter qualifier: An optional property qualifier
 /// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> T {
+func getAudioObjectProperty<T: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> T {
 	var value: Unmanaged<T>?
 	try readAudioObjectProperty(property, from: objectID, into: &value, qualifier: qualifier)
 	return value!.takeRetainedValue()
@@ -101,7 +101,7 @@ public func getAudioObjectProperty<T: CFTypeRef>(_ property: PropertyAddress, fr
 /// - parameter type: The underlying array element type
 /// - parameter qualifier: An optional property qualifier
 /// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T>(_ property: PropertyAddress, from objectID: AudioObjectID, elementType type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> [T] {
+func getAudioObjectProperty<T>(_ property: PropertyAddress, from objectID: AudioObjectID, elementType type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> [T] {
 	let dataSize = try audioObjectPropertySize(property, from: objectID, qualifier: qualifier)
 	let count = dataSize / MemoryLayout<T>.stride
 	let array = try [T](unsafeUninitializedCapacity: count) { (buffer, initializedCount) in
@@ -123,7 +123,7 @@ public func getAudioObjectProperty<T>(_ property: PropertyAddress, from objectID
 /// - parameter type: The output type of the translation
 /// - parameter qualifier: An optional property qualifier
 /// - throws: An error if `self` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<In, Out: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+func getAudioObjectProperty<In, Out: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
 	var inputData = value
 	var outputData: Out = 0
 	try withUnsafeMutablePointer(to: &inputData) { inputPointer in
@@ -145,7 +145,7 @@ public func getAudioObjectProperty<In, Out: Numeric>(_ property: PropertyAddress
 /// - parameter type: The output type of the translation
 /// - parameter qualifier: An optional property qualifier
 /// - throws: An error if `self` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<In, Out: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+func getAudioObjectProperty<In, Out: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
 	var inputData = value
 	var outputData: Unmanaged<Out>?
 	try withUnsafeMutablePointer(to: &inputData) { inputPointer in
