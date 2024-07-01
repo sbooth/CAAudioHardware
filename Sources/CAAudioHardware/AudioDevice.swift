@@ -617,13 +617,13 @@ extension AudioDevice {
 	/// Returns the available data sources
 	/// - remark: This corresponds to the property `kAudioDevicePropertyDataSources`
 	public func availableDataSources(inScope scope: PropertyScope) throws -> [DataSource] {
-		return try dataSources(inScope: scope).map { DataSource(device: self, scope: scope, id: $0) }
+		return try dataSources(inScope: scope).map { DataSource(deviceID: objectID, scope: scope, id: $0) }
 	}
 
 	/// Returns the active data sources
 	/// - remark: This corresponds to the property `kAudioDevicePropertyDataSource`
 	public func activeDataSources(inScope scope: PropertyScope) throws -> [DataSource] {
-		return try dataSource(inScope: scope).map { DataSource(device: self, scope: scope, id: $0) }
+		return try dataSource(inScope: scope).map { DataSource(deviceID: objectID, scope: scope, id: $0) }
 	}
 
 	/// Returns the IDs of the selected clock sources
@@ -663,13 +663,13 @@ extension AudioDevice {
 	/// Returns the available clock sources
 	/// - remark: This corresponds to the property `kAudioDevicePropertyClockSources`
 	public func availableClockSources(inScope scope: PropertyScope) throws -> [ClockSource] {
-		return try clockSources(inScope: scope).map { ClockSource(device: self, scope: scope, id: $0) }
+		return try clockSources(inScope: scope).map { ClockSource(deviceID: objectID, scope: scope, id: $0) }
 	}
 
 	/// Returns the active clock sources
 	/// - remark: This corresponds to the property `kAudioDevicePropertyClockSource`
 	public func activeClockSources(inScope scope: PropertyScope) throws -> [ClockSource] {
-		return try clockSource(inScope: scope).map { ClockSource(device: self, scope: scope, id: $0) }
+		return try clockSource(inScope: scope).map { ClockSource(deviceID: objectID, scope: scope, id: $0) }
 	}
 
 	/// Returns `true` if play-through is enabled
@@ -784,13 +784,13 @@ extension AudioDevice {
 	/// Returns the available play-through destinations
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestinations`
 	public func availablePlayThroughDestinations() throws -> [PlayThroughDestination] {
-		return try playThroughDestinations().map { PlayThroughDestination(device: self, id: $0) }
+		return try playThroughDestinations().map { PlayThroughDestination(deviceID: objectID, id: $0) }
 	}
 
 	/// Returns the selected play-through destinations
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestination`
 	public func selectedPlayThroughDestinations() throws -> [PlayThroughDestination] {
-		return try playThroughDestination().map { PlayThroughDestination(device: self, id: $0) }
+		return try playThroughDestination().map { PlayThroughDestination(deviceID: objectID, id: $0) }
 	}
 
 	/// Returns the IDs of the selected channel nominal line levels
@@ -821,13 +821,13 @@ extension AudioDevice {
 	/// Returns the available channel nominal line levels
 	/// - remark: This corresponds to the property `kAudioDevicePropertyChannelNominalLineLevels`
 	public func availableChannelNominalLineLevels(inScope scope: PropertyScope) throws -> [ChannelNominalLineLevel] {
-		return try channelNominalLineLevel(inScope: scope).map { ChannelNominalLineLevel(device: self, scope: scope, id: $0) }
+		return try channelNominalLineLevel(inScope: scope).map { ChannelNominalLineLevel(deviceID: objectID, scope: scope, id: $0) }
 	}
 
 	/// Returns the selected channel nominal line levels
 	/// - remark: This corresponds to the property `kAudioDevicePropertyChannelNominalLineLevel`
 	public func selectedChannelNominalLineLevels(inScope scope: PropertyScope) throws -> [ChannelNominalLineLevel] {
-		return try channelNominalLineLevels(inScope: scope).map { ChannelNominalLineLevel(device: self, scope: scope, id: $0) }
+		return try channelNominalLineLevels(inScope: scope).map { ChannelNominalLineLevel(deviceID: objectID, scope: scope, id: $0) }
 	}
 
 	/// Returns the IDs of the selected high-pass filter settings
@@ -858,13 +858,13 @@ extension AudioDevice {
 	/// Returns the available high-pass filter settings
 	/// - remark: This corresponds to the property `kAudioDevicePropertyHighPassFilterSettings`
 	public func availableHighPassFilterSettings(inScope scope: PropertyScope) throws -> [HighPassFilterSetting] {
-		return try highPassFilterSettings(inScope: scope).map { HighPassFilterSetting(device: self, scope: scope, id: $0) }
+		return try highPassFilterSettings(inScope: scope).map { HighPassFilterSetting(deviceID: objectID, scope: scope, id: $0) }
 	}
 
 	/// Returns the selected high-pass filter settings
 	/// - remark: This corresponds to the property `kAudioDevicePropertyHighPassFilterSetting`
 	public func selectedHighPassFilterSettings(inScope scope: PropertyScope) throws -> [HighPassFilterSetting] {
-		return try highPassFilterSetting(inScope: scope).map { HighPassFilterSetting(device: self, scope: scope, id: $0) }
+		return try highPassFilterSetting(inScope: scope).map { HighPassFilterSetting(deviceID: objectID, scope: scope, id: $0) }
 	}
 
 	/// Returns the LFE volume scalar for `channel`
