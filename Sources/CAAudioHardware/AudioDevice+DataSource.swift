@@ -18,13 +18,17 @@ extension AudioDevice {
 		public let id: UInt32
 
 		/// Returns the data source name
-		public func name() throws -> String {
-			return try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+		public var name: String {
+			get throws {
+				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+			}
 		}
 
 		/// Returns the data source kind
-		public func kind() throws -> UInt32 {
-			return try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceKindForID), scope: scope), from: deviceID, translatingValue: id)
+		public var kind: UInt32 {
+			get throws {
+				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceKindForID), scope: scope), from: deviceID, translatingValue: id)
+			}
 		}
 	}
 }
@@ -32,9 +36,9 @@ extension AudioDevice {
 extension AudioDevice.DataSource: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(name)\">"
-		} else {
+		do {
+			return "<\(type(of: self)): (\(scope), '\(id.fourCC)') \"\(try name)\">"
+		} catch {
 			return "<\(type(of: self)): (\(scope), '\(id.fourCC)')>"
 		}
 	}

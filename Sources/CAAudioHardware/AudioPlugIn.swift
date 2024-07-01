@@ -15,8 +15,10 @@ import os.log
 public class AudioPlugIn: AudioObject {
 	/// Returns the available audio plug-ins
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyPlugInList` on `kAudioObjectSystemObject`
-	public class func plugIns() throws -> [AudioPlugIn] {
-		return try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyPlugInList), from: AudioObjectID(kAudioObjectSystemObject)).map { try makeAudioPlugIn($0) }
+	public static var plugIns: [AudioPlugIn] {
+		get throws {
+			try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyPlugInList), from: AudioObjectID(kAudioObjectSystemObject)).map { try makeAudioPlugIn($0) }
+		}
 	}
 
 	/// Returns an initialized `AudioPlugIn` with `bundleID` or `nil` if unknown
@@ -35,7 +37,7 @@ public class AudioPlugIn: AudioObject {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), [\(try deviceList().map({ $0.debugDescription }).joined(separator: ", "))]>"
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
 		} catch {
 			return super.debugDescription
 		}
@@ -60,14 +62,18 @@ extension AudioPlugIn {
 
 	/// Returns the plug-in's bundle ID
 	/// - remark: This corresponds to the property `kAudioPlugInPropertyBundleID`
-	public func bundleID() throws -> String {
-		return try getProperty(PropertyAddress(kAudioPlugInPropertyBundleID), type: CFString.self) as String
+	public var bundleID: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioPlugInPropertyBundleID), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the audio devices provided by the plug-in
 	/// - remark: This corresponds to the property `kAudioPlugInPropertyDeviceList`
-	public func deviceList() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioPlugInPropertyDeviceList)).map { try makeAudioDevice($0) }
+	public var deviceList: [AudioDevice] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioPlugInPropertyDeviceList)).map { try makeAudioDevice($0) }
+		}
 	}
 
 	/// Returns the audio device provided by the plug-in with the specified UID or `nil` if unknown
@@ -84,9 +90,11 @@ extension AudioPlugIn {
 
 	/// Returns the audio boxes provided by the plug-in
 	/// - remark: This corresponds to the property `kAudioPlugInPropertyBoxList`
-	public func boxList() throws -> [AudioBox] {
-		// Revisit if a subclass of `AudioBox` is added
-		return try getProperty(PropertyAddress(kAudioPlugInPropertyBoxList)).map { AudioBox($0) }
+	public var boxList: [AudioBox] {
+		get throws {
+			// Revisit if a subclass of `AudioBox` is added
+			try getProperty(PropertyAddress(kAudioPlugInPropertyBoxList)).map { AudioBox($0) }
+		}
 	}
 
 	/// Returns the audio box provided by the plug-in with the specified UID or `nil` if unknown
@@ -104,9 +112,11 @@ extension AudioPlugIn {
 
 	/// Returns the clock devices provided by the plug-in
 	/// - remark: This corresponds to the property `kAudioPlugInPropertyClockDeviceList`
-	public func clockDeviceList() throws -> [AudioClockDevice] {
-		// Revisit if a subclass of `AudioClockDevice` is added
-		return try getProperty(PropertyAddress(kAudioPlugInPropertyClockDeviceList)).map { AudioClockDevice($0) }
+	public var clockDeviceList: [AudioClockDevice] {
+		get throws {
+			// Revisit if a subclass of `AudioClockDevice` is added
+			try getProperty(PropertyAddress(kAudioPlugInPropertyClockDeviceList)).map { AudioClockDevice($0) }
+		}
 	}
 
 	/// Returns the audio clock device provided by the plug-in with the specified UID or `nil` if unknown

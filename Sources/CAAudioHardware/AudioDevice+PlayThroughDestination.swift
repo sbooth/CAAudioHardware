@@ -16,8 +16,10 @@ extension AudioDevice {
 		public let id: UInt32
 
 		/// Returns the play-through destination name
-		public func name() throws -> String {
-			return try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruDestinationNameForIDCFString), scope: .playThrough), from: deviceID, translatingValue: id, toType: CFString.self) as String
+		public var name: String {
+			get throws {
+				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruDestinationNameForIDCFString), scope: .playThrough), from: deviceID, translatingValue: id, toType: CFString.self) as String
+			}
 		}
 	}
 }
@@ -25,9 +27,9 @@ extension AudioDevice {
 extension AudioDevice.PlayThroughDestination: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		if let name = try? name() {
-			return "<\(type(of: self)): '\(id.fourCC)' \"\(name)\">"
-		} else {
+		do {
+			return "<\(type(of: self)): '\(id.fourCC)' \"\(try name)\">"
+		} catch {
 			return "<\(type(of: self)): '\(id.fourCC)'>"
 		}
 	}
