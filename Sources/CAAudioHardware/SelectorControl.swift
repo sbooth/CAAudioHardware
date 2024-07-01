@@ -14,7 +14,7 @@ public class SelectorControl: AudioControl {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element())), [\(try currentItem().map({ "'\($0.fourCC)'" }).joined(separator: ", "))]>"
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope), \(try element)), [\(try currentItem.map({ "'\($0.fourCC)'" }).joined(separator: ", "))]>"
 		} catch {
 			return super.debugDescription
 		}
@@ -24,8 +24,10 @@ public class SelectorControl: AudioControl {
 extension SelectorControl {
 	/// Returns the selected items
 	/// - remark: This corresponds to the property `kAudioSelectorControlPropertyCurrentItem`
-	public func currentItem() throws -> [UInt32] {
-		return try getProperty(PropertyAddress(kAudioSelectorControlPropertyCurrentItem))
+	public var currentItem: [UInt32] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioSelectorControlPropertyCurrentItem))
+		}
 	}
 	/// Sets the selected items
 	/// - remark: This corresponds to the property `kAudioSelectorControlPropertyCurrentItem`
@@ -35,8 +37,10 @@ extension SelectorControl {
 
 	/// Returns the available items
 	/// - remark: This corresponds to the property `kAudioSelectorControlPropertyAvailableItems`
-	public func availableItems() throws -> [UInt32] {
-		return try getProperty(PropertyAddress(kAudioSelectorControlPropertyAvailableItems))
+	public var availableItems: [UInt32] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioSelectorControlPropertyAvailableItems))
+		}
 	}
 
 	/// Returns the name of `itemID`

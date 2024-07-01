@@ -248,47 +248,61 @@ extension AudioObject {
 extension AudioObject {
 	/// Returns the bundle ID of the plug-in that instantiated the object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyCreator`
-	public func creator() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyCreator), type: CFString.self) as String
+	public var creator: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyCreator), type: CFString.self) as String
+		}
 	}
 
 	// kAudioObjectPropertyListenerAdded and kAudioObjectPropertyListenerRemoved omitted
 
 	/// Returns the base class of the underlying HAL audio object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyBaseClass`
-	public func baseClass() throws -> AudioClassID {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyBaseClass))
+	public var baseClass: AudioClassID {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyBaseClass))
+		}
 	}
 
 	/// Returns the class of the underlying HAL audio object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyClass`
-	public func `class`() throws -> AudioClassID {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyClass))
+	public var `class`: AudioClassID {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyClass))
+		}
 	}
 
 	/// Returns the audio object's owning object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyOwner`
 	/// - note: The system audio object does not have an owner
-	public func owner() throws -> AudioObject {
-		return try AudioObject.make(getProperty(PropertyAddress(kAudioObjectPropertyOwner)))
+	public var owner: AudioObject {
+		get throws {
+			try AudioObject.make(getProperty(PropertyAddress(kAudioObjectPropertyOwner)))
+		}
 	}
 
 	/// Returns the audio object's name
 	/// - remark: This corresponds to the property `kAudioObjectPropertyName`
-	public func name() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyName), type: CFString.self) as String
+	public var name: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyName), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the audio object's model name
 	/// - remark: This corresponds to the property `kAudioObjectPropertyModelName`
-	public func modelName() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyModelName), type: CFString.self) as String
+	public var modelName: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyModelName), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the audio object's manufacturer
 	/// - remark: This corresponds to the property `kAudioObjectPropertyManufacturer`
-	public func manufacturer() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyManufacturer), type: CFString.self) as String
+	public var manufacturer: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyManufacturer), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the name of `element`
@@ -328,8 +342,10 @@ extension AudioObject {
 
 	/// Returns `true` if the audio object's hardware is drawing attention to itself
 	/// - remark: This corresponds to the property `kAudioObjectPropertyIdentify`
-	public func identify() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyIdentify), type: UInt32.self) != 0
+	public var identify: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyIdentify), type: UInt32.self) != 0
+		}
 	}
 	/// Sets whether the audio object's hardware should draw attention to itself
 	/// - remark: This corresponds to the property `kAudioObjectPropertyIdentify`
@@ -340,14 +356,18 @@ extension AudioObject {
 
 	/// Returns the audio object's serial number
 	/// - remark: This corresponds to the property `kAudioObjectPropertySerialNumber`
-	public func serialNumber() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertySerialNumber), type: CFString.self) as String
+	public var serialNumber: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertySerialNumber), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the audio object's firmware version
 	/// - remark: This corresponds to the property `kAudioObjectPropertyFirmwareVersion`
-	public func firmwareVersion() throws -> String {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyFirmwareVersion), type: CFString.self) as String
+	public var firmwareVersion: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyFirmwareVersion), type: CFString.self) as String
+		}
 	}
 }
 

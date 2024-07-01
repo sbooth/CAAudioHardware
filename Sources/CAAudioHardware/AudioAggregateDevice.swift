@@ -70,35 +70,35 @@ extension AudioAggregateDevice {
 		}
 	}
 
-	/// Returns the main subdevice
+	/// Returns the UID of the main subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMainSubDevice`
-	public var mainSubdevice: AudioDevice {
+	public var mainSubdevice: String {
 		get throws {
-			try makeAudioDevice(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice)))
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyMainSubDevice), type: CFString.self) as String
 		}
 	}
 
-	/// Returns the master subdevice
+	/// Returns the UID of the master subdevice
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyMasterSubDevice`
 	@available(macOS, introduced: 10.0, deprecated: 12.0, renamed: "mainSubdevice")
-	public var masterSubdevice: AudioDevice {
+	public var masterSubdevice: String {
 		get throws {
-			try makeAudioDevice(getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice)))
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyMasterSubDevice), type: CFString.self) as String
 		}
 	}
 
-	/// Returns the clock device
+	/// Returns the UID of the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`
-	public var clockDevice: AudioClockDevice {
+	public var aggregateClockDevice: String {
 		get throws {
 			// Revisit if a subclass of `AudioClockDevice` is added
-			AudioClockDevice(try getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice)))
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), type: CFString.self) as String
 		}
 	}
-	/// Sets the clock device
+	/// Sets the UID of the clock device
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyClockDevice`
-	public func setClockDevice(_ value: AudioClockDevice) throws {
-		try setProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), to: value.objectID)
+	public func setAggregateClockDevice(_ value: String) throws {
+		try setProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), to: value as CFString)
 	}
 }
 

@@ -14,7 +14,7 @@ public class LevelControl: AudioControl {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope()), \(try element())), \(try scalarValue())>"
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope), \(try element)), \(try scalarValue)>"
 		} catch {
 			return super.debugDescription
 		}
@@ -24,8 +24,10 @@ public class LevelControl: AudioControl {
 extension LevelControl {
 	/// Returns the control's scalar value
 	/// - remark: This corresponds to the property `kAudioLevelControlPropertyScalarValue`
-	public func scalarValue() throws -> Float {
-		return try getProperty(PropertyAddress(kAudioLevelControlPropertyScalarValue))
+	public var scalarValue: Float {
+		get throws {
+			try getProperty(PropertyAddress(kAudioLevelControlPropertyScalarValue))
+		}
 	}
 	/// Sets the control's scalar value
 	/// - remark: This corresponds to the property `kAudioLevelControlPropertyScalarValue`
@@ -35,8 +37,10 @@ extension LevelControl {
 
 	/// Returns the control's decibel value
 	/// - remark: This corresponds to the property `kAudioLevelControlPropertyDecibelValue`
-	public func decibelValue() throws -> Float {
-		return try getProperty(PropertyAddress(kAudioLevelControlPropertyDecibelValue))
+	public var decibelValue: Float {
+		get throws {
+			try getProperty(PropertyAddress(kAudioLevelControlPropertyDecibelValue))
+		}
 	}
 	/// Sets the control's decibel value
 	/// - remark: This corresponds to the property `kAudioLevelControlPropertyDecibelValue`
@@ -46,9 +50,11 @@ extension LevelControl {
 
 	/// Returns the decibel range
 	/// - remark: This corresponds to the property `kAudioLevelControlPropertyDecibelRange`
-	public func decibelRange() throws -> ClosedRange<Float> {
-		let value: AudioValueRange = try getProperty(PropertyAddress(kAudioLevelControlPropertyDecibelRange))
-		return Float(value.mMinimum) ... Float(value.mMaximum)
+	public var decibelRange: ClosedRange<Float> {
+		get throws {
+			let value: AudioValueRange = try getProperty(PropertyAddress(kAudioLevelControlPropertyDecibelRange))
+			return Float(value.mMinimum) ... Float(value.mMaximum)
+		}
 	}
 
 	/// Converts `scalar` to decibels and returns the converted value

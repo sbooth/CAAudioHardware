@@ -15,26 +15,34 @@ import os.log
 public class AudioDevice: AudioObject {
 	/// Returns the available audio devices
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDevices` on `kAudioObjectSystemObject`
-	public class func devices() throws -> [AudioDevice] {
-		return try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDevices), from: AudioObjectID(kAudioObjectSystemObject)).map { try makeAudioDevice($0) }
+	public static var devices: [AudioDevice] {
+		get throws {
+			try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDevices), from: AudioObjectID(kAudioObjectSystemObject)).map { try makeAudioDevice($0) }
+		}
 	}
 
 	/// Returns the default input device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultInputDevice` on `kAudioObjectSystemObject`
-	public class func defaultInputDevice() throws -> AudioDevice {
-		return try makeAudioDevice(getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDefaultInputDevice), from: AudioObjectID(kAudioObjectSystemObject)))
+	public static var defaultInputDevice: AudioDevice {
+		get throws {
+			try makeAudioDevice(getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDefaultInputDevice), from: AudioObjectID(kAudioObjectSystemObject)))
+		}
 	}
 
 	/// Returns the default output device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultOutputDevice` on `kAudioObjectSystemObject`
-	public class func defaultOutputDevice() throws -> AudioDevice {
-		return try makeAudioDevice(getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice), from: AudioObjectID(kAudioObjectSystemObject)))
+	public static var defaultOutputDevice: AudioDevice {
+		get throws {
+			try makeAudioDevice(getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice), from: AudioObjectID(kAudioObjectSystemObject)))
+		}
 	}
 
 	/// Returns the default system output device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultSystemOutputDevice` on `kAudioObjectSystemObject`
-	public class func defaultSystemOutputDevice() throws -> AudioDevice {
-		return try makeAudioDevice(getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice), from: AudioObjectID(kAudioObjectSystemObject)))
+	public static var defaultSystemOutputDevice: AudioDevice {
+		get throws {
+			try makeAudioDevice(getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice), from: AudioObjectID(kAudioObjectSystemObject)))
+		}
 	}
 
 	/// Returns an initialized `AudioDevice` with `uid` or `nil` if unknown
@@ -53,21 +61,25 @@ public class AudioDevice: AudioObject {
 	/// Returns `true` if the device supports input
 	///
 	/// - note: A device supports input if it has buffers in `kAudioObjectPropertyScopeInput` for the property `kAudioDevicePropertyStreamConfiguration`
-	public func supportsInput() throws -> Bool {
-		try streamConfiguration(inScope: .input).numberBuffers > 0
+	public var supportsInput: Bool {
+		get throws {
+			try streamConfiguration(inScope: .input).numberBuffers > 0
+		}
 	}
 
 	/// Returns `true` if the device supports output
 	///
 	/// - note: A device supports output if it has buffers in `kAudioObjectPropertyScopeOutput` for the property `kAudioDevicePropertyStreamConfiguration`
-	public func supportsOutput() throws -> Bool {
-		try streamConfiguration(inScope: .output).numberBuffers > 0
+	public var supportsOutput: Bool {
+		get throws {
+			try streamConfiguration(inScope: .output).numberBuffers > 0
+		}
 	}
 
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)) \"\(try name())\">"
+			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)) \"\(try name)\">"
 		} catch {
 			return super.debugDescription
 		}
@@ -79,50 +91,66 @@ public class AudioDevice: AudioObject {
 extension AudioDevice {
 	/// Returns the configuration application
 	/// - remark: This corresponds to the property `kAudioDevicePropertyConfigurationApplication`
-	public func configurationApplication() throws -> String {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyConfigurationApplication), type: CFString.self) as String
+	public var configurationApplication: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyConfigurationApplication), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the device UID
 	/// - remark: This corresponds to the property `kAudioDevicePropertyDeviceUID`
-	public func deviceUID() throws -> String {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyDeviceUID), type: CFString.self) as String
+	public var deviceUID: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyDeviceUID), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the model UID
 	/// - remark: This corresponds to the property `kAudioDevicePropertyModelUID`
-	public func modelUID() throws -> String {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyModelUID), type: CFString.self) as String
+	public var modelUID: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyModelUID), type: CFString.self) as String
+		}
 	}
-
+	
 	/// Returns the transport type
 	/// - remark: This corresponds to the property `kAudioDevicePropertyTransportType`
-	public func transportType() throws -> TransportType {
-		return TransportType(try getProperty(PropertyAddress(kAudioDevicePropertyTransportType)))
+	public var transportType: TransportType {
+		get throws {
+			TransportType(try getProperty(PropertyAddress(kAudioDevicePropertyTransportType)))
+		}
 	}
 
 	/// Returns related audio devices
 	/// - remark: This corresponds to the property `kAudioDevicePropertyRelatedDevices`
-	public func relatedDevices() throws -> [AudioDevice] {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyRelatedDevices)).map { try makeAudioDevice($0) }
+	public var relatedDevices: [AudioDevice] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyRelatedDevices)).map { try makeAudioDevice($0) }
+		}
 	}
 
 	/// Returns the clock domain
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyClockDomain`
-	public func clockDomain() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioClockDevicePropertyClockDomain))
+	public var clockDomain: UInt32 {
+		get throws {
+			try getProperty(PropertyAddress(kAudioClockDevicePropertyClockDomain))
+		}
 	}
 
 	/// Returns `true` if the device is alive
 	/// - remark: This corresponds to the property `kAudioDevicePropertyDeviceIsAlive`
-	public func isAlive() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyDeviceIsAlive), type: UInt32.self) != 0
+	public var isAlive: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyDeviceIsAlive), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns `true` if the device is running
 	/// - remark: This corresponds to the property `kAudioDevicePropertyDeviceIsRunning`
-	public func isRunning() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyDeviceIsRunning), type: UInt32.self) != 0
+	public var isRunning: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyDeviceIsRunning), type: UInt32.self) != 0
+		}
 	}
 	/// Starts or stops the device
 	/// - remark: This corresponds to the property `kAudioDevicePropertyDeviceIsRunning`
@@ -162,8 +190,10 @@ extension AudioDevice {
 
 	/// Returns the device's audio controls
 	/// - remark: This corresponds to the property `kAudioObjectPropertyControlList`
-	public func controlList() throws -> [AudioControl] {
-		return try getProperty(PropertyAddress(kAudioObjectPropertyControlList)).map { try makeAudioControl($0, baseClass: AudioObjectBaseClass($0)) }
+	public var controlList: [AudioControl] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioObjectPropertyControlList)).map { try makeAudioControl($0, baseClass: AudioObjectBaseClass($0)) }
+		}
 	}
 
 	/// Returns the safety offset
@@ -175,8 +205,10 @@ extension AudioDevice {
 
 	/// Returns the sample rate
 	/// - remark: This corresponds to the property `kAudioDevicePropertyNominalSampleRate`
-	public func sampleRate() throws -> Double {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyNominalSampleRate))
+	public var sampleRate: Double {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyNominalSampleRate))
+		}
 	}
 	/// Sets the sample rate
 	/// - remark: This corresponds to the property `kAudioDevicePropertyNominalSampleRate`
@@ -188,21 +220,27 @@ extension AudioDevice {
 
 	/// Returns the available sample rates
 	/// - remark: This corresponds to the property `kAudioDevicePropertyAvailableNominalSampleRates`
-	public func availableSampleRates() throws -> [ClosedRange<Double>] {
-		let value = try getProperty(PropertyAddress(kAudioDevicePropertyAvailableNominalSampleRates), elementType: AudioValueRange.self)
-		return value.map { $0.mMinimum ... $0.mMaximum }
+	public var availableSampleRates: [ClosedRange<Double>] {
+		get throws {
+			let value = try getProperty(PropertyAddress(kAudioDevicePropertyAvailableNominalSampleRates), elementType: AudioValueRange.self)
+			return value.map { $0.mMinimum ... $0.mMaximum }
+		}
 	}
 
 	/// Returns the URL of the device's icon
 	/// - remark: This corresponds to the property `kAudioDevicePropertyIcon`
-	public func icon() throws -> URL {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyIcon), type: CFURL.self) as URL
+	public var icon: URL {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyIcon), type: CFURL.self) as URL
+		}
 	}
 
 	/// Returns `true` if the device is hidden
 	/// - remark: This corresponds to the property `kAudioDevicePropertyIsHidden`
-	public func isHidden() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyIsHidden), type: UInt32.self) != 0
+	public var isHidden: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyIsHidden), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns the preferred stereo channels for the device
@@ -251,20 +289,26 @@ extension AudioDevice {
 extension AudioDevice {
 	/// Returns any error codes loading the driver plugin
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlugIn`
-	public func plugIn() throws -> OSStatus {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyPlugIn))
+	public var plugIn: OSStatus {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyPlugIn))
+		}
 	}
 
 	/// Returns `true` if the device is running somewhere
 	/// - remark: This corresponds to the property `kAudioDevicePropertyDeviceIsRunningSomewhere`
-	public func isRunningSomewhere() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyDeviceIsRunningSomewhere), type: UInt32.self) != 0
+	public var isRunningSomewhere: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyDeviceIsRunningSomewhere), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns the owning pid or `-1` if the device is available to all processes
 	/// - remark: This corresponds to the property `kAudioDevicePropertyHogMode`
-	public func hogMode() throws -> pid_t {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyHogMode))
+	public var hogMode: pid_t {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyHogMode))
+		}
 	}
 	/// Sets the owning pid
 	/// - remark: This corresponds to the property `kAudioDevicePropertyHogMode`
@@ -275,18 +319,22 @@ extension AudioDevice {
 	// Hog mode helpers
 
 	/// Returns `true` if the device is hogged
-	public func isHogged() throws -> Bool {
-		return try hogMode() != -1
+	public var isHogged: Bool {
+		get throws {
+			try hogMode != -1
+		}
 	}
 
 	/// Returns `true` if the device is hogged and the current process is the owner
-	public func isHogOwner() throws -> Bool {
-		return try hogMode() == getpid()
+	public var isHogOwner: Bool {
+		get throws {
+			try hogMode == getpid()
+		}
 	}
 
 	/// Takes hog mode
 	public func startHogging() throws {
-		let hogpid = try hogMode()
+		let hogpid = try hogMode
 
 		guard hogpid != getpid() else {
 			os_log(.debug, log: audioObjectLog, "Ignoring request to take hog mode on already-hogged device 0x%x", objectID)
@@ -304,7 +352,7 @@ extension AudioDevice {
 
 	/// Releases hog mode if the device is hogged and the current process is the owner
 	public func stopHogging() throws {
-		let hogpid = try hogMode()
+		let hogpid = try hogMode
 
 		guard hogpid != -1 else {
 			os_log(.debug, log: audioObjectLog, "Ignoring request to release hog mode on non-hogged device 0x%x", objectID)
@@ -321,8 +369,10 @@ extension AudioDevice {
 
 	/// Returns the buffer size in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyBufferFrameSize`
-	public func bufferFrameSize() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyBufferFrameSize))
+	public var bufferFrameSize: UInt32 {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyBufferFrameSize))
+		}
 	}
 	/// Sets the buffer size in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyBufferFrameSize`
@@ -332,21 +382,27 @@ extension AudioDevice {
 
 	/// Returns the minimum and maximum values for the buffer size in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyBufferFrameSizeRange`
-	public func bufferFrameSizeRange() throws -> ClosedRange<UInt32> {
-		let value: AudioValueRange = try getProperty(PropertyAddress(kAudioDevicePropertyBufferFrameSizeRange))
-		return UInt32(value.mMinimum) ... UInt32(value.mMaximum)
+	public var bufferFrameSizeRange: ClosedRange<UInt32> {
+		get throws {
+			let value: AudioValueRange = try getProperty(PropertyAddress(kAudioDevicePropertyBufferFrameSizeRange))
+			return UInt32(value.mMinimum) ... UInt32(value.mMaximum)
+		}
 	}
 
 	/// Returns the variable buffer frame size
 	/// - remark: This corresponds to the property `kAudioDevicePropertyUsesVariableBufferFrameSizes`
-	public func usesVariableBufferFrameSizes() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyUsesVariableBufferFrameSizes))
+	public var usesVariableBufferFrameSizes: UInt32 {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyUsesVariableBufferFrameSizes))
+		}
 	}
 
 	/// Returns the IO cycle usage
 	/// - remark: This corresponds to the property `kAudioDevicePropertyIOCycleUsage`
-	public func ioCycleUsage() throws -> Float {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyIOCycleUsage))
+	public var ioCycleUsage: Float {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyIOCycleUsage))
+		}
 	}
 
 	/// Returns the stream configuration
@@ -391,14 +447,18 @@ extension AudioDevice {
 
 	/// Returns the actual sample rate
 	/// - remark: This corresponds to the property `kAudioDevicePropertyActualSampleRate`
-	public func actualSampleRate() throws -> Double {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyActualSampleRate))
+	public var actualSampleRate: Double {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyActualSampleRate))
+		}
 	}
 
 	/// Returns the UID of the clock device
 	/// - remark: This corresponds to the property `kAudioDevicePropertyClockDevice`
-	public func clockDevice() throws -> String {
-		return try getProperty(PropertyAddress(kAudioDevicePropertyClockDevice), type: CFString.self) as String
+	public var clockDevice: String {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyClockDevice), type: CFString.self) as String
+		}
 	}
 
 	/// Returns the workgroup to which the device's IOThread belongs
@@ -734,8 +794,10 @@ extension AudioDevice {
 
 	/// Returns the play-through stereo pan
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruStereoPan`
-	public func playThroughStereoPan() throws -> Float {
-		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruStereoPan), scope: .playThrough))
+	public var playThroughStereoPan: Float {
+		get throws {
+			try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruStereoPan), scope: .playThrough))
+		}
 	}
 	/// Sets the play-through stereo pan
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruStereoPan`
@@ -745,10 +807,12 @@ extension AudioDevice {
 
 	/// Returns the play-through channels used for stereo panning
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruStereoPanChannels`
-	public func playThroughStereoPanChannels() throws -> (PropertyElement, PropertyElement) {
-		let channels = try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruStereoPanChannels), scope: .playThrough), elementType: UInt32.self)
-		precondition(channels.count == 2)
-		return (PropertyElement(channels[0]), PropertyElement(channels[1]))
+	public var playThroughStereoPanChannels: (PropertyElement, PropertyElement) {
+		get throws {
+			let channels = try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruStereoPanChannels), scope: .playThrough), elementType: UInt32.self)
+			precondition(channels.count == 2)
+			return (PropertyElement(channels[0]), PropertyElement(channels[1]))
+		}
 	}
 	/// Sets the play-through channels used for stereo panning
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruStereoPanChannels`
@@ -758,8 +822,10 @@ extension AudioDevice {
 
 	/// Returns the IDs of the selected play-through destinations
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestination`
-	public func playThroughDestination() throws -> [UInt32] {
-		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruDestination), scope: .playThrough))
+	public var playThroughDestination: [UInt32] {
+		get throws {
+			try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruDestination), scope: .playThrough))
+		}
 	}
 	/// Sets the IDs of the selected play-through destinations
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestination`
@@ -769,8 +835,10 @@ extension AudioDevice {
 
 	/// Returns the IDs of the available play-through destinations
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestinations`
-	public func playThroughDestinations() throws -> [UInt32] {
-		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruDestinations), scope: .playThrough))
+	public var playThroughDestinations: [UInt32] {
+		get throws {
+			try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruDestinations), scope: .playThrough))
+		}
 	}
 
 	/// Returns the name of `playThroughDestinationID`
@@ -783,14 +851,18 @@ extension AudioDevice {
 
 	/// Returns the available play-through destinations
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestinations`
-	public func availablePlayThroughDestinations() throws -> [PlayThroughDestination] {
-		return try playThroughDestinations().map { PlayThroughDestination(deviceID: objectID, id: $0) }
+	public var availablePlayThroughDestinations: [PlayThroughDestination] {
+		get throws {
+			try playThroughDestinations.map { PlayThroughDestination(deviceID: objectID, id: $0) }
+		}
 	}
 
 	/// Returns the selected play-through destinations
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPlayThruDestination`
-	public func selectedPlayThroughDestinations() throws -> [PlayThroughDestination] {
-		return try playThroughDestination().map { PlayThroughDestination(deviceID: objectID, id: $0) }
+	public var selectedPlayThroughDestinations: [PlayThroughDestination] {
+		get throws {
+			try playThroughDestination.map { PlayThroughDestination(deviceID: objectID, id: $0) }
+		}
 	}
 
 	/// Returns the IDs of the selected channel nominal line levels
