@@ -11,7 +11,7 @@ import CoreAudio
 ///
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`) and a single element (`kAudioObjectPropertyElementMain`)
 /// - remark: This class correponds to the object with id `kAudioObjectSystemObject` and class `kAudioSystemObjectClassID`
-public class AudioSystemObject: AudioObject {
+public class AudioSystemObject: AudioObject, @unchecked Sendable {
 	/// The singleton audio system object
 	public static let instance = AudioSystemObject()
 

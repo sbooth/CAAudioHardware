@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -9,7 +9,7 @@ import CoreAudio
 
 /// A HAL audio slider control object
 /// - remark: This class correponds to objects with base class `kAudioSliderControlClassID`
-public class SliderControl: AudioControl {
+public class SliderControl: AudioControl, @unchecked Sendable {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {

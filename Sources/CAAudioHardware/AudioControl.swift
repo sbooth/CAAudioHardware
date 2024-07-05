@@ -12,7 +12,7 @@ import os.log
 ///
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`) and a single element (`kAudioObjectPropertyElementMain`)
 /// - remark: This class correponds to objects with base class `kAudioControlClassID`
-public class AudioControl: AudioObject {
+public class AudioControl: AudioObject, @unchecked Sendable {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
