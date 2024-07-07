@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -45,8 +45,7 @@ public class AudioChannelLayoutWrapper {
 	/// Returns the layout's `mChannelDescriptions`
 	public var channelDescriptions: UnsafeBufferPointer<AudioChannelDescription> {
 		let count = Int(numberChannelDescriptions)
-		// Does not compile (!) : MemoryLayout<AudioChannelLayout>.offset(of: \.mChannelDescriptions)
-		let offset = MemoryLayout.offset(of: \AudioChannelLayout.mChannelDescriptions)!
+		let offset = MemoryLayout<AudioChannelLayout>.offset(of: \.mChannelDescriptions)!
 		let chanPtr = UnsafeRawPointer(ptr.advanced(by: offset)).assumingMemoryBound(to: AudioChannelDescription.self)
 		return UnsafeBufferPointer<AudioChannelDescription>(start: chanPtr, count: count)
 	}
