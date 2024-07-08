@@ -74,7 +74,7 @@ extension AudioDevice.TransportType {
 extension AudioDevice.TransportType: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		switch self.rawValue {
+		switch rawValue {
 		case kAudioDeviceTransportTypeUnknown:			return "Unknown"
 		case kAudioDeviceTransportTypeBuiltIn:			return "Built-in"
 		case kAudioDeviceTransportTypeAggregate: 		return "Aggregate"
@@ -95,7 +95,7 @@ extension AudioDevice.TransportType: CustomDebugStringConvertible {
 		case 0x6363776c /* 'ccwl' */: 					return "Continuity Capture Wireless"
 			// kAudioDeviceTransportTypeContinuityCapture
 		case 0x63636170 /* 'ccap' */: 					return "Continuity Capture"
-		default:										return "\(self.rawValue)"
+		default:										return "'\(rawValue.fourCC)'"
 		}
 	}
 }
