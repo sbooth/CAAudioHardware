@@ -71,10 +71,10 @@ extension AudioSubdevice.DriftCompensationQuality: CustomDebugStringConvertible 
 			case kAudioSubDeviceDriftCompensationMediumQuality: 		return "Medium"
 			case kAudioSubDeviceDriftCompensationHighQuality:			return "High"
 			case kAudioSubDeviceDriftCompensationMaxQuality:			return "Maximum"
-			default:													return "0x\(String(self.rawValue, radix: 16))"
+			default:													return "0x\(rawValue.hexString)"
 			}
 		} else {
-			return "0x\(String(rawValue, radix: 16))"
+			return "0x\(rawValue.hexString)"
 		}
 	}
 }

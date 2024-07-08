@@ -14,7 +14,7 @@ public class SelectorControl: AudioControl {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope), \(try element)), [\(try currentItem.map({ "'\($0.fourCC)'" }).joined(separator: ", "))]>"
+			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element)), [\(try currentItem.map({ "'\($0.fourCC)'" }).joined(separator: ", "))]>"
 		} catch {
 			return super.debugDescription
 		}
@@ -135,7 +135,7 @@ func makeSelectorControl(_ objectID: AudioObjectID) throws -> SelectorControl {
 	case kAudioLineLevelControlClassID: 		return LineLevelControl(objectID)
 	case kAudioHighPassFilterControlClassID: 	return HighPassFilterControl(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown selector control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
+		os_log(.debug, log: audioObjectLog, "Unknown selector control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
 		return SelectorControl(objectID)
 	}
 }
