@@ -9,14 +9,13 @@ let package = Package(
 		.macOS(.v10_15),
 	],
 	products: [
-		// Products define the executables and libraries a package produces, making them visible to other packages.
 		.library(
 			name: "CAAudioHardware",
-			targets: ["CAAudioHardware"]),
+			targets: [
+				"CAAudioHardware",
+			]),
 	],
 	targets: [
-		// Targets are the basic building blocks of a package, defining a module or a test suite.
-		// Targets can depend on other targets in this package and products from dependencies.
 		.target(
 			name: "CAAudioHardware",
 			linkerSettings: [
@@ -25,6 +24,8 @@ let package = Package(
 			]),
 		.testTarget(
 			name: "CAAudioHardwareTests",
-			dependencies: ["CAAudioHardware"]),
+			dependencies: [
+				"CAAudioHardware",
+			]),
 	]
 )
