@@ -65,16 +65,16 @@ extension AudioSubdevice.DriftCompensationQuality: CustomDebugStringConvertible 
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
 		if #available(macOS 13.0, *) {
-			switch self.rawValue {
-			case kAudioSubDeviceDriftCompensationMinQuality:			return "Minimum (0x\(String(self.rawValue, radix: 16)))"
-			case kAudioSubDeviceDriftCompensationLowQuality:			return "Low (0x\(String(self.rawValue, radix: 16)))"
-			case kAudioSubDeviceDriftCompensationMediumQuality: 		return "Medium (0x\(String(self.rawValue, radix: 16)))"
-			case kAudioSubDeviceDriftCompensationHighQuality:			return "High (0x\(String(self.rawValue, radix: 16)))"
-			case kAudioSubDeviceDriftCompensationMaxQuality:			return "Maximum (0x\(String(self.rawValue, radix: 16)))"
-			default:													return "\(String(self.rawValue, radix: 16))"
+			switch rawValue {
+			case kAudioSubDeviceDriftCompensationMinQuality:			return "Minimum"
+			case kAudioSubDeviceDriftCompensationLowQuality:			return "Low"
+			case kAudioSubDeviceDriftCompensationMediumQuality: 		return "Medium"
+			case kAudioSubDeviceDriftCompensationHighQuality:			return "High"
+			case kAudioSubDeviceDriftCompensationMaxQuality:			return "Maximum"
+			default:													return "0x\(String(self.rawValue, radix: 16))"
 			}
 		} else {
-			return "\(String(self.rawValue, radix: 16))"
+			return "0x\(String(rawValue, radix: 16))"
 		}
 	}
 }
