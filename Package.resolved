@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "coreaudioextensions",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sbooth/CoreAudioExtensions",
+      "state" : {
+        "revision" : "5ed69552461dd7822cdc007f0c09d6aae1592f6e",
+        "version" : "0.2.0"
+      }
+    },
+    {
+      "identity" : "fourcc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sbooth/FourCC",
+      "state" : {
+        "revision" : "622656133b19924e2dfcc1d72622c40c81eff4eb",
+        "version" : "0.1.0"
+      }
+    }
+  ],
+  "version" : 2
+}
