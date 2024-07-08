@@ -11,7 +11,7 @@ import os.log
 /// A HAL audio object
 public class AudioObject: CustomDebugStringConvertible {
 	/// The underlying audio object ID
-	public let objectID: AudioObjectID
+	public final let objectID: AudioObjectID
 
 	/// Initializes an `AudioObject` with `objectID`
 	/// - precondition: `objectID` != `kAudioObjectUnknown`
