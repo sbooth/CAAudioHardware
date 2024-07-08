@@ -60,7 +60,7 @@ public class AudioObject: CustomDebugStringConvertible {
 		let result = AudioObjectIsPropertySettable(objectID, &address, &settable)
 		guard result == kAudioHardwareNoError else {
 			os_log(.error, log: audioObjectLog, "AudioObjectIsPropertySettable (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
-			let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Mutability information for the property \(property.selector) in scope \(property.scope) on audio object 0x\(String(objectID, radix: 16, uppercase: false)) could not be retrieved.", comment: "")]
+			let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Mutability information for the property \(property.selector) in scope \(property.scope) on audio object 0x\(objectID.hexString) could not be retrieved.", comment: "")]
 			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
 		}
 
@@ -84,7 +84,7 @@ public class AudioObject: CustomDebugStringConvertible {
 			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
 			guard result == kAudioHardwareNoError else {
 				os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
-				let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The listener block for the property \(property.selector) on audio object 0x\(String(objectID, radix: 16, uppercase: false)) could not be removed.", comment: "")]
+				let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The listener block for the property \(property.selector) on audio object 0x\(objectID.hexString) could not be removed.", comment: "")]
 				throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
 			}
 		}
@@ -107,7 +107,7 @@ public class AudioObject: CustomDebugStringConvertible {
 			let result = AudioObjectAddPropertyListenerBlock(objectID, &address, listener.queue, listener.block)
 			guard result == kAudioHardwareNoError else {
 				os_log(.error, log: audioObjectLog, "AudioObjectAddPropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
-				let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The listener block for the property \(property.selector) on audio object 0x\(String(objectID, radix: 16, uppercase: false)) could not be added.", comment: "")]
+				let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The listener block for the property \(property.selector) on audio object 0x\(objectID.hexString) could not be added.", comment: "")]
 				throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
 			}
 
@@ -117,7 +117,7 @@ public class AudioObject: CustomDebugStringConvertible {
 
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false))>"
+		return "<\(type(of: self)): 0x\(objectID.hexString)>"
 	}
 }
 
@@ -437,7 +437,7 @@ extension AudioObject {
 		case kAudioStreamClassID: 			return AudioStream(objectID) 			// Revisit if a subclass of `AudioStream` is added
 
 		default:
-			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@' for audio object 0x%{public}@", baseClass.fourCC, String(objectID, radix: 16, uppercase: false))
+			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@' for audio object 0x%{public}@", baseClass.fourCC, objectID.hexString)
 			return AudioObject(objectID)
 		}
 	}
@@ -547,7 +547,7 @@ func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
 	case kAudioPlugInClassID: 		return AudioPlugIn(objectID)
 	case kAudioStreamClassID: 		return AudioStream(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
+		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
 		return AudioObject(objectID)
 	}
 }
