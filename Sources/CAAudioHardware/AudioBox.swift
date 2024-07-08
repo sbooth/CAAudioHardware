@@ -42,7 +42,7 @@ public class AudioBox: AudioObject, @unchecked Sendable {
 			if try hasAudio { media.append("audio") }
 			if try hasVideo { media.append("video") }
 			if try hasMIDI { media.append("MIDI") }
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), \(media.joined(separator: ", ")), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
+			return "<\(type(of: self)): 0x\(objectID.hexString), \(media.joined(separator: ", ")), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
 		} catch {
 			return super.debugDescription
 		}

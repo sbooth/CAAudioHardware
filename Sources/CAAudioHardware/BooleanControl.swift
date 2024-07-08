@@ -14,7 +14,7 @@ public class BooleanControl: AudioControl, @unchecked Sendable {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope), \(try element)), \(try value ? "On" : "Off")>"
+			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element)), \(try value ? "On" : "Off")>"
 		} catch {
 			return super.debugDescription
 		}
@@ -133,7 +133,7 @@ func makeBooleanControl(_ objectID: AudioObjectID) throws -> BooleanControl {
 	case kAudioTalkbackControlClassID:		return TalkbackControl(objectID)
 	case kAudioListenbackControlClassID: 	return ListenbackControl(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown boolean control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
+		os_log(.debug, log: audioObjectLog, "Unknown boolean control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
 		return BooleanControl(objectID)
 	}
 }
