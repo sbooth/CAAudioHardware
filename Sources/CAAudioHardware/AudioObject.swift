@@ -21,7 +21,6 @@ public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 		self.objectID = objectID
 	}
 
-
 	// Equatable
 	public static func == (lhs: AudioObject, rhs: AudioObject) -> Bool {
 		lhs.objectID == rhs.objectID
