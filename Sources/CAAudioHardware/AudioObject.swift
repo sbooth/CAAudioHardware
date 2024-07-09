@@ -86,7 +86,7 @@ public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when `property` changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public final func whenPropertyChanges(_ property: PropertyAddress, onQueue queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+	public final func whenPropertyChanges(_ property: PropertyAddress, notifyOnQueue queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
 		var address = property.rawValue
 
 		// Remove the existing listener, if any, for the property
@@ -480,8 +480,8 @@ extension AudioObject {
 	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, onQueue queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), onQueue: queue, perform: block)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, notifyOnQueue queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), notifyOnQueue: queue, perform: block)
 	}
 }
 
