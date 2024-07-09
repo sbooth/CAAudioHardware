@@ -19,13 +19,13 @@ extension AudioSubTap {
 	/// Returns the extra latency
 	/// - remark: This corresponds to the property `kAudioSubTapPropertyExtraLatency`
 	/// - parameter scope: The desired scope
-	public func extraLatency(inScope scope: PropertyScope) throws -> Float64 {
+	public func extraLatency(inScope scope: PropertyScope) throws -> Double {
 		try getProperty(PropertyAddress(PropertySelector(kAudioSubTapPropertyExtraLatency), scope: scope))
 	}
 	/// Sets the extra latency
 	/// - remark: This corresponds to the property `kAudioSubTapPropertyExtraLatency`
 	/// - parameter scope: The desired scope
-	public func setExtraLatency(_ value: Float64, inScope scope: PropertyScope) throws {
+	public func setExtraLatency(_ value: Double, inScope scope: PropertyScope) throws {
 		try setProperty(PropertyAddress(PropertySelector(kAudioSubTapPropertyExtraLatency), scope: scope), to: value)
 	}
 
