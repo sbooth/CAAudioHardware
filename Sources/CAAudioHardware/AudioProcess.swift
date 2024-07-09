@@ -25,7 +25,7 @@ public class AudioProcess: AudioObject {
 	/// Returns an initialized `AudioProcess` for `pid` or `nil` if unknown
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyTranslatePIDToProcessObject` on `kAudioObjectSystemObject`
 	/// - parameter pid: The pid of the desired tap
-	public class func makeTap(forPID pid: pid_t) throws -> AudioProcess? {
+	public static func makeTap(forPID pid: pid_t) throws -> AudioProcess? {
 		var qualifier = pid
 		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslatePIDToProcessObject), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
