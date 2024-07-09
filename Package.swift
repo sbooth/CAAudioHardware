@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 5.6
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -25,9 +25,6 @@ let package = Package(
 			dependencies: [
 				.product(name: "FourCC", package: "FourCC"),
 				.product(name: "CoreAudioExtensions", package: "CoreAudioExtensions"),
-			],
-			swiftSettings: [
-				.enableUpcomingFeature("StrictConcurrency")
 			],
 			linkerSettings: [
 				.linkedFramework("CoreAudio"),
