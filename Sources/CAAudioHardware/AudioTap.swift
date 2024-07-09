@@ -119,7 +119,7 @@ func makeAudioTap(_ objectID: AudioObjectID) throws -> AudioTap {
 
 	switch objectClass {
 	case kAudioTapClassID: 					return AudioTap(objectID)
-	case kAudioSubTapClassID: 				return AudioSubTap(objectID)
+	case kAudioSubTapClassID: 				return AudioSubtap(objectID)
 	default:
 		os_log(.debug, log: audioObjectLog, "Unknown audio tap class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
 		return AudioTap(objectID)

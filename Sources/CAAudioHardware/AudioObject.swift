@@ -558,7 +558,7 @@ func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
 	if #available(macOS 14.2, *) {
 		switch objectClass {
 		case kAudioTapClassID: 		return AudioTap(objectID)
-		case kAudioSubTapClassID: 	return AudioSubTap(objectID)
+		case kAudioSubTapClassID: 	return AudioSubtap(objectID)
 		default: 					break
 		}
 	}

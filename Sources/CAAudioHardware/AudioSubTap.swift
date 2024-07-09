@@ -11,11 +11,11 @@ import CoreAudio
 ///
 /// - remark: This class correponds to objects with base class `kAudioSubTapClassID`
 @available(macOS 14.2, *)
-public class AudioSubTap: AudioTap {
+public class AudioSubtap: AudioTap {
 }
 
 @available(macOS 14.2, *)
-extension AudioSubTap {
+extension AudioSubtap {
 	/// Returns the extra latency
 	/// - remark: This corresponds to the property `kAudioSubTapPropertyExtraLatency`
 	/// - parameter scope: The desired scope
@@ -57,17 +57,17 @@ extension AudioSubTap {
 }
 
 @available(macOS 14.2, *)
-extension AudioSubTap {
+extension AudioSubtap {
 	/// Returns `true` if `self` has `selector`
 	/// - parameter selector: The selector of the desired property
-	public func hasSelector(_ selector: AudioObjectSelector<AudioSubTap>) -> Bool {
+	public func hasSelector(_ selector: AudioObjectSelector<AudioSubtap>) -> Bool {
 		return hasProperty(PropertyAddress(PropertySelector(selector.rawValue)))
 	}
 
 	/// Returns `true` if `selector` is settable
 	/// - parameter selector: The selector of the desired property
 	/// - throws: An error if `self` does not have the requested property
-	public func isSelectorSettable(_ selector: AudioObjectSelector<AudioSubTap>) throws -> Bool {
+	public func isSelectorSettable(_ selector: AudioObjectSelector<AudioSubtap>) throws -> Bool {
 		return try isPropertySettable(PropertyAddress(PropertySelector(selector.rawValue)))
 	}
 
@@ -76,13 +76,13 @@ extension AudioSubTap {
 	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioSubTap>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioSubtap>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
 		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
 	}
 }
 
 @available(macOS 14.2, *)
-extension AudioObjectSelector where T == AudioSubTap {
+extension AudioObjectSelector where T == AudioSubtap {
 	/// The property selector `kAudioSubTapPropertyExtraLatency`
 	public static let extraLatency = AudioObjectSelector(kAudioSubTapPropertyExtraLatency)
 	/// The property selector `kAudioSubTapPropertyDriftCompensation`
