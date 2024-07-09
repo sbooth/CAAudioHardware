@@ -39,7 +39,7 @@ public class AudioProcess: AudioObject {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString) \(try pid)>"
+			return "<\(type(of: self)): 0x\(objectID.hexString), pid \(try pid), \(try isRunning ? "running" : "not running")>"
 		} catch {
 			return super.debugDescription
 		}
