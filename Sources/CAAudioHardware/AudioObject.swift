@@ -544,6 +544,12 @@ func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
 	case kAudioDeviceClassID: 		return AudioDevice(objectID)
 	case kAudioPlugInClassID: 		return AudioPlugIn(objectID)
 	case kAudioStreamClassID: 		return AudioStream(objectID)
+	case kAudioProcessClassID:
+		if #available(macOS 14.2, *) {
+			return AudioProcess(objectID)
+		} else {
+			return AudioObject(objectID)
+		}
 	default:
 		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
 		return AudioObject(objectID)
