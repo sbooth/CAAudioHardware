@@ -407,7 +407,7 @@ extension AudioObject {
 	///
 	/// Whenever possible this will return a specialized subclass exposing additional functionality
 	/// - parameter objectID: The audio object ID
-	public class func make(_ objectID: AudioObjectID) throws -> AudioObject {
+	public static func make(_ objectID: AudioObjectID) throws -> AudioObject {
 		guard objectID != kAudioObjectUnknown else {
 			os_log(.error, log: audioObjectLog, "kAudioObjectUnknown is not a valid AudioObjectID")
 			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError), userInfo: nil)
