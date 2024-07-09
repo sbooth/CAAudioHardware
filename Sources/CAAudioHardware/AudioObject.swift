@@ -9,7 +9,7 @@ import CoreAudio
 import os.log
 
 /// A HAL audio object
-public class AudioObject: CustomDebugStringConvertible {
+public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 	/// The underlying audio object ID
 	public final let objectID: AudioObjectID
 
@@ -19,6 +19,17 @@ public class AudioObject: CustomDebugStringConvertible {
 	init(_ objectID: AudioObjectID) {
 		precondition(objectID != kAudioObjectUnknown)
 		self.objectID = objectID
+	}
+
+
+	// Equatable
+	public static func == (lhs: AudioObject, rhs: AudioObject) -> Bool {
+		lhs.objectID == rhs.objectID
+	}
+
+	// Hashable
+	public func hash(into hasher: inout Hasher) {
+		hasher.combine(objectID)
 	}
 
 	/// An audio object property listener block and associated dispatch queue.
@@ -89,7 +100,7 @@ public class AudioObject: CustomDebugStringConvertible {
 			}
 		}
 
-		if let block = block {
+		if let block {
 			let listenerBlock: AudioObjectPropertyListenerBlock = { inNumberAddresses, inAddresses in
 				let count = Int(inNumberAddresses)
 				let addresses = UnsafeBufferPointer(start: inAddresses, count: count)
@@ -118,18 +129,6 @@ public class AudioObject: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
 		return "<\(type(of: self)): 0x\(objectID.hexString)>"
-	}
-}
-
-extension AudioObject: Equatable {
-	public static func == (lhs: AudioObject, rhs: AudioObject) -> Bool {
-		lhs.objectID == rhs.objectID
-	}
-}
-
-extension AudioObject: Hashable {
-	public func hash(into hasher: inout Hasher) {
-		hasher.combine(objectID)
 	}
 }
 
