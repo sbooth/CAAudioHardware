@@ -114,9 +114,9 @@ extension AudioAggregateDevice {
 
 	/// Returns the sub tap list
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertySubTapList`
-	public var subTapList: [AudioTap] {
+	public var subTapList: [AudioSubTap] {
 		get throws {
-			try getProperty(PropertyAddress(kAudioAggregateDevicePropertySubTapList)).map { AudioTap($0) }
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertySubTapList)).map { AudioSubTap($0) }
 		}
 	}
 }

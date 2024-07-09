@@ -6,10 +6,10 @@
 
 import Foundation
 import CoreAudio
+import os.log
 
 /// A HAL audio tap object
 ///
-/// This class has a single scope (`kAudioObjectPropertyScopeGlobal`) and a single element (`kAudioObjectPropertyElementMain`)
 /// - remark: This class correponds to objects with base class `kAudioTapClassID`
 @available(macOS 14.2, *)
 public class AudioTap: AudioObject {
@@ -17,8 +17,7 @@ public class AudioTap: AudioObject {
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyTapList` on `kAudioObjectSystemObject`
 	public static var taps: [AudioTap] {
 		get throws {
-			// Revisit if a subclass of `AudioTap` is added
-			try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTapList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioTap($0) }
+			try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTapList), from: AudioObjectID(kAudioObjectSystemObject)).map { try makeAudioTap($0) }
 		}
 	}
 
@@ -106,4 +105,23 @@ extension AudioObjectSelector where T == AudioTap {
 	public static let description = AudioObjectSelector(kAudioTapPropertyDescription)
 	/// The property selector `kAudioTapPropertyFormat`
 	public static let format = AudioObjectSelector(kAudioTapPropertyFormat)
+}
+
+// MARK: -
+
+/// Creates and returns an initialized `AudioTap` or subclass.
+@available(macOS 14.2, *)
+func makeAudioTap(_ objectID: AudioObjectID) throws -> AudioTap {
+	precondition(objectID != kAudioObjectUnknown)
+	precondition(objectID != kAudioObjectSystemObject)
+
+	let objectClass = try AudioObjectClass(objectID)
+
+	switch objectClass {
+	case kAudioTapClassID: 					return AudioTap(objectID)
+	case kAudioSubTapClassID: 				return AudioSubTap(objectID)
+	default:
+		os_log(.debug, log: audioObjectLog, "Unknown audio tap class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
+		return AudioTap(objectID)
+	}
 }
