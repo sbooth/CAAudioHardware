@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -13,7 +13,7 @@ public class SliderControl: AudioControl {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), (\(try scope), \(try element)), \(try value)>"
+			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element)), \(try value)>"
 		} catch {
 			return super.debugDescription
 		}

@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -44,8 +44,7 @@ public class AudioHardwareIOProcStreamUsageWrapper {
 	/// Returns the stream usage's `mStreamIsOn`
 	public var streamIsOn: UnsafeBufferPointer<UInt32> {
 		let count = Int(numberStreams)
-		// Does not compile (!) : MemoryLayout<AudioHardwareIOProcStreamUsage>.offset(of: \.mStreamIsOn)
-		let offset = MemoryLayout.offset(of: \AudioHardwareIOProcStreamUsage.mStreamIsOn)!
+		let offset = MemoryLayout<AudioHardwareIOProcStreamUsage>.offset(of: \.mStreamIsOn)!
 		let bufPtr = UnsafeRawPointer(ptr.advanced(by: offset)).assumingMemoryBound(to: UInt32.self)
 		return UnsafeBufferPointer<UInt32>(start: bufPtr, count: count)
 	}

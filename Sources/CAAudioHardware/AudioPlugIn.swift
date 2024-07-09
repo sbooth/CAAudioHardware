@@ -37,7 +37,7 @@ public class AudioPlugIn: AudioObject {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
+			return "<\(type(of: self)): 0x\(objectID.hexString), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
 		} catch {
 			return super.debugDescription
 		}
@@ -191,7 +191,7 @@ func makeAudioPlugIn(_ objectID: AudioObjectID) throws -> AudioPlugIn {
 	case kAudioPlugInClassID: 				return AudioPlugIn(objectID)
 	case kAudioTransportManagerClassID: 	return AudioTransportManager(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown audio plug-in class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
+		os_log(.debug, log: audioObjectLog, "Unknown audio plug-in class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
 		return AudioPlugIn(objectID)
 	}
 }
