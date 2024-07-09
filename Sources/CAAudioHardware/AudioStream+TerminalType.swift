@@ -65,7 +65,7 @@ extension AudioStream.TerminalType {
 extension AudioStream.TerminalType: CustomDebugStringConvertible {
 	// A textual representation of this instance, suitable for debugging.
 	public var debugDescription: String {
-		switch self.rawValue {
+		switch rawValue {
 		case kAudioStreamTerminalTypeUnknown:					return "Unknown"
 		case kAudioStreamTerminalTypeLine:						return "Line Level"
 		case kAudioStreamTerminalTypeDigitalAudioInterface: 	return "Digital Audio Interface"
@@ -79,7 +79,7 @@ extension AudioStream.TerminalType: CustomDebugStringConvertible {
 		case kAudioStreamTerminalTypeTTY:						return "TTY"
 		case kAudioStreamTerminalTypeHDMI:						return "HDMI"
 		case kAudioStreamTerminalTypeDisplayPort:				return "DisplayPort"
-		default: 												return "\(self.rawValue)"
+		default: 												return "'\(rawValue.fourCC)'"
 		}
 	}
 }
