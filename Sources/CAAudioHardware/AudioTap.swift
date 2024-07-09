@@ -25,7 +25,7 @@ public class AudioTap: AudioObject {
 	/// Returns an initialized `AudioTap` with `uid` or `nil` if unknown
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyTranslateUIDToTap` on `kAudioObjectSystemObject`
 	/// - parameter uid: The UID of the desired tap
-	public class func makeTap(forUID uid: String) throws -> AudioTap? {
+	public static func makeTap(forUID uid: String) throws -> AudioTap? {
 		var qualifier = uid as CFString
 		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslateUIDToTap), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
