@@ -441,7 +441,6 @@ extension AudioObject {
 			switch baseClass {
 			case kAudioProcessClassID:		return AudioProcess(objectID)			// Revisit if a subclass of `AudioProcess` is added
 			case kAudioTapClassID: 			return try makeAudioTap(objectID)
-			case kAudioSubTapClassID: 		return try makeAudioTap(objectID)
 			default: 						break
 			}
 		}
