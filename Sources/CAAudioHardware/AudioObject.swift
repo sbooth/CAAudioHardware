@@ -35,17 +35,20 @@ public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 	typealias PropertyListener = (block: AudioObjectPropertyListenerBlock, queue: DispatchQueue?)
 
 	/// Registered audio object property listeners
-	private var propertyListeners = [PropertyAddress: PropertyListener]()
+	private let propertyListeners = UnfairLock(uncheckedState: [PropertyAddress: PropertyListener]())
 
 	/// Removes all property listeners
 	/// - note: Errors are logged but otherwise ignored
 	func removeAllPropertyListeners() {
-		for (property, listener) in propertyListeners {
-			var address = property.rawValue
-			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
-			if result != kAudioHardwareNoError {
-				os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
+		propertyListeners.withLockUnchecked {
+			for (property, listener) in $0 {
+				var address = property.rawValue
+				let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
+				if result != kAudioHardwareNoError {
+					os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
+				}
 			}
+			$0.removeAll()
 		}
 	}
 
@@ -90,7 +93,11 @@ public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 		var address = property.rawValue
 
 		// Remove the existing listener, if any, for the property
-		if let listener = propertyListeners.removeValue(forKey: property) {
+		let listener = propertyListeners.withLockUnchecked {
+			$0.removeValue(forKey: property)
+		}
+
+		if let listener {
 			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
 			guard result == kAudioHardwareNoError else {
 				os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
@@ -121,7 +128,9 @@ public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 				throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
 			}
 
-			propertyListeners[property] = listener
+			propertyListeners.withLockUnchecked {
+				$0[property] = listener
+			}
 		}
 	}
 
