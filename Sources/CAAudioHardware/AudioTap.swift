@@ -63,6 +63,11 @@ extension AudioTap {
 			try getProperty(PropertyAddress(kAudioTapPropertyDescription))
 		}
 	}
+	/// Sets the description
+	/// - remark: This corresponds to the property `kAudioTapPropertyDescription`
+	public func setDescription(_ value: CATapDescription) throws {
+		try setProperty(PropertyAddress(kAudioTapPropertyDescription), to: value)
+	}
 
 	/// Returns the format
 	/// - remark: This corresponds to the property `kAudioTapPropertyFormat`
