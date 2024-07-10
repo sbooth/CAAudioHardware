@@ -434,10 +434,18 @@ extension AudioObject {
 		case kAudioPlugInClassID: 			return try makeAudioPlugIn(objectID)
 		case kAudioStreamClassID: 			return AudioStream(objectID) 			// Revisit if a subclass of `AudioStream` is added
 
-		default:
-			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@' for audio object 0x%{public}@", baseClass.fourCC, objectID.hexString)
-			return AudioObject(objectID)
+		default: 							break
 		}
+
+		if #available(macOS 14.2, *) {
+			switch baseClass {
+			case kAudioProcessClassID:		return AudioProcess(objectID)			// Revisit if a subclass of `AudioProcess` is added
+			default: 						break
+			}
+		}
+
+		os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@' for audio object 0x%{public}@", baseClass.fourCC, objectID.hexString)
+		return AudioObject(objectID)
 	}
 }
 
@@ -544,14 +552,16 @@ func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
 	case kAudioDeviceClassID: 		return AudioDevice(objectID)
 	case kAudioPlugInClassID: 		return AudioPlugIn(objectID)
 	case kAudioStreamClassID: 		return AudioStream(objectID)
-	case kAudioProcessClassID:
-		if #available(macOS 14.2, *) {
-			return AudioProcess(objectID)
-		} else {
-			return AudioObject(objectID)
-		}
-	default:
-		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
-		return AudioObject(objectID)
+	default: 						break
 	}
+
+	if #available(macOS 14.2, *) {
+		switch objectClass {
+		case kAudioProcessClassID: 	return AudioProcess(objectID)
+		default: 					break
+		}
+	}
+
+	os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
+	return AudioObject(objectID)
 }
