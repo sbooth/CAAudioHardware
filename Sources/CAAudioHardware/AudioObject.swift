@@ -398,14 +398,8 @@ func AudioObjectBaseClass(_ objectID: AudioObjectID) throws -> AudioClassID {
 	return value
 }
 
-// See https://forums.developer.apple.com/forums/thread/747816
-// BL: `OSLog` should be `Sendable`
-
-#if swift(>=6.0)
-#warning("Reevaluate whether this decoration is necessary.")
-#endif
 /// The log for `AudioObject` and subclasses
-nonisolated(unsafe) let audioObjectLog = OSLog(subsystem: "org.sbooth.CAAudioHardware", category: "AudioObject")
+let audioObjectLog = OSLog(subsystem: "org.sbooth.CAAudioHardware", category: "AudioObject")
 
 // MARK: - AudioObject Creation
 
