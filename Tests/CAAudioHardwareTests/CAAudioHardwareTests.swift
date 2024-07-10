@@ -17,4 +17,12 @@ final class CAAudioHardwareTests: XCTestCase {
 			_ = try device.streams(inScope: .input)
 		}
     }
+
+	@available(macOS 14.2, *)
+	func testTaps() throws {
+		let taps = try AudioTap.taps
+		for tap in taps {
+			_ = try tap.format
+		}
+	}
 }
