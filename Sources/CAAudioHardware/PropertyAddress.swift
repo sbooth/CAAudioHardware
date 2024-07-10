@@ -52,17 +52,17 @@ extension PropertyAddress {
 extension PropertyAddress {
 	/// The property's selector
 	public var selector: PropertySelector {
-		return PropertySelector(rawValue.mSelector)
+		PropertySelector(rawValue.mSelector)
 	}
 
 	/// The property's scope
 	public var scope: PropertyScope {
-		return PropertyScope(rawValue.mScope)
+		PropertyScope(rawValue.mScope)
 	}
 
 	/// The property's element
 	public var element: PropertyElement {
-		return PropertyElement(rawValue.mElement)
+		PropertyElement(rawValue.mElement)
 	}
 }
 

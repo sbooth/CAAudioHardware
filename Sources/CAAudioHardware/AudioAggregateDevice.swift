@@ -102,6 +102,25 @@ extension AudioAggregateDevice {
 	}
 }
 
+@available(macOS 14.2, *)
+extension AudioAggregateDevice {
+	/// Returns the tap list
+	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyTapList`
+	public var tapList: [String] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyTapList), type: CFArray.self) as! [String]
+		}
+	}
+
+	/// Returns the sub tap list
+	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertySubTapList`
+	public var subTapList: [AudioSubtap] {
+		get throws {
+			try getProperty(PropertyAddress(kAudioAggregateDevicePropertySubTapList)).map { AudioSubtap($0) }
+		}
+	}
+}
+
 extension AudioAggregateDevice {
 	/// Returns `true` if the aggregate device is private
 	/// - remark: This corresponds to the value of `kAudioAggregateDeviceIsPrivateKey` in `composition`
@@ -172,4 +191,12 @@ extension AudioObjectSelector where T == AudioAggregateDevice {
 	public static let masterSubDevice = AudioObjectSelector(kAudioAggregateDevicePropertyMasterSubDevice)
 	/// The property selector `kAudioAggregateDevicePropertyClockDevice`
 	public static let clockDevice = AudioObjectSelector(kAudioAggregateDevicePropertyClockDevice)
+}
+
+@available(macOS 14.2, *)
+extension AudioObjectSelector where T == AudioAggregateDevice {
+	/// The property selector `kAudioAggregateDevicePropertyTapList`
+	public static let tapList = AudioObjectSelector(kAudioAggregateDevicePropertyTapList)
+	/// The property selector `kAudioAggregateDevicePropertySubTapList`
+	public static let subTapList = AudioObjectSelector(kAudioAggregateDevicePropertySubTapList)
 }

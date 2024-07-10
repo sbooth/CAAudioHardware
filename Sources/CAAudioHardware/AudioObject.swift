@@ -407,7 +407,7 @@ extension AudioObject {
 	///
 	/// Whenever possible this will return a specialized subclass exposing additional functionality
 	/// - parameter objectID: The audio object ID
-	public class func make(_ objectID: AudioObjectID) throws -> AudioObject {
+	public static func make(_ objectID: AudioObjectID) throws -> AudioObject {
 		guard objectID != kAudioObjectUnknown else {
 			os_log(.error, log: audioObjectLog, "kAudioObjectUnknown is not a valid AudioObjectID")
 			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError), userInfo: nil)
@@ -434,10 +434,20 @@ extension AudioObject {
 		case kAudioPlugInClassID: 			return try makeAudioPlugIn(objectID)
 		case kAudioStreamClassID: 			return AudioStream(objectID) 			// Revisit if a subclass of `AudioStream` is added
 
-		default:
-			os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@' for audio object 0x%{public}@", baseClass.fourCC, objectID.hexString)
-			return AudioObject(objectID)
+		default: 							break
 		}
+
+		if #available(macOS 14.2, *) {
+			switch baseClass {
+			case kAudioProcessClassID:		return AudioProcess(objectID)			// Revisit if a subclass of `AudioProcess` is added
+			case kAudioTapClassID: 			return AudioTap(objectID)				// Revisit if a subclass of `AudioTap` is added
+			case kAudioSubTapClassID: 		return AudioSubtap(objectID)			// Revisit if a subclass of `AudioSubtap` is added
+			default: 						break
+			}
+		}
+
+		os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@' for audio object 0x%{public}@", baseClass.fourCC, objectID.hexString)
+		return AudioObject(objectID)
 	}
 }
 
@@ -544,8 +554,18 @@ func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
 	case kAudioDeviceClassID: 		return AudioDevice(objectID)
 	case kAudioPlugInClassID: 		return AudioPlugIn(objectID)
 	case kAudioStreamClassID: 		return AudioStream(objectID)
-	default:
-		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
-		return AudioObject(objectID)
+	default: 						break
 	}
+
+	if #available(macOS 14.2, *) {
+		switch objectClass {
+		case kAudioProcessClassID: 	return AudioProcess(objectID)
+		case kAudioTapClassID: 		return AudioTap(objectID)
+		case kAudioSubTapClassID: 	return AudioSubtap(objectID)
+		default: 					break
+		}
+	}
+
+	os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
+	return AudioObject(objectID)
 }
