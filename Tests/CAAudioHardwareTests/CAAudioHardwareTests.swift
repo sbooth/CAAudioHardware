@@ -12,7 +12,7 @@ final class CAAudioHardwareTests: XCTestCase {
 			}
 
 			_ = try device.controlList
-			
+
 			_ = try device.streams(inScope: .output)
 			_ = try device.streams(inScope: .input)
 		}
