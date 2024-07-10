@@ -36,6 +36,39 @@ public class AudioTap: AudioObject {
 		return AudioTap(objectID)
 	}
 
+	/// Creates and returns a new `AudioTap` using the provided description
+	/// - parameter description: A `CATapDescription` describing the `AudioTap`
+	/// - returns: A newly-created `AudioTap`
+	/// - throws: An error if the `AudioTap` could not be created
+	public static func create(description: CATapDescription) throws -> AudioTap {
+		var objectId = kAudioObjectUnknown
+		let result = AudioHardwareCreateProcessTap(description, &objectId)
+		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioHardwareCreateProcessTap (%{public}@) failed: '%{public}@'", description, UInt32(result).fourCC)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: nil)
+		}
+		return AudioTap(objectId)
+	}
+
+#if false
+	public func destroy() throws {
+		removeAllPropertyListeners()
+	}
+#endif
+
+	/// Destroys `tap`
+	/// - note: Futher use of `tap` following this function is undefined
+	/// - parameter tap: The `AudioTap` to destroy
+	/// - throws: An error if the `AudioTap` could not be destroyed
+	public static func destroy(_ tap: AudioTap) throws {
+		let result = AudioHardwareDestroyProcessTap(tap.objectID)
+		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioHardwareDestroyProcessTap (0x%x) failed: '%{public}@'", tap.objectID, UInt32(result).fourCC)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: nil)
+		}
+		tap.removeAllPropertyListeners()
+	}
+
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
