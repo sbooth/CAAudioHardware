@@ -17,4 +17,12 @@ final class CAAudioHardwareTests: XCTestCase {
 			_ = try device.streams(inScope: .input)
 		}
     }
+
+	@available(macOS 14.2, *)
+	func testAudioProcess() throws {
+		let processes = try AudioProcess.processes
+		for process in processes {
+			_ = try process.pid
+		}
+	}
 }
