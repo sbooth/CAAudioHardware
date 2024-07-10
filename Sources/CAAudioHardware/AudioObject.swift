@@ -407,7 +407,7 @@ extension AudioObject {
 	///
 	/// Whenever possible this will return a specialized subclass exposing additional functionality
 	/// - parameter objectID: The audio object ID
-	public class func make(_ objectID: AudioObjectID) throws -> AudioObject {
+	public static func make(_ objectID: AudioObjectID) throws -> AudioObject {
 		guard objectID != kAudioObjectUnknown else {
 			os_log(.error, log: audioObjectLog, "kAudioObjectUnknown is not a valid AudioObjectID")
 			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError), userInfo: nil)
@@ -433,11 +433,13 @@ extension AudioObject {
 		case kAudioDeviceClassID: 			return try makeAudioDevice(objectID)
 		case kAudioPlugInClassID: 			return try makeAudioPlugIn(objectID)
 		case kAudioStreamClassID: 			return AudioStream(objectID) 			// Revisit if a subclass of `AudioStream` is added
+
 		default: 							break
 		}
 
 		if #available(macOS 14.2, *) {
 			switch baseClass {
+			case kAudioProcessClassID:		return AudioProcess(objectID)			// Revisit if a subclass of `AudioProcess` is added
 			case kAudioTapClassID: 			return try makeAudioTap(objectID)
 			case kAudioSubTapClassID: 		return try makeAudioTap(objectID)
 			default: 						break
@@ -557,6 +559,7 @@ func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
 
 	if #available(macOS 14.2, *) {
 		switch objectClass {
+		case kAudioProcessClassID: 	return AudioProcess(objectID)
 		case kAudioTapClassID: 		return AudioTap(objectID)
 		case kAudioSubTapClassID: 	return AudioSubtap(objectID)
 		default: 					break

@@ -12,11 +12,19 @@ final class CAAudioHardwareTests: XCTestCase {
 			}
 
 			_ = try device.controlList
-			
+
 			_ = try device.streams(inScope: .output)
 			_ = try device.streams(inScope: .input)
 		}
     }
+
+	@available(macOS 14.2, *)
+	func testAudioProcess() throws {
+		let processes = try AudioProcess.processes
+		for process in processes {
+			_ = try process.pid
+		}
+	}
 
 	@available(macOS 14.2, *)
 	func testTaps() throws {
