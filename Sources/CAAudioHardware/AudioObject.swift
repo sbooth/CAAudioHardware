@@ -440,7 +440,8 @@ extension AudioObject {
 		if #available(macOS 14.2, *) {
 			switch baseClass {
 			case kAudioProcessClassID:		return AudioProcess(objectID)			// Revisit if a subclass of `AudioProcess` is added
-			case kAudioTapClassID: 			return try makeAudioTap(objectID)
+			case kAudioTapClassID: 			return AudioTap(objectID)				// Revisit if a subclass of `AudioTap` is added
+			case kAudioSubTapClassID: 		return AudioSubtap(objectID)			// Revisit if a subclass of `AudioSubtap` is added
 			default: 						break
 			}
 		}

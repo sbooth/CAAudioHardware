@@ -11,7 +11,7 @@ import CoreAudio
 ///
 /// - remark: This class correponds to objects with base class `kAudioSubTapClassID`
 @available(macOS 14.2, *)
-public class AudioSubtap: AudioTap {
+public class AudioSubtap: AudioObject {
 }
 
 @available(macOS 14.2, *)
