@@ -9,22 +9,31 @@ let package = Package(
 		.macOS(.v10_15),
 	],
 	products: [
-		// Products define the executables and libraries a package produces, making them visible to other packages.
 		.library(
 			name: "CAAudioHardware",
-			targets: ["CAAudioHardware"]),
+			targets: [
+				"CAAudioHardware",
+			]),
+	],
+	dependencies: [
+		.package(url: "https://github.com/sbooth/FourCC", from: "0.1.0"),
+		.package(url: "https://github.com/sbooth/CoreAudioExtensions", from: "0.2.0"),
 	],
 	targets: [
-		// Targets are the basic building blocks of a package, defining a module or a test suite.
-		// Targets can depend on other targets in this package and products from dependencies.
 		.target(
 			name: "CAAudioHardware",
+			dependencies: [
+				.product(name: "FourCC", package: "FourCC"),
+				.product(name: "CoreAudioExtensions", package: "CoreAudioExtensions"),
+			],
 			linkerSettings: [
 				.linkedFramework("CoreAudio"),
 				.linkedFramework("AVFAudio"),
 			]),
 		.testTarget(
 			name: "CAAudioHardwareTests",
-			dependencies: ["CAAudioHardware"]),
+			dependencies: [
+				"CAAudioHardware",
+			]),
 	]
 )

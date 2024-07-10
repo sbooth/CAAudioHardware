@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -7,218 +7,6 @@
 import Foundation
 import CoreAudio
 import os.log
-
-/// A thin wrapper around a HAL audio object property selector
-public struct PropertySelector: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
-	public let rawValue: AudioObjectPropertySelector
-
-	/// Creates a new instance with the specified value
-	/// - parameter value: The value to use for the new instance
-	public init(_ value: AudioObjectPropertySelector) {
-		self.rawValue = value
-	}
-
-	public init(rawValue: AudioObjectPropertySelector) {
-		self.rawValue = rawValue
-	}
-
-	public init(integerLiteral value: UInt32) {
-		self.rawValue = value
-	}
-
-	public init(stringLiteral value: StringLiteralType) {
-		self.rawValue = value.fourCC
-	}
-}
-
-extension PropertySelector {
-	/// Wildcard selector
-	public static let wildcard = PropertySelector(kAudioObjectPropertySelectorWildcard)
-}
-
-/// A thin wrapper around a HAL audio object property scope
-public struct PropertyScope: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
-	public let rawValue: AudioObjectPropertyScope
-
-	/// Creates a new instance with the specified value
-	/// - parameter value: The value to use for the new instance
-	public init(_ value: AudioObjectPropertyScope) {
-		self.rawValue = value
-	}
-
-	public init(rawValue: AudioObjectPropertyScope) {
-		self.rawValue = rawValue
-	}
-
-	public init(integerLiteral value: UInt32) {
-		self.rawValue = value
-	}
-
-	public init(stringLiteral value: StringLiteralType) {
-		self.rawValue = value.fourCC
-	}
-}
-
-extension PropertyScope {
-	/// Global scope
-	public static let global 		= PropertyScope(kAudioObjectPropertyScopeGlobal)
-	/// Input scope
-	public static let input 		= PropertyScope(kAudioObjectPropertyScopeInput)
-	/// Output scope
-	public static let output 		= PropertyScope(kAudioObjectPropertyScopeOutput)
-	/// Play-through scope
-	public static let playThrough 	= PropertyScope(kAudioObjectPropertyScopePlayThrough)
-	/// Wildcard scope
-	public static let wildcard 		= PropertyScope(kAudioObjectPropertyScopeWildcard)
-}
-
-/// A thin wrapper around a HAL audio object property element
-public struct PropertyElement: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
-	public let rawValue: AudioObjectPropertyElement
-
-	/// Creates a new instance with the specified value
-	/// - parameter value: The value to use for the new instance
-	public init(_ value: AudioObjectPropertyElement) {
-		self.rawValue = value
-	}
-
-	public init(rawValue: AudioObjectPropertyElement) {
-		self.rawValue = rawValue
-	}
-
-	public init(integerLiteral value: UInt32) {
-		self.rawValue = value
-	}
-
-	public init(stringLiteral value: StringLiteralType) {
-		self.rawValue = value.fourCC
-	}
-}
-
-extension PropertyElement {
-	/// Main element
-	public static let main 		= PropertyElement(kAudioObjectPropertyElementMain)
-	/// Master element
-	@available(macOS, introduced: 10.0, deprecated: 12.0, renamed: "main")
-	public static let master 	= PropertyElement(kAudioObjectPropertyElementMaster)
-	/// Wildcard element
-	public static let wildcard 	= PropertyElement(kAudioObjectPropertyElementWildcard)
-}
-
-/// A thin wrapper around a HAL audio object property address
-public struct PropertyAddress: RawRepresentable {
-	public let rawValue: AudioObjectPropertyAddress
-
-	/// Creates a new instance with the specified value
-	/// - parameter value: The value to use for the new instance
-	public init(_ value: AudioObjectPropertyAddress) {
-		self.rawValue = value
-	}
-
-	public init(rawValue: AudioObjectPropertyAddress) {
-		self.rawValue = rawValue
-	}
-
-	/// The property's selector
-	public var selector: PropertySelector {
-		return PropertySelector(rawValue.mSelector)
-	}
-
-	/// The property's scope
-	public var scope: PropertyScope {
-		return PropertyScope(rawValue.mScope)
-	}
-
-	/// The property's element
-	public var element: PropertyElement {
-		return PropertyElement(rawValue.mElement)
-	}
-
-	/// Initializes a new `PropertyAddress` with the specified raw selector, scope, and element values
-	/// - parameter selector: The desired raw selector value
-	/// - parameter scope: The desired raw scope value
-	/// - parameter element: The desired raw element value
-	public init(_ selector: AudioObjectPropertySelector, scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal, element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain) {
-		self.rawValue = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-	}
-
-	/// Initializes a new `PropertyAddress` with the specified selector, scope, and element
-	/// - parameter selector: The desired selector
-	/// - parameter scope: The desired scope
-	/// - parameter element: The desired element
-	public init(_ selector: PropertySelector, scope: PropertyScope = .global, element: PropertyElement = .main) {
-		self.rawValue = AudioObjectPropertyAddress(mSelector: selector.rawValue, mScope: scope.rawValue, mElement: element.rawValue)
-	}
-}
-
-extension PropertyAddress: Hashable {
-	public static func == (lhs: PropertyAddress, rhs: PropertyAddress) -> Bool {
-		lhs.rawValue.mSelector == rhs.rawValue.mSelector && lhs.rawValue.mScope == rhs.rawValue.mScope && lhs.rawValue.mElement == rhs.rawValue.mElement
-	}
-
-	public func hash(into hasher: inout Hasher) {
-		hasher.combine(rawValue.mSelector)
-		hasher.combine(rawValue.mScope)
-		hasher.combine(rawValue.mElement)
-	}
-}
-
-/// A HAL audio object property qualifier
-public struct PropertyQualifier {
-	/// The property qualifier's value
-	public let value: UnsafeRawPointer
-	/// The property qualifier's size
-	public let size: UInt32
-
-	/// Creates a new instance with the specified value and size
-	/// - parameter value: A pointer to the qualifier data
-	/// - parameter size: The size in bytes of the data pointed to by `value`
-	public init(value: UnsafeRawPointer, size: UInt32) {
-		self.value = value
-		self.size = size
-	}
-
-	/// Creates a new instance with the specified value
-	///
-	/// `size` is initlalized to `MemoryLayout<T>.stride`
-	/// - parameter value: A pointer to the qualifier data
-	public init<T>(_ value: UnsafePointer<T>) {
-		self.value = UnsafeRawPointer(value)
-		self.size = UInt32(MemoryLayout<T>.stride)
-	}
-}
-
-// MARK: - Congruence Relations
-
-infix operator ~==: ComparisonPrecedence
-extension PropertySelector {
-	public static func ~== (lhs: PropertySelector, rhs: PropertySelector) -> Bool {
-		lhs.rawValue == rhs.rawValue || lhs.rawValue == kAudioObjectPropertySelectorWildcard || rhs.rawValue == kAudioObjectPropertySelectorWildcard
-	}
-}
-
-extension PropertyScope {
-	public static func ~== (lhs: PropertyScope, rhs: PropertyScope) -> Bool {
-		lhs.rawValue == rhs.rawValue || lhs.rawValue == kAudioObjectPropertyScopeWildcard || rhs.rawValue == kAudioObjectPropertyScopeWildcard
-	}
-}
-
-extension PropertyElement {
-	public static func ~== (lhs: PropertyElement, rhs: PropertyElement) -> Bool {
-		lhs.rawValue == rhs.rawValue || lhs.rawValue == kAudioObjectPropertyElementWildcard || rhs.rawValue == kAudioObjectPropertyElementWildcard
-	}
-}
-
-extension PropertyAddress {
-	public static func ~== (lhs: PropertyAddress, rhs: PropertyAddress) -> Bool {
-//		lhs.selector ~== rhs.selector && lhs.scope ~== rhs.scope && lhs.element ~== rhs.element
-		let l = lhs.rawValue
-		let r = rhs.rawValue
-		return (l.mSelector == r.mSelector || l.mSelector == kAudioObjectPropertySelectorWildcard || r.mSelector == kAudioObjectPropertySelectorWildcard)
-		&& (l.mScope == r.mScope || l.mScope == kAudioObjectPropertyScopeWildcard || r.mScope == kAudioObjectPropertyScopeWildcard)
-		&& (l.mElement == r.mElement || l.mElement == kAudioObjectPropertyElementWildcard || r.mElement == kAudioObjectPropertyElementWildcard)
-	}
-}
 
 // MARK: - Low-Level Property Support
 
@@ -233,7 +21,7 @@ public func audioObjectPropertySize(_ property: PropertyAddress, from objectID: 
 	let result = AudioObjectGetPropertyDataSize(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, &dataSize)
 	guard result == kAudioHardwareNoError else {
 		os_log(.error, log: audioObjectLog, "AudioObjectGetPropertyDataSize (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
-		let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Size information for the property \(property.selector) in scope \(property.scope) on audio object 0x\(String(objectID, radix: 16, uppercase: false)) could not be retrieved.", comment: "")]
+		let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("Size information for the property \(property.selector) in scope \(property.scope) on audio object 0x\(objectID.hexString) could not be retrieved.", comment: "")]
 		throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
 	}
 	return Int(dataSize)
@@ -252,7 +40,7 @@ public func readAudioObjectProperty<T>(_ property: PropertyAddress, from objectI
 	let result = AudioObjectGetPropertyData(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, &dataSize, ptr)
 	guard result == kAudioHardwareNoError else {
 		os_log(.error, log: audioObjectLog, "AudioObjectGetPropertyData (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
-		let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The property \(property.selector) in scope \(property.scope) on audio object 0x\(String(objectID, radix: 16, uppercase: false)) could not be retrieved.", comment: "")]
+		let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The property \(property.selector) in scope \(property.scope) on audio object 0x\(objectID.hexString) could not be retrieved.", comment: "")]
 		throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
 	}
 }
@@ -270,7 +58,7 @@ public func writeAudioObjectProperty<T>(_ property: PropertyAddress, on objectID
 	let result = AudioObjectSetPropertyData(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, dataSize, ptr)
 	guard result == kAudioHardwareNoError else {
 		os_log(.error, log: audioObjectLog, "AudioObjectSetPropertyData (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
-		let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The property \(property.selector) in scope \(property.scope) on audio object 0x\(String(objectID, radix: 16, uppercase: false)) could not be set.", comment: "")]
+		let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The property \(property.selector) in scope \(property.scope) on audio object 0x\(objectID.hexString) could not be set.", comment: "")]
 		throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
 	}
 }
@@ -323,75 +111,48 @@ public func getAudioObjectProperty<T>(_ property: PropertyAddress, from objectID
 	return array
 }
 
-// MARK: - Four Character Code Helpers
+// MARK: - Translated Property Retrieval
 
-extension String {
-	/// Returns `self.prefix(4)` interpreted as a four character code
-	var fourCC: UInt32 {
-		var fourcc: UInt32 = 0
-		for uc in prefix(4).unicodeScalars {
-			fourcc = (fourcc << 8) + (uc.value & 0xff)
-		}
-		return fourcc
-	}
-
-}
-
-extension UInt32 {
-	/// Returns the value of `self` interpreted as a four character code
-	var fourCC: String {
-		let chars: [UInt8] = [UInt8((self >> 24) & 0xff), UInt8((self >> 16) & 0xff), UInt8((self >> 8) & 0xff), UInt8(self & 0xff), 0]
-		return String(cString: chars)
-	}
-}
-
-// MARK: - Debugging Helpers
-
-extension PropertySelector: CustomStringConvertible {
-	public var description: String {
-		switch rawValue {
-		case kAudioObjectPropertySelectorWildcard:
-			return "wildcard"
-		default:
-			return "'\(rawValue.fourCC)'"
+/// Returns `value` translated to a numeric type using `property`
+/// - note: The underlying audio object property must be backed by `AudioValueTranslation`
+/// - note: The `AudioValueTranslation` input type must be `In`
+/// - note: The `AudioValueTranslation` output type must be `Out`
+/// - parameter property: The address of the desired property
+/// - parameter objectID: The audio object to query
+/// - parameter value: The input value to translate
+/// - parameter type: The output type of the translation
+/// - parameter qualifier: An optional property qualifier
+/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
+public func getAudioObjectProperty<In, Out: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+	var inputData = value
+	var outputData: Out = 0
+	try withUnsafeMutablePointer(to: &inputData) { inputPointer in
+		try withUnsafeMutablePointer(to: &outputData) { outputPointer in
+			var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<In>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<Out>.stride))
+			try readAudioObjectProperty(property, from: objectID, into: &translation, qualifier: qualifier)
 		}
 	}
+	return outputData
 }
 
-extension PropertyScope: CustomStringConvertible {
-	public var description: String {
-		switch rawValue {
-		case kAudioObjectPropertyScopeGlobal:
-			return "global"
-		case kAudioObjectPropertyScopeInput:
-			return "input"
-		case kAudioObjectPropertyScopeOutput:
-			return "output"
-		case kAudioObjectPropertyScopePlayThrough:
-			return "playthrough"
-		case kAudioObjectPropertyScopeWildcard:
-			return "wildcard"
-		default:
-			return "'\(rawValue.fourCC)'"
+/// Returns `value` translated to a Core Foundation type using `property`
+/// - note: The underlying audio object property must be backed by `AudioValueTranslation`
+/// - note: The `AudioValueTranslation` input type must be `In`
+/// - note: The `AudioValueTranslation` output type must be a `CFType` with a +1 retain count
+/// - parameter property: The address of the desired property
+/// - parameter objectID: The audio object to query
+/// - parameter value: The input value to translate
+/// - parameter type: The output type of the translation
+/// - parameter qualifier: An optional property qualifier
+/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
+public func getAudioObjectProperty<In, Out: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+	var inputData = value
+	var outputData: Unmanaged<Out>?
+	try withUnsafeMutablePointer(to: &inputData) { inputPointer in
+		try withUnsafeMutablePointer(to: &outputData) { outputPointer in
+			var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<In>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<Out>.stride))
+			try readAudioObjectProperty(property, from: objectID, into: &translation, qualifier: qualifier)
 		}
 	}
-}
-
-extension PropertyElement: CustomStringConvertible {
-	public var description: String {
-		switch rawValue {
-		case kAudioObjectPropertyElementMain:
-			return "main"
-		case kAudioObjectPropertyElementWildcard:
-			return "wildcard"
-		default:
-			return "\(rawValue)"
-		}
-	}
-}
-
-extension PropertyAddress: CustomStringConvertible {
-	public var description: String {
-		"(\(selector.description), \(scope.description), \(element.description))"
-	}
+	return outputData!.takeRetainedValue()
 }

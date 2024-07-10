@@ -1,11 +1,12 @@
 //
-// Copyright © 2020-2023 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
 
 import Foundation
 import CoreAudio
+import CoreAudioExtensions
 
 /// A HAL audio stream object
 ///
@@ -15,7 +16,7 @@ public class AudioStream: AudioObject {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), \(try isActive() ? "active" : "inactive"), \(try direction() ? "output" : "input"), starting channel = \(try startingChannel()), virtual format = \(try virtualFormat()), physical format = \(try physicalFormat())>"
+			return "<\(type(of: self)): 0x\(objectID.hexString), \(try isActive ? "active" : "inactive"), \(try direction ? "output" : "input"), starting channel = \(try startingChannel), virtual format = \(try virtualFormat.streamDescription), physical format = \(try physicalFormat.streamDescription)>"
 		} catch {
 			return super.debugDescription
 		}
@@ -25,38 +26,50 @@ public class AudioStream: AudioObject {
 extension AudioStream {
 	/// Returns `true` if the stream is active
 	/// - remark: This corresponds to the property `kAudioStreamPropertyIsActive`
-	public func isActive() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioStreamPropertyIsActive), type: UInt32.self) != 0
+	public var isActive: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioStreamPropertyIsActive), type: UInt32.self) != 0
+		}
 	}
 
 	/// Returns `true` if `self` is an output stream
 	/// - remark: This corresponds to the property `kAudioStreamPropertyDirection`
-	public func direction() throws -> Bool {
-		return try getProperty(PropertyAddress(kAudioStreamPropertyDirection), type: UInt32.self) == 0
+	public var direction: Bool {
+		get throws {
+			try getProperty(PropertyAddress(kAudioStreamPropertyDirection), type: UInt32.self) == 0
+		}
 	}
 
 	/// Returns the terminal type
 	/// - remark: This corresponds to the property `kAudioStreamPropertyTerminalType`
-	public func terminalType() throws -> TerminalType {
-		return TerminalType(rawValue: try getProperty(PropertyAddress(kAudioStreamPropertyTerminalType), type: UInt32.self))
+	public var terminalType: TerminalType {
+		get throws {
+			TerminalType(try getProperty(PropertyAddress(kAudioStreamPropertyTerminalType), type: UInt32.self))
+		}
 	}
 
 	/// Returns the starting channel
 	/// - remark: This corresponds to the property `kAudioStreamPropertyStartingChannel`
-	public func startingChannel() throws -> PropertyElement {
-		return PropertyElement(try getProperty(PropertyAddress(kAudioStreamPropertyStartingChannel), type: UInt32.self))
+	public var startingChannel: PropertyElement {
+		get throws {
+			PropertyElement(try getProperty(PropertyAddress(kAudioStreamPropertyStartingChannel), type: UInt32.self))
+		}
 	}
 
 	/// Returns the latency
 	/// - remark: This corresponds to the property `kAudioStreamPropertyLatency`
-	public func latency() throws -> UInt32 {
-		return try getProperty(PropertyAddress(kAudioStreamPropertyLatency))
+	public var latency: UInt32 {
+		get throws {
+			try getProperty(PropertyAddress(kAudioStreamPropertyLatency))
+		}
 	}
 
 	/// Returns the virtual format
 	/// - remark: This corresponds to the property `kAudioStreamPropertyVirtualFormat`
-	public func virtualFormat() throws -> AudioStreamBasicDescription {
-		return try getProperty(PropertyAddress(kAudioStreamPropertyVirtualFormat))
+	public var virtualFormat: AudioStreamBasicDescription {
+		get throws {
+			try getProperty(PropertyAddress(kAudioStreamPropertyVirtualFormat))
+		}
 	}
 	/// Sets the virtual format
 	/// - remark: This corresponds to the property `kAudioStreamPropertyVirtualFormat`
@@ -66,15 +79,19 @@ extension AudioStream {
 
 	/// Returns the available virtual formats
 	/// - remark: This corresponds to the property `kAudioStreamPropertyAvailableVirtualFormats`
-	public func availableVirtualFormats() throws -> [(AudioStreamBasicDescription, ClosedRange<Double>)] {
-		let value = try getProperty(PropertyAddress(kAudioStreamPropertyAvailableVirtualFormats), elementType: AudioStreamRangedDescription.self)
-		return value.map { ($0.mFormat, $0.mSampleRateRange.mMinimum ... $0.mSampleRateRange.mMaximum) }
+	public var availableVirtualFormats: [(AudioStreamBasicDescription, ClosedRange<Double>)] {
+		get throws {
+			let value = try getProperty(PropertyAddress(kAudioStreamPropertyAvailableVirtualFormats), elementType: AudioStreamRangedDescription.self)
+			return value.map { ($0.mFormat, $0.mSampleRateRange.mMinimum ... $0.mSampleRateRange.mMaximum) }
+		}
 	}
 
 	/// Returns the physical format
 	/// - remark: This corresponds to the property `kAudioStreamPropertyPhysicalFormat`
-	public func physicalFormat() throws -> AudioStreamBasicDescription {
-		return try getProperty(PropertyAddress(kAudioStreamPropertyPhysicalFormat))
+	public var physicalFormat: AudioStreamBasicDescription {
+		get throws {
+			try getProperty(PropertyAddress(kAudioStreamPropertyPhysicalFormat))
+		}
 	}
 	/// Sets the physical format
 	/// - remark: This corresponds to the property `kAudioStreamPropertyPhysicalFormat`
@@ -84,76 +101,10 @@ extension AudioStream {
 
 	/// Returns the available physical formats
 	/// - remark: This corresponds to the property `kAudioStreamPropertyAvailablePhysicalFormats`
-	public func availablePhysicalFormats() throws -> [(AudioStreamBasicDescription, ClosedRange<Double>)] {
-		let value = try getProperty(PropertyAddress(kAudioStreamPropertyAvailablePhysicalFormats), elementType: AudioStreamRangedDescription.self)
-		return value.map { ($0.mFormat, $0.mSampleRateRange.mMinimum ... $0.mSampleRateRange.mMaximum) }
-	}
-}
-
-extension AudioStream {
-	/// A thin wrapper around a HAL audio stream terminal type
-	public struct TerminalType: RawRepresentable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
-		/// Unknown
-		public static let unknown 					= TerminalType(rawValue: kAudioStreamTerminalTypeUnknown)
-		/// Line level
-		public static let line 						= TerminalType(rawValue: kAudioStreamTerminalTypeLine)
-		/// Digital audio interface
-		public static let digitalAudioInterface 	= TerminalType(rawValue: kAudioStreamTerminalTypeDigitalAudioInterface)
-		/// Spekaer
-		public static let speaker 					= TerminalType(rawValue: kAudioStreamTerminalTypeSpeaker)
-		/// Headphones
-		public static let headphones 				= TerminalType(rawValue: kAudioStreamTerminalTypeHeadphones)
-		/// LFE speaker
-		public static let lfeSpeaker 				= TerminalType(rawValue: kAudioStreamTerminalTypeLFESpeaker)
-		/// Telephone handset speaker
-		public static let receiverSpeaker 			= TerminalType(rawValue: kAudioStreamTerminalTypeReceiverSpeaker)
-		/// Microphone
-		public static let microphone 				= TerminalType(rawValue: kAudioStreamTerminalTypeMicrophone)
-		/// Headset microphone
-		public static let headsetMicrophone 		= TerminalType(rawValue: kAudioStreamTerminalTypeHeadsetMicrophone)
-		/// Telephone handset microphone
-		public static let receiverMicrophone 		= TerminalType(rawValue: kAudioStreamTerminalTypeReceiverMicrophone)
-		/// TTY
-		public static let tty 						= TerminalType(rawValue: kAudioStreamTerminalTypeTTY)
-		/// HDMI
-		public static let hdmi 						= TerminalType(rawValue: kAudioStreamTerminalTypeHDMI)
-		/// DisplayPort
-		public static let displayPort 				= TerminalType(rawValue: kAudioStreamTerminalTypeDisplayPort)
-
-		public let rawValue: UInt32
-
-		public init(rawValue: UInt32) {
-			self.rawValue = rawValue
-		}
-
-		public init(integerLiteral value: UInt32) {
-			self.rawValue = value
-		}
-
-		public init(stringLiteral value: StringLiteralType) {
-			self.rawValue = value.fourCC
-		}
-	}
-}
-
-extension AudioStream.TerminalType: CustomDebugStringConvertible {
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		switch self.rawValue {
-		case kAudioStreamTerminalTypeUnknown:					return "Unknown"
-		case kAudioStreamTerminalTypeLine:						return "Line Level"
-		case kAudioStreamTerminalTypeDigitalAudioInterface: 	return "Digital Audio Interface"
-		case kAudioStreamTerminalTypeSpeaker:					return "Speaker"
-		case kAudioStreamTerminalTypeHeadphones:				return "Headphones"
-		case kAudioStreamTerminalTypeLFESpeaker:				return "LFE Speaker"
-		case kAudioStreamTerminalTypeReceiverSpeaker:			return "Receiver Speaker"
-		case kAudioStreamTerminalTypeMicrophone: 				return "Microphone"
-		case kAudioStreamTerminalTypeHeadsetMicrophone:			return "Headset Microphone"
-		case kAudioStreamTerminalTypeReceiverMicrophone:		return "Receiver Microphone"
-		case kAudioStreamTerminalTypeTTY:						return "TTY"
-		case kAudioStreamTerminalTypeHDMI:						return "HDMI"
-		case kAudioStreamTerminalTypeDisplayPort:				return "DisplayPort"
-		default: 												return "\(self.rawValue)"
+	public var availablePhysicalFormats: [(AudioStreamBasicDescription, ClosedRange<Double>)] {
+		get throws {
+			let value = try getProperty(PropertyAddress(kAudioStreamPropertyAvailablePhysicalFormats), elementType: AudioStreamRangedDescription.self)
+			return value.map { ($0.mFormat, $0.mSampleRateRange.mMinimum ... $0.mSampleRateRange.mMaximum) }
 		}
 	}
 }
