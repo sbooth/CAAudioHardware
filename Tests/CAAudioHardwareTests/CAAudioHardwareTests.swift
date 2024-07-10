@@ -18,6 +18,22 @@ final class CAAudioHardwareTests: XCTestCase {
 		}
 	}
 
+	@available(macOS 14.2, *)
+	func testAudioProcess() throws {
+		let processes = try AudioProcess.processes
+		for process in processes {
+			_ = try process.pid
+		}
+	}
+
+	@available(macOS 14.2, *)
+	func testTaps() throws {
+		let taps = try AudioTap.taps
+		for tap in taps {
+			_ = try tap.format
+		}
+	}
+
 	func testUnfairLockCopying() {
 		let lock = UnfairLock()
 		let copy = lock

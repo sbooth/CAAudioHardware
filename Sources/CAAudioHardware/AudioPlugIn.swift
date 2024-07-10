@@ -24,7 +24,7 @@ public class AudioPlugIn: AudioObject, @unchecked Sendable {
 	/// Returns an initialized `AudioPlugIn` with `bundleID` or `nil` if unknown
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyTranslateBundleIDToPlugIn` on `kAudioObjectSystemObject`
 	/// - parameter bundleID: The bundle ID of the desired plug-in
-	public class func makePlugIn(forBundleID bundleID: String) throws -> AudioPlugIn? {
+	public static func makePlugIn(forBundleID bundleID: String) throws -> AudioPlugIn? {
 		var qualifier = bundleID as CFString
 		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslateBundleIDToPlugIn), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
