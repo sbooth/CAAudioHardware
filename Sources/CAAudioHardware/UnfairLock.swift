@@ -176,7 +176,7 @@ extension UnfairLock {
 		@usableFromInline
 		var state: State
 
-		/// Initializes a new unfair lock protecting.
+		/// Initializes a new unfair lock protecting mutable state.
 		/// - parameter initialState: The starting state.
 		init(initialState: State) {
 			os_lock = .allocate(capacity: 1)

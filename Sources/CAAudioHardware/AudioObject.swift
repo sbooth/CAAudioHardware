@@ -39,8 +39,8 @@ public class AudioObject: Equatable, Hashable, @unchecked Sendable, CustomDebugS
 
 	/// Removes all property listeners
 	/// - note: Errors are logged but otherwise ignored
-	func removeAllPropertyListeners() {
-		propertyListeners.withLock {
+	final func removeAllPropertyListeners() {
+		propertyListeners.withLockUnchecked {
 			for (property, listener) in $0 {
 				var address = property.rawValue
 				let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
