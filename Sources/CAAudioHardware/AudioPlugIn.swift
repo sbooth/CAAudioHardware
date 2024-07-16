@@ -24,7 +24,7 @@ public class AudioPlugIn: AudioObject {
 	/// Returns an initialized `AudioPlugIn` with `bundleID` or `nil` if unknown
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyTranslateBundleIDToPlugIn` on `kAudioObjectSystemObject`
 	/// - parameter bundleID: The bundle ID of the desired plug-in
-	public class func makePlugIn(forBundleID bundleID: String) throws -> AudioPlugIn? {
+	public static func makePlugIn(forBundleID bundleID: String) throws -> AudioPlugIn? {
 		var qualifier = bundleID as CFString
 		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslateBundleIDToPlugIn), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
@@ -37,7 +37,7 @@ public class AudioPlugIn: AudioObject {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
+			return "<\(type(of: self)): 0x\(objectID.hexString), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
 		} catch {
 			return super.debugDescription
 		}
@@ -191,7 +191,7 @@ func makeAudioPlugIn(_ objectID: AudioObjectID) throws -> AudioPlugIn {
 	case kAudioPlugInClassID: 				return AudioPlugIn(objectID)
 	case kAudioTransportManagerClassID: 	return AudioTransportManager(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown audio plug-in class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
+		os_log(.debug, log: audioObjectLog, "Unknown audio plug-in class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
 		return AudioPlugIn(objectID)
 	}
 }

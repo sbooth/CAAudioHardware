@@ -48,7 +48,7 @@ public class AudioDevice: AudioObject {
 	/// Returns an initialized `AudioDevice` with `uid` or `nil` if unknown
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyTranslateUIDToDevice` on `kAudioObjectSystemObject`
 	/// - parameter uid: The UID of the desired device
-	public class func makeDevice(forUID uid: String) throws -> AudioDevice? {
+	public static func makeDevice(forUID uid: String) throws -> AudioDevice? {
 		var qualifier = uid as CFString
 		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslateUIDToDevice), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
@@ -79,7 +79,7 @@ public class AudioDevice: AudioObject {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)) \"\(try name)\">"
+			return "<\(type(of: self)): 0x\(objectID.hexString) \"\(try name)\">"
 		} catch {
 			return super.debugDescription
 		}
@@ -1241,7 +1241,7 @@ func makeAudioDevice(_ objectID: AudioObjectID) throws -> AudioDevice {
 	case kAudioEndPointClassID:			return AudioEndpoint(objectID)
 	case kAudioSubDeviceClassID:		return AudioSubdevice(objectID)
 	default:
-		os_log(.debug, log: audioObjectLog, "Unknown audio device class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, String(objectID, radix: 16, uppercase: false))
+		os_log(.debug, log: audioObjectLog, "Unknown audio device class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
 		return AudioDevice(objectID)
 	}
 }

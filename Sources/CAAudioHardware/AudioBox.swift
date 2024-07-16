@@ -24,7 +24,7 @@ public class AudioBox: AudioObject {
 	/// Returns an initialized `AudioBox` with `uid` or `nil` if unknown
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyTranslateUIDToBox` on `kAudioObjectSystemObject`
 	/// - parameter uid: The UID of the desired box
-	public class func makeBox(forUID uid: String) throws -> AudioBox? {
+	public static func makeBox(forUID uid: String) throws -> AudioBox? {
 		var qualifier = uid as CFString
 		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslateUIDToBox), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
@@ -42,7 +42,7 @@ public class AudioBox: AudioObject {
 			if try hasAudio { media.append("audio") }
 			if try hasVideo { media.append("video") }
 			if try hasMIDI { media.append("MIDI") }
-			return "<\(type(of: self)): 0x\(String(objectID, radix: 16, uppercase: false)), \(media.joined(separator: ", ")), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
+			return "<\(type(of: self)): 0x\(objectID.hexString), \(media.joined(separator: ", ")), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
 		} catch {
 			return super.debugDescription
 		}
