@@ -39,7 +39,7 @@ public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 
 	/// Removes all property listeners
 	/// - note: Errors are logged but otherwise ignored
-	func removeAllPropertyListeners() {
+	final func removeAllPropertyListeners() {
 		propertyListeners.withLockUnchecked {
 			for (property, listener) in $0 {
 				var address = property.rawValue
