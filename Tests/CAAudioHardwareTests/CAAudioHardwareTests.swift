@@ -33,4 +33,19 @@ final class CAAudioHardwareTests: XCTestCase {
 			_ = try tap.format
 		}
 	}
+
+	func testUnfairLockCopying() {
+		let lock = UnfairLock()
+		let copy = lock
+		XCTAssertIdentical(lock.storage, copy.storage)
+	}
+
+	func testUnfairLockOwnership() {
+		let lock = UnfairLock()
+		lock.precondition(.notOwner)
+		lock.lock()
+		lock.precondition(.owner)
+		lock.unlock()
+		lock.precondition(.notOwner)
+	}
 }
