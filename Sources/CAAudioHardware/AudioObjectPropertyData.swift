@@ -8,14 +8,15 @@ import Foundation
 import CoreAudio
 import os.log
 
-// MARK: - Low-Level Property Support
+// MARK: - Low-Level Property Data Support
 
-/// Returns the size in bytes of `property` from `objectID`
-/// - parameter property: The address of the desired property
+/// Returns the data size in bytes for `property` on `objectID`
 /// - parameter objectID: The audio object to query
+/// - parameter property: The address of the desired property
 /// - parameter qualifier: An optional property qualifier
-/// - throws: An exception if the object does not have the requested property or the property value could not be retrieved
-public func audioObjectPropertySize(_ property: PropertyAddress, from objectID: AudioObjectID, qualifier: PropertyQualifier? = nil) throws -> Int {
+/// - returns: The data size for `property` in bytes
+/// - throws: An exception if the object does not have the requested property or the property data size could not be retrieved
+public func audioObjectPropertyDataSize(objectID: AudioObjectID, property: PropertyAddress, qualifier: PropertyQualifier? = nil) throws -> Int {
 	var propertyAddress = property.rawValue
 	var dataSize: UInt32 = 0
 	let result = AudioObjectGetPropertyDataSize(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, &dataSize)
@@ -27,14 +28,14 @@ public func audioObjectPropertySize(_ property: PropertyAddress, from objectID: 
 	return Int(dataSize)
 }
 
-/// Reads `size` bytes of `property` from `objectID` into `ptr`
-/// - parameter property: The address of the desired property
+/// Reads `size` bytes of data for `property` on `objectID` into `ptr`
 /// - parameter objectID: The audio object to query
-/// - parameter ptr: A pointer to receive the property's value
+/// - parameter property: The address of the desired property
+/// - parameter ptr: A pointer to receive the property's data
 /// - parameter size: The number of bytes to read
 /// - parameter qualifier: An optional property qualifier
-/// - throws: An exception if the object does not have the requested property or the property value could not be retrieved
-public func readAudioObjectProperty<T>(_ property: PropertyAddress, from objectID: AudioObjectID, into ptr: UnsafeMutablePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
+/// - throws: An exception if the object does not have the requested property or the property data could not be retrieved
+public func readAudioObjectPropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, into ptr: UnsafeMutablePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
 	var propertyAddress = property.rawValue
 	var dataSize = UInt32(size)
 	let result = AudioObjectGetPropertyData(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, &dataSize, ptr)
@@ -45,14 +46,14 @@ public func readAudioObjectProperty<T>(_ property: PropertyAddress, from objectI
 	}
 }
 
-/// Writes `size` bytes from `ptr` to `property` on `objectID`
-/// - parameter property: The address of the desired property
+/// Writes `size` bytes of data from `ptr` to `property` on `objectID`
 /// - parameter objectID: The audio object to change
-/// - parameter ptr: A pointer to the desired property value
+/// - parameter property: The address of the desired property
+/// - parameter ptr: A pointer to the desired property data
 /// - parameter size: The number of bytes to write
 /// - parameter qualifier: An optional property qualifier
-/// - throws: An exception if the object does not have the requested property, the property is not settable, or the property value could not be set
-public func writeAudioObjectProperty<T>(_ property: PropertyAddress, on objectID: AudioObjectID, from ptr: UnsafePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
+/// - throws: An exception if the object does not have the requested property, the property is not settable, or the property data could not be set
+public func writeAudioObjectPropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, from ptr: UnsafePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
 	var propertyAddress = property.rawValue
 	let dataSize = UInt32(size)
 	let result = AudioObjectSetPropertyData(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, dataSize, ptr)
@@ -63,73 +64,73 @@ public func writeAudioObjectProperty<T>(_ property: PropertyAddress, on objectID
 	}
 }
 
-// MARK: - Typed Scalar Property Retrieval
+// MARK: - Typed Scalar Property Data Retrieval
 
 /// Returns the numeric value of `property`
 /// - note: The underlying audio object property must be backed by an equivalent native C type of `T`
-/// - parameter property: The address of the desired property
 /// - parameter objectID: The audio object to query
+/// - parameter property: The address of the desired property
 /// - parameter type: The underlying numeric type
 /// - parameter qualifier: An optional property qualifier
 /// - parameter initialValue: An optional initial value for `outData` when calling `AudioObjectGetPropertyData`
-/// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type = T.self, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
+/// - throws: An error if `objectID` does not have `property` or the property data could not be retrieved
+public func getAudioObjectPropertyData<T: Numeric>(objectID: AudioObjectID, property: PropertyAddress, type: T.Type = T.self, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
 	var value = initialValue
-	try readAudioObjectProperty(property, from: objectID, into: &value, qualifier: qualifier)
+	try readAudioObjectPropertyData(objectID: objectID, property: property, into: &value, qualifier: qualifier)
 	return value
 }
 
 /// Returns the Core Foundation object value of `property`
 /// - note: The underlying audio object property must be backed by a Core Foundation object and return a `CFType` with a +1 retain count
-/// - parameter property: The address of the desired property
 /// - parameter objectID: The audio object to query
+/// - parameter property: The address of the desired property
 /// - parameter type: The underlying `CFType`
 /// - parameter qualifier: An optional property qualifier
-/// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> T {
+/// - throws: An error if `objectID` does not have `property` or the property data could not be retrieved
+public func getAudioObjectPropertyData<T: CFTypeRef>(objectID: AudioObjectID, property: PropertyAddress, type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> T {
 	var value: Unmanaged<T>?
-	try readAudioObjectProperty(property, from: objectID, into: &value, qualifier: qualifier)
+	try readAudioObjectPropertyData(objectID: objectID, property: property, into: &value, qualifier: qualifier)
 	return value!.takeRetainedValue()
 }
 
-// MARK: - Typed Array Property Retrieval
+// MARK: - Typed Array Property Data Retrieval
 
 /// Returns the array value of `property`
 /// - note: The underlying audio object property must be backed by a C array of `T`
-/// - parameter property: The address of the desired property
 /// - parameter objectID: The audio object to query
+/// - parameter property: The address of the desired property
 /// - parameter type: The underlying array element type
 /// - parameter qualifier: An optional property qualifier
-/// - throws: An error if `objectID` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<T>(_ property: PropertyAddress, from objectID: AudioObjectID, elementType type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> [T] {
-	let dataSize = try audioObjectPropertySize(property, from: objectID, qualifier: qualifier)
+/// - throws: An error if `objectID` does not have `property` or the property data could not be retrieved
+public func getAudioObjectPropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, elementType type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> [T] {
+	let dataSize = try audioObjectPropertyDataSize(objectID: objectID, property: property, qualifier: qualifier)
 	let count = dataSize / MemoryLayout<T>.stride
 	let array = try [T](unsafeUninitializedCapacity: count) { (buffer, initializedCount) in
-		try readAudioObjectProperty(property, from: objectID, into: buffer.baseAddress!, size: dataSize, qualifier: qualifier)
+		try readAudioObjectPropertyData(objectID: objectID, property: property, into: buffer.baseAddress!, size: dataSize, qualifier: qualifier)
 		initializedCount = count
 	}
 	return array
 }
 
-// MARK: - Translated Property Retrieval
+// MARK: - Translated Property Data Retrieval
 
 /// Returns `value` translated to a numeric type using `property`
 /// - note: The underlying audio object property must be backed by `AudioValueTranslation`
 /// - note: The `AudioValueTranslation` input type must be `In`
 /// - note: The `AudioValueTranslation` output type must be `Out`
-/// - parameter property: The address of the desired property
 /// - parameter objectID: The audio object to query
+/// - parameter property: The address of the desired property
 /// - parameter value: The input value to translate
 /// - parameter type: The output type of the translation
 /// - parameter qualifier: An optional property qualifier
-/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<In, Out: Numeric>(_ property: PropertyAddress, from objectID: AudioObjectID, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+/// - throws: An error if `self` does not have `property` or the property data could not be retrieved
+public func getAudioObjectPropertyData<In, Out: Numeric>(objectID: AudioObjectID, property: PropertyAddress, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
 	var inputData = value
 	var outputData: Out = 0
 	try withUnsafeMutablePointer(to: &inputData) { inputPointer in
 		try withUnsafeMutablePointer(to: &outputData) { outputPointer in
 			var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<In>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<Out>.stride))
-			try readAudioObjectProperty(property, from: objectID, into: &translation, qualifier: qualifier)
+			try readAudioObjectPropertyData(objectID: objectID, property: property, into: &translation, qualifier: qualifier)
 		}
 	}
 	return outputData
@@ -139,19 +140,19 @@ public func getAudioObjectProperty<In, Out: Numeric>(_ property: PropertyAddress
 /// - note: The underlying audio object property must be backed by `AudioValueTranslation`
 /// - note: The `AudioValueTranslation` input type must be `In`
 /// - note: The `AudioValueTranslation` output type must be a `CFType` with a +1 retain count
-/// - parameter property: The address of the desired property
 /// - parameter objectID: The audio object to query
+/// - parameter property: The address of the desired property
 /// - parameter value: The input value to translate
 /// - parameter type: The output type of the translation
 /// - parameter qualifier: An optional property qualifier
-/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
-public func getAudioObjectProperty<In, Out: CFTypeRef>(_ property: PropertyAddress, from objectID: AudioObjectID, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
+/// - throws: An error if `self` does not have `property` or the property data could not be retrieved
+public func getAudioObjectPropertyData<In, Out: CFTypeRef>(objectID: AudioObjectID, property: PropertyAddress, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
 	var inputData = value
 	var outputData: Unmanaged<Out>?
 	try withUnsafeMutablePointer(to: &inputData) { inputPointer in
 		try withUnsafeMutablePointer(to: &outputData) { outputPointer in
 			var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<In>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<Out>.stride))
-			try readAudioObjectProperty(property, from: objectID, into: &translation, qualifier: qualifier)
+			try readAudioObjectPropertyData(objectID: objectID, property: property, into: &translation, qualifier: qualifier)
 		}
 	}
 	return outputData!.takeRetainedValue()

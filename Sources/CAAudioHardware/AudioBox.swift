@@ -17,7 +17,7 @@ public class AudioBox: AudioObject {
 	public static var boxes: [AudioBox] {
 		get throws {
 			// Revisit if a subclass of `AudioBox` is added
-			try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyBoxList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioBox($0) }
+			try getAudioObjectPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyBoxList)).map { AudioBox($0) }
 		}
 	}
 
@@ -26,7 +26,7 @@ public class AudioBox: AudioObject {
 	/// - parameter uid: The UID of the desired box
 	public static func makeBox(forUID uid: String) throws -> AudioBox? {
 		var qualifier = uid as CFString
-		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslateUIDToBox), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
+		let objectID: AudioObjectID = try getAudioObjectPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyTranslateUIDToBox), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
 			return nil
 		}

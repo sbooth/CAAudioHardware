@@ -79,7 +79,7 @@ func makeAudioControl(_ objectID: AudioObjectID, baseClass: AudioClassID /*= kAu
 	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
-	let objectClass = try AudioObjectClass(objectID)
+	let objectClass = try audioObjectClass(objectID)
 
 	switch baseClass {
 	case kAudioControlClassID:

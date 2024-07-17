@@ -20,7 +20,7 @@ extension AudioDevice {
 		/// Returns the channel nominal line level name
 		public var name: String {
 			get throws {
-				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyChannelNominalLineLevelNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+				try getAudioObjectPropertyData(objectID: deviceID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyChannelNominalLineLevelNameForIDCFString), scope: scope), translatingValue: id, toType: CFString.self) as String
 			}
 		}
 	}
