@@ -119,7 +119,7 @@ func makeBooleanControl(_ objectID: AudioObjectID) throws -> BooleanControl {
 	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
-	let objectClass = try AudioObjectClass(objectID)
+	let objectClass = try audioObjectClass(objectID)
 
 	switch objectClass {
 	case kAudioBooleanControlClassID: 		return BooleanControl(objectID)

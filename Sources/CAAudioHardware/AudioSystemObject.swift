@@ -22,7 +22,7 @@ public class AudioSystemObject: AudioObject {
 
 	/// Initializes an `AudioSystemObject` with the`kAudioObjectSystemObject` object ID
 	private init() {
-		super.init(AudioObjectID(kAudioObjectSystemObject))
+		super.init(.systemObject)
 	}
 }
 
