@@ -17,7 +17,7 @@ public class AudioDevice: AudioObject {
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDevices` on `kAudioObjectSystemObject`
 	public static var devices: [AudioDevice] {
 		get throws {
-			try getAudioObjectPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDevices)).map { try makeAudioDevice($0) }
+			try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDevices)).map { try makeAudioDevice($0) }
 		}
 	}
 
@@ -25,7 +25,7 @@ public class AudioDevice: AudioObject {
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultInputDevice` on `kAudioObjectSystemObject`
 	public static var defaultInputDevice: AudioDevice {
 		get throws {
-			try makeAudioDevice(getAudioObjectPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultInputDevice)))
+			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultInputDevice)))
 		}
 	}
 
@@ -33,7 +33,7 @@ public class AudioDevice: AudioObject {
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultOutputDevice` on `kAudioObjectSystemObject`
 	public static var defaultOutputDevice: AudioDevice {
 		get throws {
-			try makeAudioDevice(getAudioObjectPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice)))
+			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice)))
 		}
 	}
 
@@ -41,7 +41,7 @@ public class AudioDevice: AudioObject {
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultSystemOutputDevice` on `kAudioObjectSystemObject`
 	public static var defaultSystemOutputDevice: AudioDevice {
 		get throws {
-			try makeAudioDevice(getAudioObjectPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice)))
+			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice)))
 		}
 	}
 
@@ -50,7 +50,7 @@ public class AudioDevice: AudioObject {
 	/// - parameter uid: The UID of the desired device
 	public static func makeDevice(forUID uid: String) throws -> AudioDevice? {
 		var qualifier = uid as CFString
-		let objectID: AudioObjectID = try getAudioObjectPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyTranslateUIDToDevice), qualifier: PropertyQualifier(&qualifier))
+		let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyTranslateUIDToDevice), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
 			return nil
 		}
@@ -264,10 +264,10 @@ extension AudioDevice {
 	/// - parameter scope: The desired scope
 	public func preferredChannelLayout(inScope scope: PropertyScope) throws -> AudioChannelLayoutWrapper {
 		let property = PropertyAddress(PropertySelector(kAudioDevicePropertyPreferredChannelLayout), scope: scope)
-		let dataSize = try audioObjectPropertyDataSize(objectID: objectID, property: property)
+		let dataSize = try AudioObject.propertyDataSize(objectID: objectID, property: property)
 		let mem = UnsafeMutablePointer<UInt8>.allocate(capacity: dataSize)
 		do {
-			try readAudioObjectPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
+			try AudioObject.readPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
 		} catch let error {
 			mem.deallocate()
 			throw error
@@ -280,7 +280,7 @@ extension AudioDevice {
 	/// - parameter scope: The desired scope
 	public func setPreferredChannelLayout(_ value: UnsafePointer<AudioChannelLayout>, inScope scope: PropertyScope) throws {
 		let dataSize = AudioChannelLayout.sizeInBytes(maximumDescriptions: Int(value.pointee.mNumberChannelDescriptions))
-		try writeAudioObjectPropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyPreferredChannelLayout), scope: scope), from: value, size: dataSize)
+		try AudioObject.writePropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyPreferredChannelLayout), scope: scope), from: value, size: dataSize)
 	}
 }
 
@@ -409,10 +409,10 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertyStreamConfiguration`
 	public func streamConfiguration(inScope scope: PropertyScope) throws -> AudioBufferListWrapper {
 		let property = PropertyAddress(PropertySelector(kAudioDevicePropertyStreamConfiguration), scope: scope)
-		let dataSize = try audioObjectPropertyDataSize(objectID: objectID, property: property)
+		let dataSize = try AudioObject.propertyDataSize(objectID: objectID, property: property)
 		let mem = UnsafeMutablePointer<UInt8>.allocate(capacity: dataSize)
 		do {
-			try readAudioObjectPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
+			try AudioObject.readPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
 		} catch let error {
 			mem.deallocate()
 			throw error
@@ -425,11 +425,11 @@ extension AudioDevice {
 	/// - parameter ioProc: The desired IOProc
 	public func ioProcStreamUsage(_ ioProc: UnsafeMutableRawPointer, inScope scope: PropertyScope) throws -> AudioHardwareIOProcStreamUsageWrapper {
 		let property = PropertyAddress(PropertySelector(kAudioDevicePropertyIOProcStreamUsage), scope: scope)
-		let dataSize = try audioObjectPropertyDataSize(objectID: objectID, property: property)
+		let dataSize = try AudioObject.propertyDataSize(objectID: objectID, property: property)
 		let mem = UnsafeMutablePointer<UInt8>.allocate(capacity: dataSize)
 		UnsafeMutableRawPointer(mem).assumingMemoryBound(to: AudioHardwareIOProcStreamUsage.self).pointee.mIOProc = ioProc
 		do {
-			try readAudioObjectPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
+			try AudioObject.readPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
 		} catch let error {
 			mem.deallocate()
 			throw error
@@ -442,7 +442,7 @@ extension AudioDevice {
 	/// - parameter scope: The desired scope
 	public func setIOProcStreamUsage(_ value: UnsafePointer<AudioHardwareIOProcStreamUsage>, inScope scope: PropertyScope) throws {
 		let dataSize = AudioHardwareIOProcStreamUsage.sizeInBytes(maximumStreams: Int(value.pointee.mNumberStreams))
-		try writeAudioObjectPropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOProcStreamUsage), scope: scope), from: value, size: dataSize)
+		try AudioObject.writePropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOProcStreamUsage), scope: scope), from: value, size: dataSize)
 	}
 
 	/// Returns the actual sample rate
@@ -466,7 +466,7 @@ extension AudioDevice {
 	@available(macOS 11.0, *)
 	public func ioThreadOSWorkgroup(inScope scope: PropertyScope = .global) throws -> WorkGroup {
 		var value: Unmanaged<os_workgroup_t>?
-		try readAudioObjectPropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOThreadOSWorkgroup), scope: scope), into: &value)
+		try AudioObject.readPropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOThreadOSWorkgroup), scope: scope), into: &value)
 		return value!.takeRetainedValue() as WorkGroup
 	}
 

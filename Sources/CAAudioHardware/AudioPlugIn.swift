@@ -17,7 +17,7 @@ public class AudioPlugIn: AudioObject {
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyPlugInList` on `kAudioObjectSystemObject`
 	public static var plugIns: [AudioPlugIn] {
 		get throws {
-			try getAudioObjectPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyPlugInList)).map { try makeAudioPlugIn($0) }
+			try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyPlugInList)).map { try makeAudioPlugIn($0) }
 		}
 	}
 
@@ -26,7 +26,7 @@ public class AudioPlugIn: AudioObject {
 	/// - parameter bundleID: The bundle ID of the desired plug-in
 	public static func makePlugIn(forBundleID bundleID: String) throws -> AudioPlugIn? {
 		var qualifier = bundleID as CFString
-		let objectID: AudioObjectID = try getAudioObjectPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyTranslateBundleIDToPlugIn), qualifier: PropertyQualifier(&qualifier))
+		let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyTranslateBundleIDToPlugIn), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
 			return nil
 		}
