@@ -18,7 +18,7 @@ extension AudioDevice {
 		/// Returns the play-through destination name
 		public var name: String {
 			get throws {
-				try getAudioObjectPropertyData(objectID: deviceID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruDestinationNameForIDCFString), scope: .playThrough), translatingValue: id, toType: CFString.self) as String
+				try getPropertyData(objectID: deviceID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruDestinationNameForIDCFString), scope: .playThrough), translatingValue: id, toType: CFString.self) as String
 			}
 		}
 	}

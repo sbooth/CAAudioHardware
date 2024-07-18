@@ -19,7 +19,7 @@ extension SelectorControl {
 		public var name: String {
 			get throws {
 				var qualifier = id
-				return try getAudioObjectPropertyData(objectID: controlID, property: PropertyAddress(kAudioSelectorControlPropertyItemName), type: CFString.self, qualifier: PropertyQualifier(&qualifier)) as String
+				return try getPropertyData(objectID: controlID, property: PropertyAddress(kAudioSelectorControlPropertyItemName), type: CFString.self, qualifier: PropertyQualifier(&qualifier)) as String
 			}
 		}
 
@@ -27,7 +27,7 @@ extension SelectorControl {
 		public var kind: UInt32 {
 			get throws {
 				var qualifier = id
-				return try getAudioObjectPropertyData(objectID: controlID, property: PropertyAddress(kAudioSelectorControlPropertyItemKind), qualifier: PropertyQualifier(&qualifier))
+				return try getPropertyData(objectID: controlID, property: PropertyAddress(kAudioSelectorControlPropertyItemKind), qualifier: PropertyQualifier(&qualifier))
 			}
 		}
 	}
