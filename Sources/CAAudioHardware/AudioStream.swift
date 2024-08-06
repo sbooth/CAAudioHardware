@@ -12,7 +12,7 @@ import CoreAudioExtensions
 ///
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`), a main element (`kAudioObjectPropertyElementMain`), and an element for each channel
 /// - remark: This class correponds to objects with base class `kAudioStreamClassID`
-public class AudioStream: AudioObject {
+public class AudioStream: AudioObject, @unchecked Sendable {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {

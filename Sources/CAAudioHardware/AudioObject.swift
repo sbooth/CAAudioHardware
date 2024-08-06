@@ -9,7 +9,7 @@ import CoreAudio
 import os.log
 
 /// A HAL audio object
-public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
+public class AudioObject: Equatable, Hashable, @unchecked Sendable, CustomDebugStringConvertible {
 	/// The underlying audio object ID
 	public final let objectID: AudioObjectID
 
@@ -82,7 +82,7 @@ public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 
 	/// A block called with one or more changed audio object properties
 	/// - parameter changes: An array of changed property addresses
-	public typealias PropertyChangeNotificationBlock = (_ changes: [PropertyAddress]) -> Void
+	public typealias PropertyChangeNotificationBlock = @Sendable (_ changes: [PropertyAddress]) -> Void
 
 	/// Registers `block` to be performed when `property` changes
 	/// - parameter property: The property to observe
