@@ -18,7 +18,7 @@ public class AudioTap: AudioObject, @unchecked Sendable {
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyTapList` on `kAudioObjectSystemObject`
 	public static var taps: [AudioTap] {
 		get throws {
-			try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTapList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioTap($0) }
+			try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyTapList)).map { AudioTap($0) }
 		}
 	}
 
@@ -27,7 +27,7 @@ public class AudioTap: AudioObject, @unchecked Sendable {
 	/// - parameter uid: The UID of the desired tap
 	public static func makeTap(forUID uid: String) throws -> AudioTap? {
 		var qualifier = uid as CFString
-		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslateUIDToTap), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
+		let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyTranslateUIDToTap), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
 			return nil
 		}

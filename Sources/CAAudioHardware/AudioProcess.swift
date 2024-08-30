@@ -18,7 +18,7 @@ public class AudioProcess: AudioObject, @unchecked Sendable {
 	public static var processes: [AudioProcess] {
 		get throws {
 			// Revisit if a subclass of `AudioProcess` is added
-			try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyProcessObjectList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioProcess($0) }
+			try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyProcessObjectList)).map { AudioProcess($0) }
 		}
 	}
 
@@ -27,7 +27,7 @@ public class AudioProcess: AudioObject, @unchecked Sendable {
 	/// - parameter pid: The pid of the desired process
 	public static func makeProcess(forPID pid: pid_t) throws -> AudioProcess? {
 		var qualifier = pid
-		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslatePIDToProcessObject), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
+		let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyTranslatePIDToProcessObject), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
 			return nil
 		}

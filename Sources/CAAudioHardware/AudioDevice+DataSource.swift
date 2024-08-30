@@ -20,14 +20,14 @@ extension AudioDevice {
 		/// Returns the data source name
 		public var name: String {
 			get throws {
-				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+				try getPropertyData(objectID: deviceID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceNameForIDCFString), scope: scope), translatingValue: id, toType: CFString.self) as String
 			}
 		}
 
 		/// Returns the data source kind
 		public var kind: UInt32 {
 			get throws {
-				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceKindForID), scope: scope), from: deviceID, translatingValue: id)
+				try getPropertyData(objectID: deviceID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyDataSourceKindForID), scope: scope), translatingValue: id)
 			}
 		}
 	}

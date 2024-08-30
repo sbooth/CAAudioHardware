@@ -7,6 +7,12 @@
 import Foundation
 import CoreAudio
 
+// In Swift kAudioObjectSystemObject is imported as Int32 instead of AudioObjectID (UInt32)
+extension AudioObjectID {
+	/// The system audio object ID (`kAudioObjectSystemObject`)
+	static let systemObject = AudioObjectID(kAudioObjectSystemObject)
+}
+
 /// The HAL audio system object
 ///
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`) and a single element (`kAudioObjectPropertyElementMain`)
@@ -22,7 +28,7 @@ public class AudioSystemObject: AudioObject, @unchecked Sendable {
 
 	/// Initializes an `AudioSystemObject` with the`kAudioObjectSystemObject` object ID
 	private init() {
-		super.init(AudioObjectID(kAudioObjectSystemObject))
+		super.init(.systemObject)
 	}
 }
 

@@ -20,14 +20,14 @@ extension AudioDevice {
 		/// Returns the clock source name
 		public var name: String {
 			get throws {
-				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceNameForIDCFString), scope: scope), from: deviceID, translatingValue: id, toType: CFString.self) as String
+				try getPropertyData(objectID: deviceID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceNameForIDCFString), scope: scope), translatingValue: id, toType: CFString.self) as String
 			}
 		}
 
 		/// Returns the clock source kind
 		public var kind: UInt32 {
 			get throws {
-				try getAudioObjectProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceKindForID), scope: scope), from: deviceID, translatingValue: id)
+				try getPropertyData(objectID: deviceID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyClockSourceKindForID), scope: scope), translatingValue: id)
 			}
 		}
 	}
