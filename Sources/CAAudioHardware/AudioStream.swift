@@ -16,7 +16,7 @@ public class AudioStream: AudioObject {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString), \(try isActive ? "active" : "inactive"), \(try direction ? "output" : "input"), starting channel = \(try startingChannel), virtual format = \(try virtualFormat.streamDescription), physical format = \(try physicalFormat.streamDescription)>"
+			return "<\(type(of: self)): 0x\(objectID.hexString), \(try isActive ? "active" : "inactive"), \(try direction ? "output" : "input"), starting channel = \(try startingChannel), virtual format = \(try virtualFormat.formatDescription), physical format = \(try physicalFormat.formatDescription)>"
 		} catch {
 			return super.debugDescription
 		}
