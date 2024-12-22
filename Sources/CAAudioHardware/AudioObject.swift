@@ -382,18 +382,20 @@ extension AudioObject {
 
 // MARK: - Helpers
 
-/// Returns the value of `kAudioObjectPropertyClass` for `objectID`
-func audioObjectClass(_ objectID: AudioObjectID) throws -> AudioClassID {
-	var value: AudioClassID = 0
-	try AudioObject.readPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyClass), into: &value)
-	return value
-}
+extension AudioObject {
+	/// Returns the value of `kAudioObjectPropertyClass` for `objectID`
+	static func getClass(_ objectID: AudioObjectID) throws -> AudioClassID {
+		var value: AudioClassID = 0
+		try AudioObject.readPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyClass), into: &value)
+		return value
+	}
 
-/// Returns the value of `kAudioObjectPropertyBaseClass` for `objectID`
-func audioObjectBaseClass(_ objectID: AudioObjectID) throws -> AudioClassID {
-	var value: AudioClassID = 0
-	try AudioObject.readPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyBaseClass), into: &value)
-	return value
+	/// Returns the value of `kAudioObjectPropertyBaseClass` for `objectID`
+	static func getBaseClass(_ objectID: AudioObjectID) throws -> AudioClassID {
+		var value: AudioClassID = 0
+		try AudioObject.readPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyBaseClass), into: &value)
+		return value
+	}
 }
 
 /// The log for `AudioObject` and subclasses
@@ -424,7 +426,7 @@ extension AudioObject {
 			return AudioSystemObject.instance
 		}
 
-		let baseClass = try audioObjectBaseClass(objectID)
+		let baseClass = try AudioObject.getBaseClass(objectID)
 
 		switch baseClass {
 		case kAudioObjectClassID: 			return try makeAudioObject(objectID);
@@ -551,7 +553,7 @@ func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
 	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
-	let objectClass = try audioObjectClass(objectID)
+	let objectClass = try AudioObject.getClass(objectID)
 
 	switch objectClass {
 	case kAudioObjectClassID: 		return AudioObject(objectID)
