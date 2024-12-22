@@ -10,7 +10,7 @@ import CoreAudio
 /// A HAL audio subtap object
 /// - remark: This class correponds to objects with base class `kAudioSubTapClassID`
 @available(macOS 14.2, *)
-public class AudioSubtap: AudioObject {
+public class AudioSubtap: AudioObject, @unchecked Sendable {
 }
 
 @available(macOS 14.2, *)
