@@ -185,7 +185,7 @@ func makeAudioPlugIn(_ objectID: AudioObjectID) throws -> AudioPlugIn {
 	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
-	let objectClass = try audioObjectClass(objectID)
+	let objectClass = try AudioObject.getClass(objectID)
 
 	switch objectClass {
 	case kAudioPlugInClassID: 				return AudioPlugIn(objectID)
