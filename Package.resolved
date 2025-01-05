@@ -5,17 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sbooth/CoreAudioExtensions",
       "state" : {
-        "revision" : "5ed69552461dd7822cdc007f0c09d6aae1592f6e",
-        "version" : "0.2.0"
-      }
-    },
-    {
-      "identity" : "fourcc",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sbooth/FourCC",
-      "state" : {
-        "revision" : "315209b55c5b5aa84ef4598e1b9ad003c4742c7c",
-        "version" : "0.1.1"
+        "revision" : "6786ff0074ae44e6c1c053d113218aeca47eaccc",
+        "version" : "0.3.0"
       }
     }
   ],

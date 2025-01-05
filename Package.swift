@@ -16,14 +16,12 @@ let package = Package(
 			]),
 	],
 	dependencies: [
-		.package(url: "https://github.com/sbooth/FourCC", from: "0.1.0"),
-		.package(url: "https://github.com/sbooth/CoreAudioExtensions", from: "0.2.0"),
+		.package(url: "https://github.com/sbooth/CoreAudioExtensions", from: "0.3.0"),
 	],
 	targets: [
 		.target(
 			name: "CAAudioHardware",
 			dependencies: [
-				.product(name: "FourCC", package: "FourCC"),
 				.product(name: "CoreAudioExtensions", package: "CoreAudioExtensions"),
 			],
 			linkerSettings: [

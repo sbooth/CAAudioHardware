@@ -17,7 +17,7 @@ public class AudioClockDevice: AudioObject {
 	public static var clockDevices: [AudioClockDevice] {
 		get throws {
 			// Revisit if a subclass of `AudioClockDevice` is added
-			try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyClockDeviceList), from: AudioObjectID(kAudioObjectSystemObject)).map { AudioClockDevice($0) }
+			try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyClockDeviceList)).map { AudioClockDevice($0) }
 		}
 	}
 
@@ -26,7 +26,7 @@ public class AudioClockDevice: AudioObject {
 	/// - parameter uid: The UID of the desired clock device
 	public static func makeClockDevice(forUID uid: String) throws -> AudioClockDevice? {
 		var qualifier = uid as CFString
-		let objectID: AudioObjectID = try getAudioObjectProperty(PropertyAddress(kAudioHardwarePropertyTranslateUIDToClockDevice), from: AudioObjectID(kAudioObjectSystemObject), qualifier: PropertyQualifier(&qualifier))
+		let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyTranslateUIDToClockDevice), qualifier: PropertyQualifier(&qualifier))
 		guard objectID != kAudioObjectUnknown else {
 			return nil
 		}
@@ -89,7 +89,7 @@ extension AudioClockDevice {
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyControlList`
 	public var controlList: [AudioControl] {
 		get throws {
-			try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList)).map { try makeAudioControl($0, baseClass: AudioObjectBaseClass($0)) }
+			try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList)).map { try makeAudioControl($0, baseClass: AudioObject.getBaseClass($0)) }
 		}
 	}
 

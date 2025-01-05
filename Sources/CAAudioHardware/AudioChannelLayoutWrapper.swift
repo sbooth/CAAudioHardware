@@ -6,6 +6,7 @@
 
 import Foundation
 import CoreAudio
+import CoreAudioExtensions
 
 /// A thin wrapper around a variable-length `AudioChannelLayout` structure
 public class AudioChannelLayoutWrapper {
