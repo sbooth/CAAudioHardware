@@ -8,7 +8,7 @@ import Foundation
 
 extension UInt32 {
 	/// Returns the value of `self` as a hexadecimal string
-	public var hexString: String {
+	var hexString: String {
 		String(self, radix: 16)
 	}
 }

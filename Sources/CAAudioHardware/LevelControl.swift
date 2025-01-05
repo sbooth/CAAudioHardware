@@ -128,7 +128,7 @@ func makeLevelControl(_ objectID: AudioObjectID) throws -> LevelControl {
 	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
-	let objectClass = try audioObjectClass(objectID)
+	let objectClass = try AudioObject.getClass(objectID)
 
 	switch objectClass {
 	case kAudioLevelControlClassID: 			return LevelControl(objectID)

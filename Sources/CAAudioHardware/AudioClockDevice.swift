@@ -89,7 +89,7 @@ extension AudioClockDevice {
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyControlList`
 	public var controlList: [AudioControl] {
 		get throws {
-			try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList)).map { try makeAudioControl($0, baseClass: audioObjectBaseClass($0)) }
+			try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList)).map { try makeAudioControl($0, baseClass: AudioObject.getBaseClass($0)) }
 		}
 	}
 

@@ -192,7 +192,7 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioObjectPropertyControlList`
 	public var controlList: [AudioControl] {
 		get throws {
-			try getProperty(PropertyAddress(kAudioObjectPropertyControlList)).map { try makeAudioControl($0, baseClass: audioObjectBaseClass($0)) }
+			try getProperty(PropertyAddress(kAudioObjectPropertyControlList)).map { try makeAudioControl($0, baseClass: AudioObject.getBaseClass($0)) }
 		}
 	}
 
@@ -1232,7 +1232,7 @@ func makeAudioDevice(_ objectID: AudioObjectID) throws -> AudioDevice {
 	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
-	let objectClass = try audioObjectClass(objectID)
+	let objectClass = try AudioObject.getClass(objectID)
 
 	switch objectClass {
 	case kAudioDeviceClassID: 			return AudioDevice(objectID)
