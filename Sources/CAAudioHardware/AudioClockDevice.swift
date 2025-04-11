@@ -71,17 +71,17 @@ extension AudioClockDevice {
 
 	/// Returns `true` if the clock device is running
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyDeviceIsRunning`
-	public var isRunning: UInt32 {
+	public var isRunning: Bool {
 		get throws {
-			try getProperty(PropertyAddress(kAudioClockDevicePropertyDeviceIsRunning))
+			try getProperty(PropertyAddress(kAudioClockDevicePropertyDeviceIsRunning), type: UInt32.self) != 0
 		}
 	}
 
 	/// Returns the latency
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyLatency`
-	public var latency: UInt32 {
+	public var latency: Int {
 		get throws {
-			try getProperty(PropertyAddress(kAudioClockDevicePropertyLatency))
+			Int(try getProperty(PropertyAddress(kAudioClockDevicePropertyLatency), type: UInt32.self))
 		}
 	}
 
