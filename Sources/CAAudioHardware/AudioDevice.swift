@@ -219,6 +219,22 @@ extension AudioDevice {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertySafetyOffset), scope: scope))
 	}
 
+	/// Returns the input safety offset
+	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset` on `kAudioDevicePropertyScopeInput`
+	public var inputSafetyOffset: UInt32 {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertySafetyOffset, scope: kAudioDevicePropertyScopeInput))
+		}
+	}
+
+	/// Returns the output safety offset
+	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset` on `kAudioDevicePropertyScopeOutput`
+	public var outputSafetyOffset: UInt32 {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertySafetyOffset, scope: kAudioDevicePropertyScopeOutput))
+		}
+	}
+
 	/// Returns the sample rate
 	/// - remark: This corresponds to the property `kAudioDevicePropertyNominalSampleRate`
 	public var sampleRate: Double {
