@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -178,6 +178,22 @@ extension AudioDevice {
 	/// - parameter scope: The desired scope
 	public func latency(inScope scope: PropertyScope) throws -> UInt32 {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyLatency), scope: scope))
+	}
+
+	/// Returns the input latency
+	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency` on `kAudioObjectPropertyScopeInput`
+	public var inputLatency: UInt32 {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyLatency, scope: kAudioObjectPropertyScopeInput))
+		}
+	}
+
+	/// Returns the output latency
+	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency` on `kAudioObjectPropertyScopeOutput`
+	public var outputLatency: UInt32 {
+		get throws {
+			try getProperty(PropertyAddress(kAudioDevicePropertyLatency, scope: kAudioObjectPropertyScopeOutput))
+		}
 	}
 
 	/// Returns the device's streams
