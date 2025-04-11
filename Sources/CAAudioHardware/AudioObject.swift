@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -277,12 +277,15 @@ extension AudioObject {
 		}
 	}
 
-	/// Returns the audio object's owning object
+	/// Returns the audio object's owning object  or `nil` if this is the system audio object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyOwner`
-	/// - note: The system audio object does not have an owner
-	public var owner: AudioObject {
+	public var owner: AudioObject? {
 		get throws {
-			try AudioObject.make(getProperty(PropertyAddress(kAudioObjectPropertyOwner)))
+			let objectID: AudioObjectID = try getProperty(PropertyAddress(kAudioObjectPropertyOwner))
+			guard objectID != kAudioObjectUnknown else {
+				return nil
+			}
+			return try AudioObject.make(objectID)
 		}
 	}
 
