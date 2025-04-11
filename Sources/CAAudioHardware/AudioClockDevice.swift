@@ -79,9 +79,9 @@ extension AudioClockDevice {
 
 	/// Returns the latency
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyLatency`
-	public var latency: UInt32 {
+	public var latency: Int {
 		get throws {
-			try getProperty(PropertyAddress(kAudioClockDevicePropertyLatency))
+			Int(try getProperty(PropertyAddress(kAudioClockDevicePropertyLatency), type: UInt32.self))
 		}
 	}
 
