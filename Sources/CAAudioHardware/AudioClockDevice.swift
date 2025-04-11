@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -71,9 +71,9 @@ extension AudioClockDevice {
 
 	/// Returns `true` if the clock device is running
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyDeviceIsRunning`
-	public var isRunning: UInt32 {
+	public var isRunning: Bool {
 		get throws {
-			try getProperty(PropertyAddress(kAudioClockDevicePropertyDeviceIsRunning))
+			try getProperty(PropertyAddress(kAudioClockDevicePropertyDeviceIsRunning), type: UInt32.self) != 0
 		}
 	}
 
