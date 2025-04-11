@@ -184,7 +184,7 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency` on `kAudioObjectPropertyScopeInput`
 	public var inputLatency: Int {
 		get throws {
-			Int(try getProperty(PropertyAddress(kAudioDevicePropertyLatency, scope: kAudioObjectPropertyScopeInput), type: UInt32.self))
+			try latency(inScope: .input)
 		}
 	}
 
@@ -192,7 +192,7 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency` on `kAudioObjectPropertyScopeOutput`
 	public var outputLatency: Int {
 		get throws {
-			Int(try getProperty(PropertyAddress(kAudioDevicePropertyLatency, scope: kAudioObjectPropertyScopeOutput), type: UInt32.self))
+			try latency(inScope: .output)
 		}
 	}
 
@@ -223,7 +223,7 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset` on `kAudioDevicePropertyScopeInput`
 	public var inputSafetyOffset: Int {
 		get throws {
-			Int(try getProperty(PropertyAddress(kAudioDevicePropertySafetyOffset, scope: kAudioDevicePropertyScopeInput), type: UInt32.self))
+			try safetyOffset(inScope: .input)
 		}
 	}
 
@@ -231,7 +231,7 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset` on `kAudioDevicePropertyScopeOutput`
 	public var outputSafetyOffset: Int {
 		get throws {
-			Int(try getProperty(PropertyAddress(kAudioDevicePropertySafetyOffset, scope: kAudioDevicePropertyScopeOutput), type: UInt32.self))
+			try safetyOffset(inScope: .output)
 		}
 	}
 
