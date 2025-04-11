@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -12,7 +12,7 @@ import os.log
 ///
 /// This class has four scopes (`kAudioObjectPropertyScopeGlobal`, `kAudioObjectPropertyScopeInput`, `kAudioObjectPropertyScopeOutput`, and `kAudioObjectPropertyScopePlayThrough`), a main element (`kAudioObjectPropertyElementMain`), and an element for each channel in each stream
 /// - remark: This class correponds to objects with base class `kAudioDeviceClassID`
-public class AudioDevice: AudioObject {
+public class AudioDevice: AudioClockDevice {
 	/// Returns the available audio devices
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDevices` on `kAudioObjectSystemObject`
 	public static var devices: [AudioDevice] {
@@ -97,14 +97,6 @@ extension AudioDevice {
 		}
 	}
 
-	/// Returns the device UID
-	/// - remark: This corresponds to the property `kAudioDevicePropertyDeviceUID`
-	public var deviceUID: String {
-		get throws {
-			try getProperty(PropertyAddress(kAudioDevicePropertyDeviceUID), type: CFString.self) as String
-		}
-	}
-
 	/// Returns the model UID
 	/// - remark: This corresponds to the property `kAudioDevicePropertyModelUID`
 	public var modelUID: String {
@@ -113,14 +105,6 @@ extension AudioDevice {
 		}
 	}
 	
-	/// Returns the transport type
-	/// - remark: This corresponds to the property `kAudioDevicePropertyTransportType`
-	public var transportType: TransportType {
-		get throws {
-			TransportType(try getProperty(PropertyAddress(kAudioDevicePropertyTransportType)))
-		}
-	}
-
 	/// Returns related audio devices
 	/// - remark: This corresponds to the property `kAudioDevicePropertyRelatedDevices`
 	public var relatedDevices: [AudioDevice] {
@@ -129,29 +113,6 @@ extension AudioDevice {
 		}
 	}
 
-	/// Returns the clock domain
-	/// - remark: This corresponds to the property `kAudioClockDevicePropertyClockDomain`
-	public var clockDomain: UInt32 {
-		get throws {
-			try getProperty(PropertyAddress(kAudioClockDevicePropertyClockDomain))
-		}
-	}
-
-	/// Returns `true` if the device is alive
-	/// - remark: This corresponds to the property `kAudioDevicePropertyDeviceIsAlive`
-	public var isAlive: Bool {
-		get throws {
-			try getProperty(PropertyAddress(kAudioDevicePropertyDeviceIsAlive), type: UInt32.self) != 0
-		}
-	}
-
-	/// Returns `true` if the device is running
-	/// - remark: This corresponds to the property `kAudioDevicePropertyDeviceIsRunning`
-	public var isRunning: Bool {
-		get throws {
-			try getProperty(PropertyAddress(kAudioDevicePropertyDeviceIsRunning), type: UInt32.self) != 0
-		}
-	}
 	/// Starts or stops the device
 	/// - remark: This corresponds to the property `kAudioDevicePropertyDeviceIsRunning`
 	/// - parameter value: The desired property value
@@ -188,43 +149,11 @@ extension AudioDevice {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyStreams), scope: scope)).map { AudioStream($0) }
 	}
 
-	/// Returns the device's audio controls
-	/// - remark: This corresponds to the property `kAudioObjectPropertyControlList`
-	public var controlList: [AudioControl] {
-		get throws {
-			try getProperty(PropertyAddress(kAudioObjectPropertyControlList)).map { try makeAudioControl($0, baseClass: AudioObject.getBaseClass($0)) }
-		}
-	}
-
 	/// Returns the safety offset
 	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset`
 	/// - parameter scope: The desired scope
 	public func safetyOffset(inScope scope: PropertyScope) throws -> UInt32 {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertySafetyOffset), scope: scope))
-	}
-
-	/// Returns the sample rate
-	/// - remark: This corresponds to the property `kAudioDevicePropertyNominalSampleRate`
-	public var sampleRate: Double {
-		get throws {
-			try getProperty(PropertyAddress(kAudioDevicePropertyNominalSampleRate))
-		}
-	}
-	/// Sets the sample rate
-	/// - remark: This corresponds to the property `kAudioDevicePropertyNominalSampleRate`
-	/// - parameter value: The desired property value
-	public func setSampleRate(_ value: Double) throws {
-		os_log(.info, log: audioObjectLog, "Setting device 0x%x sample rate to %.2f Hz", objectID, value)
-		try setProperty(PropertyAddress(kAudioDevicePropertyNominalSampleRate), to: value)
-	}
-
-	/// Returns the available sample rates
-	/// - remark: This corresponds to the property `kAudioDevicePropertyAvailableNominalSampleRates`
-	public var availableSampleRates: [ClosedRange<Double>] {
-		get throws {
-			let value = try getProperty(PropertyAddress(kAudioDevicePropertyAvailableNominalSampleRates), elementType: AudioValueRange.self)
-			return value.map { $0.mMinimum ... $0.mMaximum }
-		}
 	}
 
 	/// Returns the URL of the device's icon
@@ -1060,9 +989,7 @@ extension AudioObjectSelector where T == AudioDevice {
 	/// The property selector `kAudioDevicePropertyClockDomain`
 	public static let clockDomain = AudioObjectSelector(kAudioDevicePropertyClockDomain)
 	/// The property selector `kAudioDevicePropertyDeviceIsAlive`
-	/// The property selector `kAudioDevicePropertyDeviceIsAlive`
 	public static let deviceIsAlive = AudioObjectSelector(kAudioDevicePropertyDeviceIsAlive)
-	/// The property selector `kAudioDevicePropertyDeviceIsRunning`
 	/// The property selector `kAudioDevicePropertyDeviceIsRunning`
 	public static let deviceIsRunning = AudioObjectSelector(kAudioDevicePropertyDeviceIsRunning)
 	/// The property selector `kAudioDevicePropertyDeviceCanBeDefaultDevice`

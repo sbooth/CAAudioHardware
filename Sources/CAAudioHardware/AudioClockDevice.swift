@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -53,9 +53,9 @@ extension AudioClockDevice {
 		}
 	}
 
-	/// Returns the domain
+	/// Returns the clock domain
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyClockDomain`
-	public var domain: UInt32 {
+	public var clockDomain: UInt32 {
 		get throws {
 			try getProperty(PropertyAddress(kAudioClockDevicePropertyClockDomain))
 		}
