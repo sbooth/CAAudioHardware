@@ -1192,15 +1192,11 @@ extension AudioObjectSelector where T == AudioDevice {
 	/// The property selector `kAudioDevicePropertyTransportType`
 	public static let transportType = AudioObjectSelector(kAudioDevicePropertyTransportType)
 	/// The property selector `kAudioDevicePropertyRelatedDevices`
-	/// The property selector `kAudioDevicePropertyRelatedDevices`
 	public static let relatedDevices = AudioObjectSelector(kAudioDevicePropertyRelatedDevices)
-	/// The property selector `kAudioDevicePropertyClockDomain`
 	/// The property selector `kAudioDevicePropertyClockDomain`
 	public static let clockDomain = AudioObjectSelector(kAudioDevicePropertyClockDomain)
 	/// The property selector `kAudioDevicePropertyDeviceIsAlive`
-	/// The property selector `kAudioDevicePropertyDeviceIsAlive`
 	public static let deviceIsAlive = AudioObjectSelector(kAudioDevicePropertyDeviceIsAlive)
-	/// The property selector `kAudioDevicePropertyDeviceIsRunning`
 	/// The property selector `kAudioDevicePropertyDeviceIsRunning`
 	public static let deviceIsRunning = AudioObjectSelector(kAudioDevicePropertyDeviceIsRunning)
 	/// The property selector `kAudioDevicePropertyDeviceCanBeDefaultDevice`
