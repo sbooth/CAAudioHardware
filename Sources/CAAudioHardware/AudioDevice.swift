@@ -184,14 +184,14 @@ extension AudioDevice {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDeviceCanBeDefaultSystemDevice), scope: scope), type: UInt32.self) != 0
 	}
 
-	/// Returns the latency
+	/// Returns the latency in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency`
 	/// - parameter scope: The desired scope
 	public func latency(inScope scope: PropertyScope) throws -> Int {
 		return Int(try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyLatency), scope: scope), type: UInt32.self))
 	}
 
-	/// Returns the input latency
+	/// Returns the input latency in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency` on `kAudioObjectPropertyScopeInput`
 	public var inputLatency: Int {
 		get throws {
@@ -199,7 +199,7 @@ extension AudioDevice {
 		}
 	}
 
-	/// Returns the output latency
+	/// Returns the output latency in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency` on `kAudioObjectPropertyScopeOutput`
 	public var outputLatency: Int {
 		get throws {
@@ -223,14 +223,14 @@ extension AudioDevice {
 		}
 	}
 
-	/// Returns the safety offset
+	/// Returns the safety offset in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset`
 	/// - parameter scope: The desired scope
 	public func safetyOffset(inScope scope: PropertyScope) throws -> Int {
 		return Int(try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertySafetyOffset), scope: scope), type: UInt32.self))
 	}
 
-	/// Returns the input safety offset
+	/// Returns the input safety offset in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset` on `kAudioDevicePropertyScopeInput`
 	public var inputSafetyOffset: Int {
 		get throws {
@@ -238,7 +238,7 @@ extension AudioDevice {
 		}
 	}
 
-	/// Returns the output safety offset
+	/// Returns the output safety offset in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset` on `kAudioDevicePropertyScopeOutput`
 	public var outputSafetyOffset: Int {
 		get throws {
@@ -272,6 +272,7 @@ extension AudioDevice {
 
 	/// Returns the URL of the device's icon
 	/// - remark: This corresponds to the property `kAudioDevicePropertyIcon`
+	/// - note: This property is not supported by all devices
 	public var icon: URL {
 		get throws {
 			try getProperty(PropertyAddress(kAudioDevicePropertyIcon), type: CFURL.self) as URL
