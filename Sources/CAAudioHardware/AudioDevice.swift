@@ -106,6 +106,7 @@ extension AudioDevice {
 	public func start(ioProcID: AudioDeviceIOProcID? = nil) throws {
 		let result = AudioDeviceStart(objectID, ioProcID)
 		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceStart (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
 			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 	}
@@ -120,6 +121,7 @@ extension AudioDevice {
 		var timestamp = time
 		let result = AudioDeviceStartAtTime(objectID, ioProcID, &timestamp, flags)
 		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceStartAtTime (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
 			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 		return timestamp
@@ -130,6 +132,7 @@ extension AudioDevice {
 	public func stop(ioProcID: AudioDeviceIOProcID? = nil) throws {
 		let result = AudioDeviceStop(objectID, ioProcID)
 		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceStop (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
 			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 	}
@@ -145,6 +148,7 @@ extension AudioDevice {
 		timestamp.mFlags = flags
 		let result = AudioDeviceGetCurrentTime(objectID, &timestamp)
 		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceGetCurrentTime (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
 			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 		return timestamp
@@ -165,6 +169,7 @@ extension AudioDevice {
 		var timestamp = time
 		let result = AudioDeviceGetNearestStartTime(objectID, &timestamp, flags)
 		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceGetNearestStartTime (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
 			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 		return timestamp
@@ -179,6 +184,7 @@ extension AudioDevice {
 		outTime.mFlags = flags
 		let result = AudioDeviceTranslateTime(objectID, &inTime, &outTime)
 		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceTranslateTime (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
 			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 		return outTime
