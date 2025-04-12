@@ -97,6 +97,100 @@ public class AudioDevice: AudioClockDevice {
 	}
 }
 
+// MARK: - Starting and Stopping the Audio Device
+
+extension AudioDevice {
+	/// Starts IO for the given`IOProc`
+	/// - parameter ioProcID: The `IOProc` to start
+	/// - remark: If `ioProcID` is `nil` the device is started regardless of whether any `IOProc`s are registered
+	public func start(ioProcID: AudioDeviceIOProcID? = nil) throws {
+		let result = AudioDeviceStart(objectID, ioProcID)
+		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceStart (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+	}
+
+	/// Starts IO for the given `IOProc` and aligns the IO cycle of the device with `time`
+	/// - parameter time: The requested start time
+	/// - parameter ioProcID: The `AudioDeviceIOProcID` to start.
+	/// - parameter flags: Desired flags
+	/// - remark: If `ioProcID` is `nil` the device is started regardless of whether any `IOProc`s are registered
+	/// - returns: The time at which the `IOProc` will start
+	public func start(at time: AudioTimeStamp, flags: UInt32 = 0, ioProcID: AudioDeviceIOProcID? = nil) throws -> AudioTimeStamp {
+		var timestamp = time
+		let result = AudioDeviceStartAtTime(objectID, ioProcID, &timestamp, flags)
+		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceStartAtTime (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+		return timestamp
+	}
+
+	/// Stops IO for the given `IOProc`
+	/// - parameter ioProcID: The `IOProc` to stop
+	public func stop(ioProcID: AudioDeviceIOProcID? = nil) throws {
+		let result = AudioDeviceStop(objectID, ioProcID)
+		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceStop (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+	}
+}
+
+// MARK: - Audio Device Timing
+
+extension AudioDevice {
+	/// Returns the device's current time
+	/// - parameter flags: The desired time representations
+	public func currentTime(_ flags: AudioTimeStampFlags) throws -> AudioTimeStamp {
+		var timestamp = AudioTimeStamp()
+		timestamp.mFlags = flags
+		let result = AudioDeviceGetCurrentTime(objectID, &timestamp)
+		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceGetCurrentTime (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+		return timestamp
+	}
+
+	/// Returns the device's current time
+	public var currentTime: AudioTimeStamp {
+		get throws {
+			try currentTime(.sampleHostTimeValid)
+		}
+	}
+
+	/// Returns the time equal to or later than `time` that is the best time to start IO
+	/// - parameter time: The requested start time
+	/// - parameter flags: Desired flags
+	/// - returns: The best time to start IO
+	public func nearestStartTime(to time: AudioTimeStamp, flags: UInt32 = 0) throws -> AudioTimeStamp {
+		var timestamp = time
+		let result = AudioDeviceGetNearestStartTime(objectID, &timestamp, flags)
+		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceGetNearestStartTime (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+		return timestamp
+	}
+
+	/// Translates `time` from one time base to another
+	/// - parameter time: The time to translate
+	/// - parameter flags: The desired time representations
+	public func translateTime(_ time: AudioTimeStamp, flags: AudioTimeStampFlags = .sampleHostTimeValid) throws -> AudioTimeStamp {
+		var inTime = time
+		var outTime = AudioTimeStamp()
+		outTime.mFlags = flags
+		let result = AudioDeviceTranslateTime(objectID, &inTime, &outTime)
+		guard result == kAudioHardwareNoError else {
+			os_log(.error, log: audioObjectLog, "AudioDeviceTranslateTime (0x%x) failed: '%{public}@'", objectID, UInt32(result).fourCC)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+		return outTime
+	}
+}
+
 // MARK: - Audio Device Base Properties
 
 extension AudioDevice {
@@ -145,14 +239,14 @@ extension AudioDevice {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDeviceCanBeDefaultSystemDevice), scope: scope), type: UInt32.self) != 0
 	}
 
-	/// Returns the latency
+	/// Returns the latency in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency`
 	/// - parameter scope: The desired scope
 	public func latency(inScope scope: PropertyScope) throws -> Int {
 		return Int(try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyLatency), scope: scope), type: UInt32.self))
 	}
 
-	/// Returns the input latency
+	/// Returns the input latency in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency` on `kAudioObjectPropertyScopeInput`
 	public var inputLatency: Int {
 		get throws {
@@ -160,7 +254,7 @@ extension AudioDevice {
 		}
 	}
 
-	/// Returns the output latency
+	/// Returns the output latency in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency` on `kAudioObjectPropertyScopeOutput`
 	public var outputLatency: Int {
 		get throws {
@@ -183,7 +277,7 @@ extension AudioDevice {
 		return Int(try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertySafetyOffset), scope: scope), type: UInt32.self))
 	}
 
-	/// Returns the input safety offset
+	/// Returns the input safety offset in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset` on `kAudioDevicePropertyScopeInput`
 	public var inputSafetyOffset: Int {
 		get throws {
@@ -191,7 +285,7 @@ extension AudioDevice {
 		}
 	}
 
-	/// Returns the output safety offset
+	/// Returns the output safety offset in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset` on `kAudioDevicePropertyScopeOutput`
 	public var outputSafetyOffset: Int {
 		get throws {
@@ -201,6 +295,7 @@ extension AudioDevice {
 
 	/// Returns the URL of the device's icon
 	/// - remark: This corresponds to the property `kAudioDevicePropertyIcon`
+	/// - note: This property is not supported by all devices
 	public var icon: URL {
 		get throws {
 			try getProperty(PropertyAddress(kAudioDevicePropertyIcon), type: CFURL.self) as URL
