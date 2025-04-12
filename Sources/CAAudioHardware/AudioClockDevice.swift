@@ -6,6 +6,7 @@
 
 import Foundation
 import CoreAudio
+import os.log
 
 /// A HAL audio clock device object
 ///
@@ -77,7 +78,7 @@ extension AudioClockDevice {
 		}
 	}
 
-	/// Returns the latency
+	/// Returns the latency in frames
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyLatency`
 	public var latency: Int {
 		get throws {
@@ -93,17 +94,26 @@ extension AudioClockDevice {
 		}
 	}
 
-	/// Returns the sample rate
+	/// Returns the nominal sample rate
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyNominalSampleRate`
-	public var sampleRate: Double {
+	public var nominalSampleRate: Double {
 		get throws {
 			try getProperty(PropertyAddress(kAudioClockDevicePropertyNominalSampleRate))
 		}
 	}
 
-	/// Returns the available sample rates
+	/// Sets the nominal sample rate
+	/// - remark: This corresponds to the property `kAudioClockDevicePropertyNominalSampleRate`
+	/// - parameter value: The desired property value
+	public func setNominalSampleRate(_ value: Double) throws {
+		os_log(.info, log: audioObjectLog, "Setting clock device 0x%x nominal sample rate to %.2f Hz", objectID, value)
+		try setProperty(PropertyAddress(kAudioClockDevicePropertyNominalSampleRate), to: value)
+	}
+
+
+	/// Returns the available nominal sample rates
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyAvailableNominalSampleRates`
-	public var availableSampleRates: [ClosedRange<Double>] {
+	public var availableNominalSampleRates: [ClosedRange<Double>] {
 		get throws {
 			let value = try getProperty(PropertyAddress(kAudioClockDevicePropertyAvailableNominalSampleRates), elementType: AudioValueRange.self)
 			return value.map { $0.mMinimum ... $0.mMaximum }

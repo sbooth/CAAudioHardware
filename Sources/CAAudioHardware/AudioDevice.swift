@@ -184,14 +184,14 @@ extension AudioDevice {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyDeviceCanBeDefaultSystemDevice), scope: scope), type: UInt32.self) != 0
 	}
 
-	/// Returns the latency
+	/// Returns the latency in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency`
 	/// - parameter scope: The desired scope
 	public func latency(inScope scope: PropertyScope) throws -> Int {
 		return Int(try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyLatency), scope: scope), type: UInt32.self))
 	}
 
-	/// Returns the input latency
+	/// Returns the input latency in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency` on `kAudioObjectPropertyScopeInput`
 	public var inputLatency: Int {
 		get throws {
@@ -199,7 +199,7 @@ extension AudioDevice {
 		}
 	}
 
-	/// Returns the output latency
+	/// Returns the output latency in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertyLatency` on `kAudioObjectPropertyScopeOutput`
 	public var outputLatency: Int {
 		get throws {
@@ -223,14 +223,14 @@ extension AudioDevice {
 		}
 	}
 
-	/// Returns the safety offset
+	/// Returns the safety offset in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset`
 	/// - parameter scope: The desired scope
 	public func safetyOffset(inScope scope: PropertyScope) throws -> Int {
 		return Int(try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertySafetyOffset), scope: scope), type: UInt32.self))
 	}
 
-	/// Returns the input safety offset
+	/// Returns the input safety offset in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset` on `kAudioDevicePropertyScopeInput`
 	public var inputSafetyOffset: Int {
 		get throws {
@@ -238,7 +238,7 @@ extension AudioDevice {
 		}
 	}
 
-	/// Returns the output safety offset
+	/// Returns the output safety offset in frames
 	/// - remark: This corresponds to the property `kAudioDevicePropertySafetyOffset` on `kAudioDevicePropertyScopeOutput`
 	public var outputSafetyOffset: Int {
 		get throws {
@@ -246,24 +246,24 @@ extension AudioDevice {
 		}
 	}
 
-	/// Returns the sample rate
+	/// Returns the nominal sample rate
 	/// - remark: This corresponds to the property `kAudioDevicePropertyNominalSampleRate`
-	public var sampleRate: Double {
+	public var nominalSampleRate: Double {
 		get throws {
 			try getProperty(PropertyAddress(kAudioDevicePropertyNominalSampleRate))
 		}
 	}
-	/// Sets the sample rate
+	/// Sets the nominal sample rate
 	/// - remark: This corresponds to the property `kAudioDevicePropertyNominalSampleRate`
 	/// - parameter value: The desired property value
-	public func setSampleRate(_ value: Double) throws {
-		os_log(.info, log: audioObjectLog, "Setting device 0x%x sample rate to %.2f Hz", objectID, value)
+	public func setNominalSampleRate(_ value: Double) throws {
+		os_log(.info, log: audioObjectLog, "Setting device 0x%x nominal sample rate to %.2f Hz", objectID, value)
 		try setProperty(PropertyAddress(kAudioDevicePropertyNominalSampleRate), to: value)
 	}
 
-	/// Returns the available sample rates
+	/// Returns the available nominal sample rates
 	/// - remark: This corresponds to the property `kAudioDevicePropertyAvailableNominalSampleRates`
-	public var availableSampleRates: [ClosedRange<Double>] {
+	public var availableNominalSampleRates: [ClosedRange<Double>] {
 		get throws {
 			let value = try getProperty(PropertyAddress(kAudioDevicePropertyAvailableNominalSampleRates), elementType: AudioValueRange.self)
 			return value.map { $0.mMinimum ... $0.mMaximum }
@@ -272,6 +272,7 @@ extension AudioDevice {
 
 	/// Returns the URL of the device's icon
 	/// - remark: This corresponds to the property `kAudioDevicePropertyIcon`
+	/// - note: This property is not supported by all devices
 	public var icon: URL {
 		get throws {
 			try getProperty(PropertyAddress(kAudioDevicePropertyIcon), type: CFURL.self) as URL
