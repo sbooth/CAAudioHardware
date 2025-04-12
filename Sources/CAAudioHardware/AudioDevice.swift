@@ -1121,9 +1121,7 @@ extension AudioObjectSelector where T == AudioDevice {
 	/// The property selector `kAudioDevicePropertyTransportType`
 	public static let transportType = AudioObjectSelector(kAudioDevicePropertyTransportType)
 	/// The property selector `kAudioDevicePropertyRelatedDevices`
-	/// The property selector `kAudioDevicePropertyRelatedDevices`
 	public static let relatedDevices = AudioObjectSelector(kAudioDevicePropertyRelatedDevices)
-	/// The property selector `kAudioDevicePropertyClockDomain`
 	/// The property selector `kAudioDevicePropertyClockDomain`
 	public static let clockDomain = AudioObjectSelector(kAudioDevicePropertyClockDomain)
 	/// The property selector `kAudioDevicePropertyDeviceIsAlive`
