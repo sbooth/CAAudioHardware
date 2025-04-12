@@ -97,6 +97,94 @@ public class AudioDevice: AudioObject {
 	}
 }
 
+// MARK: - Starting and Stopping the Audio Device
+
+extension AudioDevice {
+	/// Starts IO for the given`IOProc`
+	/// - parameter ioProcID: The `IOProc` to start
+	/// - remark: If `ioProcID` is `nil` the device is started regardless of whether any `IOProc`s are registered
+	public func start(ioProcID: AudioDeviceIOProcID? = nil) throws {
+		let result = AudioDeviceStart(objectID, ioProcID)
+		guard result == kAudioHardwareNoError else {
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+	}
+
+	/// Starts IO for the given `IOProc` and aligns the IO cycle of the device with `time`
+	/// - parameter time: The requested start time
+	/// - parameter ioProcID: The `AudioDeviceIOProcID` to start.
+	/// - parameter flags: Desired flags
+	/// - remark: If `ioProcID` is `nil` the device is started regardless of whether any `IOProc`s are registered
+	/// - returns: The time at which the `IOProc` will start
+	public func start(at time: AudioTimeStamp, flags: UInt32 = 0, ioProcID: AudioDeviceIOProcID? = nil) throws -> AudioTimeStamp {
+		var timestamp = time
+		let result = AudioDeviceStartAtTime(objectID, ioProcID, &timestamp, flags)
+		guard result == kAudioHardwareNoError else {
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+		return timestamp
+	}
+
+	/// Stops IO for the given`IOProc`
+	/// - parameter ioProcID: The `IOProc` to stop
+	public func stop(ioProcID: AudioDeviceIOProcID? = nil) throws {
+		let result = AudioDeviceStop(objectID, ioProcID)
+		guard result == kAudioHardwareNoError else {
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+	}
+}
+
+// MARK: - Audio Device Timing
+
+extension AudioDevice {
+	/// Returns the device's current time
+	/// - parameter flags: The desired time representations
+	public func currentTime(_ flags: AudioTimeStampFlags) throws -> AudioTimeStamp {
+		var timestamp = AudioTimeStamp()
+		timestamp.mFlags = flags
+		let result = AudioDeviceGetCurrentTime(objectID, &timestamp)
+		guard result == kAudioHardwareNoError else {
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+		return timestamp
+	}
+
+	/// Returns the device's current time
+	public var currentTime: AudioTimeStamp {
+		get throws {
+			try currentTime(.sampleHostTimeValid)
+		}
+	}
+
+	/// Returns the time equal to or later than `time` that is the best time to start IO
+	/// - parameter time: The requested start time
+	/// - parameter flags: Desired flags
+	/// - returns: The best time to start IO
+	public func nearestStartTime(to time: AudioTimeStamp, flags: UInt32 = 0) throws -> AudioTimeStamp {
+		var timestamp = time
+		let result = AudioDeviceGetNearestStartTime(objectID, &timestamp, flags)
+		guard result == kAudioHardwareNoError else {
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+		return timestamp
+	}
+
+	/// Translates `time` from one time base to another
+	/// - parameter time: The time to translate
+	/// - parameter flags: The desired time representations
+	public func translateTime(_ time: AudioTimeStamp, flags: AudioTimeStampFlags = .sampleHostTimeValid) throws -> AudioTimeStamp {
+		var inTime = time
+		var outTime = AudioTimeStamp()
+		outTime.mFlags = flags
+		let result = AudioDeviceTranslateTime(objectID, &inTime, &outTime)
+		guard result == kAudioHardwareNoError else {
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
+		}
+		return outTime
+	}
+}
+
 // MARK: - Audio Device Base Properties
 
 extension AudioDevice {
