@@ -125,7 +125,7 @@ extension AudioDevice {
 		return timestamp
 	}
 
-	/// Stops IO for the given`IOProc`
+	/// Stops IO for the given `IOProc`
 	/// - parameter ioProcID: The `IOProc` to stop
 	public func stop(ioProcID: AudioDeviceIOProcID? = nil) throws {
 		let result = AudioDeviceStop(objectID, ioProcID)
