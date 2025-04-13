@@ -326,6 +326,34 @@ extension AudioDevice {
 		try setProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPreferredChannelsForStereo), scope: scope), to: [value.0.rawValue, value.1.rawValue])
 	}
 
+	/// Returns the preferred input stereo channels for the device
+	/// - remark: This corresponds to the property `kAudioDevicePropertyPreferredChannelsForStereo` on `kAudioObjectPropertyScopeInput`
+	public var preferredInputStereoChannels: (PropertyElement, PropertyElement) {
+		get throws {
+			try preferredStereoChannels(inScope: .input)
+		}
+	}
+	/// Sets the preferred input stereo channels
+	/// - remark: This corresponds to the property `kAudioDevicePropertyPreferredChannelsForStereo` on `kAudioObjectPropertyScopeInput`
+	/// - parameter value: The desired property value
+	public func setPreferredInputStereoChannels(_ value: (PropertyElement, PropertyElement)) throws {
+		try setPreferredStereoChannels(value, inScope: .input)
+	}
+
+	/// Returns the preferred output stereo channels for the device
+	/// - remark: This corresponds to the property `kAudioDevicePropertyPreferredChannelsForStereo` on `kAudioObjectPropertyScopeOutput`
+	public var preferredOutputStereoChannels: (PropertyElement, PropertyElement) {
+		get throws {
+			try preferredStereoChannels(inScope: .output)
+		}
+	}
+	/// Sets the preferred output stereo channels
+	/// - remark: This corresponds to the property `kAudioDevicePropertyPreferredChannelsForStereo` on `kAudioObjectPropertyScopeOutput`
+	/// - parameter value: The desired property value
+	public func setPreferredOutputStereoChannels(_ value: (PropertyElement, PropertyElement)) throws {
+		try setPreferredStereoChannels(value, inScope: .output)
+	}
+
 	/// Returns the preferred channel layout
 	/// - remark: This corresponds to the property `kAudioDevicePropertyPreferredChannelLayout`
 	/// - parameter scope: The desired scope
@@ -485,6 +513,22 @@ extension AudioDevice {
 			throw error
 		}
 		return AudioBufferListWrapper(mem)
+	}
+
+	/// Returns the input stream configuration
+	/// - remark: This corresponds to the property `kAudioDevicePropertyStreamConfiguration` on `kAudioObjectPropertyScopeInput`
+	public var inputStreamConfiguration: AudioBufferListWrapper {
+		get throws {
+			try streamConfiguration(inScope: .input)
+		}
+	}
+
+	/// Returns the output stream configuration
+	/// - remark: This corresponds to the property `kAudioDevicePropertyStreamConfiguration` on `kAudioObjectPropertyScopeOutput`
+	public var outputStreamConfiguration: AudioBufferListWrapper {
+		get throws {
+			try streamConfiguration(inScope: .output)
+		}
 	}
 
 	/// Returns IOProc stream usage
