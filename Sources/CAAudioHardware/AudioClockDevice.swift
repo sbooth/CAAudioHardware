@@ -54,9 +54,9 @@ extension AudioClockDevice {
 		}
 	}
 
-	/// Returns the domain
+	/// Returns the clock domain
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyClockDomain`
-	public var domain: UInt32 {
+	public var clockDomain: UInt32 {
 		get throws {
 			try getProperty(PropertyAddress(kAudioClockDevicePropertyClockDomain))
 		}
