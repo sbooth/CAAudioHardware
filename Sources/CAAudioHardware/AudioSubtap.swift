@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -10,7 +10,7 @@ import CoreAudio
 /// A HAL audio subtap object
 /// - remark: This class correponds to objects with base class `kAudioSubTapClassID`
 @available(macOS 14.2, *)
-public class AudioSubtap: AudioObject {
+public class AudioSubtap: AudioObject, @unchecked Sendable {
 }
 
 @available(macOS 14.2, *)

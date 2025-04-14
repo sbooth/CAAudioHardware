@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -17,7 +17,7 @@ extension AudioObjectID {
 ///
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`) and a single element (`kAudioObjectPropertyElementMain`)
 /// - remark: This class correponds to the object with id `kAudioObjectSystemObject` and class `kAudioSystemObjectClassID`
-public class AudioSystemObject: AudioObject {
+public class AudioSystemObject: AudioObject, @unchecked Sendable {
 	/// The singleton audio system object
 	public static let instance = AudioSystemObject()
 

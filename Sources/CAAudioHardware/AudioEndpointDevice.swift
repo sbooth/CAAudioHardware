@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -9,7 +9,7 @@ import CoreAudio
 
 /// A HAL audio endpoint device
 /// - remark: This class correponds to objects with base class `kAudioEndPointDeviceClassID`
-public class AudioEndpointDevice: AudioDevice {
+public class AudioEndpointDevice: AudioDevice, @unchecked Sendable {
 }
 
 extension AudioEndpointDevice {

@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -10,7 +10,7 @@ import os.log
 
 /// A HAL audio level control object
 /// - remark: This class correponds to objects with base class `kAudioLevelControlClassID`
-public class LevelControl: AudioControl {
+public class LevelControl: AudioControl, @unchecked Sendable {
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
@@ -113,12 +113,12 @@ extension AudioObjectSelector where T == LevelControl {
 
 /// A HAL audio volume control object
 /// - remark: This class correponds to objects with base class `kAudioVolumeControlClassID`
-public class VolumeControl: LevelControl {
+public class VolumeControl: LevelControl, @unchecked Sendable {
 }
 
 /// A HAL audio LFE volume control object
 /// - remark: This class correponds to objects with base class `kAudioLFEVolumeControlClassID`
-public class LFEVolumeControl: LevelControl {
+public class LFEVolumeControl: LevelControl, @unchecked Sendable {
 }
 
 // MARK: -
