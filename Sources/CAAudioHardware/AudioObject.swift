@@ -426,7 +426,7 @@ extension AudioObject {
 		}
 
 		if objectID == kAudioObjectSystemObject {
-			return AudioSystemObject.instance
+			return AudioSystem.instance
 		}
 
 		let baseClass = try AudioObject.getBaseClass(objectID)
