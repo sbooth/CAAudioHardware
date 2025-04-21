@@ -190,7 +190,9 @@ extension AudioObject {
 	/// - parameter value: The desired value
 	/// - throws: An error if `self` does not have `property`, `property` is not settable, or the property value could not be set
 	public func setProperty<T>(_ property: PropertyAddress, to value: T) throws {
-		try AudioObject.writePropertyData(objectID: objectID, property: property, from: value)
+		try withUnsafePointer(to: value) {
+			try AudioObject.writePropertyData(objectID: objectID, property: property, from: $0)
+		}
 	}
 }
 
