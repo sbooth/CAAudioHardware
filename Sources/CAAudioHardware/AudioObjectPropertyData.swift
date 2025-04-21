@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -17,7 +17,7 @@ extension AudioObject {
 	/// - parameter property: The address of the desired property
 	/// - parameter qualifier: An optional property qualifier
 	/// - returns: The data size for `property` in bytes
-	/// - throws: An exception if the object does not have the requested property or the property data size could not be retrieved
+	/// - throws: An error if the object does not have the requested property or the property data size could not be retrieved
 	public static func propertyDataSize(objectID: AudioObjectID, property: PropertyAddress, qualifier: PropertyQualifier? = nil) throws -> Int {
 		var propertyAddress = property.rawValue
 		var dataSize: UInt32 = 0
@@ -39,7 +39,7 @@ extension AudioObject {
 	/// - parameter size: The number of bytes to read
 	/// - parameter qualifier: An optional property qualifier
 	/// - returns: The number of bytes written to `buffer`
-	/// - throws: An exception if the object does not have the requested property or the property data could not be retrieved
+	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
 	public static func readRawPropertyData(objectID: AudioObjectID, property: PropertyAddress, to buffer: UnsafeMutableRawPointer, size: Int, qualifier: PropertyQualifier? = nil) throws -> Int {
 		var propertyAddress = property.rawValue
 		var dataSize = UInt32(size)
@@ -58,7 +58,7 @@ extension AudioObject {
 	/// - parameter ptr: A pointer to the desired property data
 	/// - parameter size: The number of bytes to write
 	/// - parameter qualifier: An optional property qualifier
-	/// - throws: An exception if the object does not have the requested property, the property is not settable, or the property data could not be set
+	/// - throws: An error if the object does not have the requested property, the property is not settable, or the property data could not be set
 	public static func writeRawPropertyData(objectID: AudioObjectID, property: PropertyAddress, from buffer: UnsafeRawPointer, size: Int, qualifier: PropertyQualifier? = nil) throws {
 		var propertyAddress = property.rawValue
 		let dataSize = UInt32(size)
@@ -78,7 +78,7 @@ extension AudioObject {
 	/// - parameter ptr: A pointer to receive the property's data
 	/// - parameter size: The number of bytes to read
 	/// - parameter qualifier: An optional property qualifier
-	/// - throws: An exception if the object does not have the requested property or the property data could not be retrieved
+	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
 	public static func readPropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, into ptr: UnsafeMutablePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
 		_ = try readRawPropertyData(objectID: objectID, property: property, to: UnsafeMutableRawPointer(ptr), size: size, qualifier: qualifier)
 	}
@@ -89,7 +89,7 @@ extension AudioObject {
 	/// - parameter ptr: A pointer to the desired property data
 	/// - parameter size: The number of bytes to write
 	/// - parameter qualifier: An optional property qualifier
-	/// - throws: An exception if the object does not have the requested property, the property is not settable, or the property data could not be set
+	/// - throws: An error if the object does not have the requested property, the property is not settable, or the property data could not be set
 	public static func writePropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, from ptr: UnsafePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
 		try writeRawPropertyData(objectID: objectID, property: property, from: UnsafeRawPointer(ptr), size: size, qualifier: qualifier)
 	}
@@ -103,7 +103,7 @@ extension AudioObject {
 	/// - parameter type: The underlying numeric type
 	/// - parameter qualifier: An optional property qualifier
 	/// - parameter initialValue: An optional initial value for `outData` when calling `AudioObjectGetPropertyData`
-	/// - throws: An error if `objectID` does not have `property` or the property data could not be retrieved
+	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
 	public static func getPropertyData<T: Numeric>(objectID: AudioObjectID, property: PropertyAddress, type: T.Type = T.self, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
 		var value = initialValue
 		try readPropertyData(objectID: objectID, property: property, into: &value, qualifier: qualifier)
@@ -116,11 +116,23 @@ extension AudioObject {
 	/// - parameter property: The address of the desired property
 	/// - parameter type: The underlying `CFType`
 	/// - parameter qualifier: An optional property qualifier
-	/// - throws: An error if `objectID` does not have `property` or the property data could not be retrieved
+	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
 	public static func getPropertyData<T: CFTypeRef>(objectID: AudioObjectID, property: PropertyAddress, type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> T {
 		var value: Unmanaged<T>?
 		try readPropertyData(objectID: objectID, property: property, into: &value, qualifier: qualifier)
 		return value!.takeRetainedValue()
+	}
+
+	/// Sets the value of `property` to `value`
+	/// - note: The underlying audio object property must be backed by `T`
+	/// - parameter objectID: The audio object to change
+	/// - parameter property: The address of the desired property
+	/// - parameter value: The desired value
+	/// - parameter qualifier: An optional property qualifier
+	/// - throws: An error if the object does not have the requested property, the property is not settable, or the property data could not be set
+	public static func writePropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, from value: T, qualifier: PropertyQualifier? = nil) throws {
+		var data = value
+		try writePropertyData(objectID: objectID, property: property, from: &data, qualifier: qualifier)
 	}
 
 	// MARK: - Typed Array Property Data
@@ -131,7 +143,7 @@ extension AudioObject {
 	/// - parameter property: The address of the desired property
 	/// - parameter type: The underlying array element type
 	/// - parameter qualifier: An optional property qualifier
-	/// - throws: An error if `objectID` does not have `property` or the property data could not be retrieved
+	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
 	public static func getPropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, elementType type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> [T] {
 		let dataSize = try AudioObject.propertyDataSize(objectID: objectID, property: property, qualifier: qualifier)
 		let count = dataSize / MemoryLayout<T>.stride
@@ -153,7 +165,7 @@ extension AudioObject {
 	/// - parameter value: The input value to translate
 	/// - parameter type: The output type of the translation
 	/// - parameter qualifier: An optional property qualifier
-	/// - throws: An error if `self` does not have `property` or the property data could not be retrieved
+	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
 	public static func getPropertyData<In, Out: Numeric>(objectID: AudioObjectID, property: PropertyAddress, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
 		var inputData = value
 		var outputData: Out = 0
@@ -175,7 +187,7 @@ extension AudioObject {
 	/// - parameter value: The input value to translate
 	/// - parameter type: The output type of the translation
 	/// - parameter qualifier: An optional property qualifier
-	/// - throws: An error if `self` does not have `property` or the property data could not be retrieved
+	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
 	public static func getPropertyData<In, Out: CFTypeRef>(objectID: AudioObjectID, property: PropertyAddress, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
 		var inputData = value
 		var outputData: Unmanaged<Out>?
