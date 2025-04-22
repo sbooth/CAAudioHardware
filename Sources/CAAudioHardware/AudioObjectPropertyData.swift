@@ -123,6 +123,18 @@ extension AudioObject {
 		return value!.takeRetainedValue()
 	}
 
+	/// Writes the value of `property` on `objectID`
+	/// - parameter objectID: The audio object to change
+	/// - parameter property: The address of the desired property
+	/// - parameter value: The desired value
+	/// - parameter qualifier: An optional property qualifier
+	/// - throws: An error if the object does not have the requested property, the property is not settable, or the property data could not be set
+	public static func writePropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, from value: T, qualifier: PropertyQualifier? = nil) throws {
+		try withUnsafePointer(to: value) {
+			try writePropertyData(objectID: objectID, property: property, from: $0)
+		}
+	}
+
 	// MARK: - Typed Array Property Data
 
 	/// Returns the array value of `property`
