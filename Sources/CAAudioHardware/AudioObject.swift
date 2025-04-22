@@ -210,6 +210,7 @@ extension AudioObject {
 	/// - note: The underlying audio object property must be backed by a C array of `T`
 	/// - parameter property: The address of the desired property
 	/// - parameter value: The desired value
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property`, `property` is not settable, or the property value could not be set
 	public func setProperty<T>(_ property: PropertyAddress, to value: [T], qualifier: PropertyQualifier? = nil) throws {
 		try AudioObject.setPropertyData(objectID: objectID, property: property, to: value, qualifier: qualifier)
