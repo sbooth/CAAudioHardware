@@ -40,7 +40,7 @@ extension AudioObject {
 	/// - parameter qualifier: An optional property qualifier
 	/// - returns: The number of bytes written to `buffer`
 	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
-	public static func readRawPropertyData(objectID: AudioObjectID, property: PropertyAddress, to buffer: UnsafeMutableRawPointer, size: Int, qualifier: PropertyQualifier? = nil) throws -> Int {
+	public static func readRawPropertyData(objectID: AudioObjectID, property: PropertyAddress, into buffer: UnsafeMutableRawPointer, size: Int, qualifier: PropertyQualifier? = nil) throws -> Int {
 		var propertyAddress = property.rawValue
 		var dataSize = UInt32(size)
 		let result = AudioObjectGetPropertyData(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, &dataSize, buffer)
@@ -55,14 +55,14 @@ extension AudioObject {
 	/// Writes `size` bytes of data from `buffer` to `property` on `objectID`
 	/// - parameter objectID: The audio object to change
 	/// - parameter property: The address of the desired property
-	/// - parameter ptr: A pointer to the desired property data
+	/// - parameter data: A pointer to the desired property data
 	/// - parameter size: The number of bytes to write
 	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if the object does not have the requested property, the property is not settable, or the property data could not be set
-	public static func writeRawPropertyData(objectID: AudioObjectID, property: PropertyAddress, from buffer: UnsafeRawPointer, size: Int, qualifier: PropertyQualifier? = nil) throws {
+	public static func writeRawPropertyData(objectID: AudioObjectID, property: PropertyAddress, data: UnsafeRawPointer, size: Int, qualifier: PropertyQualifier? = nil) throws {
 		var propertyAddress = property.rawValue
 		let dataSize = UInt32(size)
-		let result = AudioObjectSetPropertyData(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, dataSize, buffer)
+		let result = AudioObjectSetPropertyData(objectID, &propertyAddress, qualifier?.size ?? 0, qualifier?.value, dataSize, data)
 		guard result == kAudioHardwareNoError else {
 			os_log(.error, log: audioObjectLog, "AudioObjectSetPropertyData (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
 			let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The property \(property.selector) in scope \(property.scope) on audio object 0x\(objectID.hexString) could not be set.", comment: "")]
@@ -80,7 +80,7 @@ extension AudioObject {
 	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
 	public static func readPropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, into ptr: UnsafeMutablePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
-		_ = try readRawPropertyData(objectID: objectID, property: property, to: UnsafeMutableRawPointer(ptr), size: size, qualifier: qualifier)
+		_ = try readRawPropertyData(objectID: objectID, property: property, into: UnsafeMutableRawPointer(ptr), size: size, qualifier: qualifier)
 	}
 
 	/// Writes `size` bytes of data from `ptr` to `property` on `objectID`
@@ -90,8 +90,8 @@ extension AudioObject {
 	/// - parameter size: The number of bytes to write
 	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if the object does not have the requested property, the property is not settable, or the property data could not be set
-	public static func writePropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, from ptr: UnsafePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
-		try writeRawPropertyData(objectID: objectID, property: property, from: UnsafeRawPointer(ptr), size: size, qualifier: qualifier)
+	public static func writePropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, value ptr: UnsafePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
+		try writeRawPropertyData(objectID: objectID, property: property, data: UnsafeRawPointer(ptr), size: size, qualifier: qualifier)
 	}
 
 	// MARK: - Typed Scalar Property Data
@@ -129,9 +129,9 @@ extension AudioObject {
 	/// - parameter value: The desired value
 	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if the object does not have the requested property, the property is not settable, or the property data could not be set
-	public static func writePropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, from value: T, qualifier: PropertyQualifier? = nil) throws {
+	public static func writePropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, value: T, qualifier: PropertyQualifier? = nil) throws {
 		try withUnsafePointer(to: value) {
-			try writePropertyData(objectID: objectID, property: property, from: $0)
+			try writePropertyData(objectID: objectID, property: property, value: $0)
 		}
 	}
 

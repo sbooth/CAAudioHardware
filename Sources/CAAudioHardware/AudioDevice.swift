@@ -375,7 +375,7 @@ extension AudioDevice {
 	/// - parameter scope: The desired scope
 	public func setPreferredChannelLayout(_ value: UnsafePointer<AudioChannelLayout>, inScope scope: PropertyScope) throws {
 		let dataSize = AudioChannelLayout.sizeInBytes(maximumDescriptions: Int(value.pointee.mNumberChannelDescriptions))
-		try AudioObject.writePropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyPreferredChannelLayout), scope: scope), from: value, size: dataSize)
+		try AudioObject.writePropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyPreferredChannelLayout), scope: scope), value: value, size: dataSize)
 	}
 }
 
@@ -553,7 +553,7 @@ extension AudioDevice {
 	/// - parameter scope: The desired scope
 	public func setIOProcStreamUsage(_ value: UnsafePointer<AudioHardwareIOProcStreamUsage>, inScope scope: PropertyScope) throws {
 		let dataSize = AudioHardwareIOProcStreamUsage.sizeInBytes(maximumStreams: Int(value.pointee.mNumberStreams))
-		try AudioObject.writePropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOProcStreamUsage), scope: scope), from: value, size: dataSize)
+		try AudioObject.writePropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOProcStreamUsage), scope: scope), value: value, size: dataSize)
 	}
 
 	/// Returns the actual sample rate
