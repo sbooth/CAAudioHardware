@@ -168,8 +168,8 @@ extension AudioObject {
 		// Compiler warning: "Forming 'UnsafeRawPointer' to a variable of type '[T]'; this is likely incorrect because 'T' may contain an object reference."
 		try writeRawPropertyData(objectID: objectID, property: property, data: value, size: MemoryLayout<T>.stride * value.count)
 #else
-		try withUnsafePointer(to: value) {
-			try writeRawPropertyData(objectID: objectID, property: property, data: $0, size: MemoryLayout<T>.stride * value.count)
+		try value.withUnsafeBytes {
+			try writeRawPropertyData(objectID: objectID, property: property, data: $0.baseAddress!, size: MemoryLayout<T>.stride * value.count)
 		}
 #endif
 	}
