@@ -362,7 +362,7 @@ extension AudioDevice {
 		let dataSize = try AudioObject.propertyDataSize(objectID: objectID, property: property)
 		let mem = UnsafeMutablePointer<UInt8>.allocate(capacity: dataSize)
 		do {
-			try AudioObject.readPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
+			_ = try AudioObject.readRawPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
 		} catch let error {
 			mem.deallocate()
 			throw error
@@ -507,7 +507,7 @@ extension AudioDevice {
 		let dataSize = try AudioObject.propertyDataSize(objectID: objectID, property: property)
 		let mem = UnsafeMutablePointer<UInt8>.allocate(capacity: dataSize)
 		do {
-			try AudioObject.readPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
+			_ = try AudioObject.readRawPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
 		} catch let error {
 			mem.deallocate()
 			throw error
@@ -540,7 +540,7 @@ extension AudioDevice {
 		let mem = UnsafeMutablePointer<UInt8>.allocate(capacity: dataSize)
 		UnsafeMutableRawPointer(mem).assumingMemoryBound(to: AudioHardwareIOProcStreamUsage.self).pointee.mIOProc = ioProc
 		do {
-			try AudioObject.readPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
+			_ = try AudioObject.readRawPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
 		} catch let error {
 			mem.deallocate()
 			throw error
@@ -576,9 +576,7 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertyIOThreadOSWorkgroup`
 	@available(macOS 11.0, *)
 	public func ioThreadOSWorkgroup(inScope scope: PropertyScope = .global) throws -> WorkGroup {
-		var value: Unmanaged<os_workgroup_t>?
-		try AudioObject.readPropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOThreadOSWorkgroup), scope: scope), into: &value)
-		return value!.takeRetainedValue() as WorkGroup
+		return try AudioObject.getPropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOThreadOSWorkgroup), scope: scope), type: os_workgroup_t.self)
 	}
 
 	/// Returns `true` if the current process's audio will be zeroed out by the system

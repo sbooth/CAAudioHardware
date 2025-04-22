@@ -70,30 +70,6 @@ extension AudioObject {
 		}
 	}
 
-	// MARK: - Typed Pointer Property Data
-
-	/// Reads `size` bytes of data for `property` on `objectID` into `ptr`
-	/// - parameter objectID: The audio object to query
-	/// - parameter property: The address of the desired property
-	/// - parameter ptr: A pointer to receive the property's data
-	/// - parameter size: The number of bytes to read
-	/// - parameter qualifier: An optional property qualifier
-	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
-	public static func readPropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, into ptr: UnsafeMutablePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
-		_ = try readRawPropertyData(objectID: objectID, property: property, into: UnsafeMutableRawPointer(ptr), size: size, qualifier: qualifier)
-	}
-
-	/// Writes `size` bytes of data from `ptr` to `property` on `objectID`
-	/// - parameter objectID: The audio object to change
-	/// - parameter property: The address of the desired property
-	/// - parameter ptr: A pointer to the desired property data
-	/// - parameter size: The number of bytes to write
-	/// - parameter qualifier: An optional property qualifier
-	/// - throws: An error if the object does not have the requested property, the property is not settable, or the property data could not be set
-	public static func writePropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, value ptr: UnsafePointer<T>, size: Int = MemoryLayout<T>.stride, qualifier: PropertyQualifier? = nil) throws {
-		try writeRawPropertyData(objectID: objectID, property: property, data: UnsafeRawPointer(ptr), size: size, qualifier: qualifier)
-	}
-
 	// MARK: - Typed Scalar Property Data
 
 	/// Returns the numeric value of `property`
@@ -106,7 +82,9 @@ extension AudioObject {
 	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
 	public static func getPropertyData<T: Numeric>(objectID: AudioObjectID, property: PropertyAddress, type: T.Type = T.self, qualifier: PropertyQualifier? = nil, initialValue: T = 0) throws -> T {
 		var value = initialValue
-		try readPropertyData(objectID: objectID, property: property, into: &value, qualifier: qualifier)
+		try withUnsafeMutablePointer(to: &value) {
+			_ = try readRawPropertyData(objectID: objectID, property: property, into: $0, size: MemoryLayout<T>.stride, qualifier: qualifier)
+		}
 		return value
 	}
 
@@ -119,8 +97,32 @@ extension AudioObject {
 	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
 	public static func getPropertyData<T: CFTypeRef>(objectID: AudioObjectID, property: PropertyAddress, type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> T {
 		var value: Unmanaged<T>?
-		try readPropertyData(objectID: objectID, property: property, into: &value, qualifier: qualifier)
+		_ = try readRawPropertyData(objectID: objectID, property: property, into: &value, size: MemoryLayout<T>.stride, qualifier: qualifier)
 		return value!.takeRetainedValue()
+	}
+
+	/// Returns the `AudioValueRange` value of `property`
+	/// - note: The underlying audio object property must be backed by `AudioValueRange`
+	/// - parameter objectID: The audio object to query
+	/// - parameter property: The address of the desired property
+	/// - parameter qualifier: An optional property qualifier
+	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
+	public static func getPropertyData(objectID: AudioObjectID, property: PropertyAddress, qualifier: PropertyQualifier? = nil) throws -> AudioValueRange {
+		var value = AudioValueRange()
+		_ = try readRawPropertyData(objectID: objectID, property: property, into: &value, size: MemoryLayout<AudioValueRange>.stride, qualifier: qualifier)
+		return value
+	}
+
+	/// Returns the `AudioStreamBasicDescription` value of `property`
+	/// - note: The underlying audio object property must be backed by `AudioStreamBasicDescription`
+	/// - parameter objectID: The audio object to query
+	/// - parameter property: The address of the desired property
+	/// - parameter qualifier: An optional property qualifier
+	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
+	public static func getPropertyData(objectID: AudioObjectID, property: PropertyAddress, qualifier: PropertyQualifier? = nil) throws -> AudioStreamBasicDescription {
+		var value = AudioStreamBasicDescription()
+		_ = try readRawPropertyData(objectID: objectID, property: property, into: &value, size: MemoryLayout<AudioStreamBasicDescription>.stride, qualifier: qualifier)
+		return value
 	}
 
 	/// Writes the value of `property` on `objectID`
@@ -131,7 +133,7 @@ extension AudioObject {
 	/// - throws: An error if the object does not have the requested property, the property is not settable, or the property data could not be set
 	public static func writePropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, value: T, qualifier: PropertyQualifier? = nil) throws {
 		try withUnsafePointer(to: value) {
-			try writePropertyData(objectID: objectID, property: property, value: $0)
+			try writeRawPropertyData(objectID: objectID, property: property, data: $0, size: MemoryLayout<T>.stride, qualifier: qualifier)
 		}
 	}
 
@@ -148,10 +150,28 @@ extension AudioObject {
 		let dataSize = try AudioObject.propertyDataSize(objectID: objectID, property: property, qualifier: qualifier)
 		let count = dataSize / MemoryLayout<T>.stride
 		let array = try [T](unsafeUninitializedCapacity: count) { (buffer, initializedCount) in
-			try readPropertyData(objectID: objectID, property: property, into: buffer.baseAddress!, size: dataSize, qualifier: qualifier)
+			_ = try readRawPropertyData(objectID: objectID, property: property, into: buffer.baseAddress!, size: dataSize, qualifier: qualifier)
 			initializedCount = count
 		}
 		return array
+	}
+
+	/// Sets the array value of `property` to `value`
+	/// - note: The underlying audio object property must be backed by a C array of `T`
+	/// - parameter objectID: The audio object to change
+	/// - parameter property: The address of the desired property
+	/// - parameter value: The desired value
+	/// - parameter qualifier: An optional property qualifier
+	/// - throws: An error if the object does not have the requested property, the property is not settable, or the property data could not be set
+	public static func setPropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, to value: [T], qualifier: PropertyQualifier? = nil) throws {
+#if false
+		// Compiler warning: "Forming 'UnsafeRawPointer' to a variable of type '[T]'; this is likely incorrect because 'T' may contain an object reference."
+		try writeRawPropertyData(objectID: objectID, property: property, data: value, size: MemoryLayout<T>.stride * value.count)
+#else
+		try withUnsafePointer(to: value) {
+			try writeRawPropertyData(objectID: objectID, property: property, data: $0, size: MemoryLayout<T>.stride * value.count)
+		}
+#endif
 	}
 
 	// MARK: - Translated Property Data
@@ -172,7 +192,7 @@ extension AudioObject {
 		try withUnsafeMutablePointer(to: &inputData) { inputPointer in
 			try withUnsafeMutablePointer(to: &outputData) { outputPointer in
 				var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<In>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<Out>.stride))
-				try readPropertyData(objectID: objectID, property: property, into: &translation, qualifier: qualifier)
+				_ = try readRawPropertyData(objectID: objectID, property: property, into: &translation, size: MemoryLayout<AudioValueTranslation>.stride, qualifier: qualifier)
 			}
 		}
 		return outputData
@@ -194,7 +214,7 @@ extension AudioObject {
 		try withUnsafeMutablePointer(to: &inputData) { inputPointer in
 			try withUnsafeMutablePointer(to: &outputData) { outputPointer in
 				var translation = AudioValueTranslation(mInputData: inputPointer, mInputDataSize: UInt32(MemoryLayout<In>.stride), mOutputData: outputPointer, mOutputDataSize: UInt32(MemoryLayout<Out>.stride))
-				try readPropertyData(objectID: objectID, property: property, into: &translation, qualifier: qualifier)
+				_ = try readRawPropertyData(objectID: objectID, property: property, into: &translation, size: MemoryLayout<AudioValueTranslation>.stride, qualifier: qualifier)
 			}
 		}
 		return outputData!.takeRetainedValue()
