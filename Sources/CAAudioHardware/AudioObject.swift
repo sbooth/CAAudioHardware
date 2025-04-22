@@ -167,30 +167,29 @@ extension AudioObject {
 	/// Returns the `AudioValueRange` value of `property`
 	/// - note: The underlying audio object property must be backed by `AudioValueRange`
 	/// - parameter property: The address of the desired property
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
-	public func getProperty(_ property: PropertyAddress) throws -> AudioValueRange {
-		var value = AudioValueRange()
-		try AudioObject.readPropertyData(objectID: objectID, property: property, into: &value)
-		return value
+	public func getProperty(_ property: PropertyAddress, qualifier: PropertyQualifier? = nil) throws -> AudioValueRange {
+		return try AudioObject.getPropertyData(objectID: objectID, property: property, qualifier: qualifier)
 	}
 
 	/// Returns the `AudioStreamBasicDescription` value of `property`
 	/// - note: The underlying audio object property must be backed by `AudioStreamBasicDescription`
 	/// - parameter property: The address of the desired property
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
-	public func getProperty(_ property: PropertyAddress) throws -> AudioStreamBasicDescription {
-		var value = AudioStreamBasicDescription()
-		try AudioObject.readPropertyData(objectID: objectID, property: property, into: &value)
-		return value
+	public func getProperty(_ property: PropertyAddress, qualifier: PropertyQualifier? = nil) throws -> AudioStreamBasicDescription {
+		return try AudioObject.getPropertyData(objectID: objectID, property: property, qualifier: qualifier)
 	}
 
 	/// Sets the value of `property` to `value`
 	/// - note: The underlying audio object property must be backed by `T`
 	/// - parameter property: The address of the desired property
 	/// - parameter value: The desired value
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property`, `property` is not settable, or the property value could not be set
-	public func setProperty<T>(_ property: PropertyAddress, to value: T) throws {
-		try AudioObject.writePropertyData(objectID: objectID, property: property, value: value)
+	public func setProperty<T>(_ property: PropertyAddress, to value: T, qualifier: PropertyQualifier? = nil) throws {
+		try AudioObject.setPropertyData(objectID: objectID, property: property, value: value, qualifier: qualifier)
 	}
 }
 
@@ -211,9 +210,10 @@ extension AudioObject {
 	/// - note: The underlying audio object property must be backed by a C array of `T`
 	/// - parameter property: The address of the desired property
 	/// - parameter value: The desired value
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property`, `property` is not settable, or the property value could not be set
-	public func setProperty<T>(_ property: PropertyAddress, to value: [T]) throws {
-		try AudioObject.writePropertyData(objectID: objectID, property: property, value: value, size: MemoryLayout<T>.stride * value.count)
+	public func setProperty<T>(_ property: PropertyAddress, to value: [T], qualifier: PropertyQualifier? = nil) throws {
+		try AudioObject.setPropertyData(objectID: objectID, property: property, to: value, qualifier: qualifier)
 	}
 }
 
@@ -387,16 +387,12 @@ extension AudioObject {
 extension AudioObject {
 	/// Returns the value of `kAudioObjectPropertyClass` for `objectID`
 	static func getClass(_ objectID: AudioObjectID) throws -> AudioClassID {
-		var value: AudioClassID = 0
-		try AudioObject.readPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyClass), into: &value)
-		return value
+		return try AudioObject.getPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyClass))
 	}
 
 	/// Returns the value of `kAudioObjectPropertyBaseClass` for `objectID`
 	static func getBaseClass(_ objectID: AudioObjectID) throws -> AudioClassID {
-		var value: AudioClassID = 0
-		try AudioObject.readPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyBaseClass), into: &value)
-		return value
+		return try AudioObject.getPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyBaseClass))
 	}
 }
 
