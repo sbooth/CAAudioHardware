@@ -167,6 +167,7 @@ extension AudioObject {
 	/// Returns the `AudioValueRange` value of `property`
 	/// - note: The underlying audio object property must be backed by `AudioValueRange`
 	/// - parameter property: The address of the desired property
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
 	public func getProperty(_ property: PropertyAddress, qualifier: PropertyQualifier? = nil) throws -> AudioValueRange {
 		return try AudioObject.getPropertyData(objectID: objectID, property: property, qualifier: qualifier)
@@ -175,6 +176,7 @@ extension AudioObject {
 	/// Returns the `AudioStreamBasicDescription` value of `property`
 	/// - note: The underlying audio object property must be backed by `AudioStreamBasicDescription`
 	/// - parameter property: The address of the desired property
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
 	public func getProperty(_ property: PropertyAddress, qualifier: PropertyQualifier? = nil) throws -> AudioStreamBasicDescription {
 		return try AudioObject.getPropertyData(objectID: objectID, property: property, qualifier: qualifier)
@@ -184,9 +186,10 @@ extension AudioObject {
 	/// - note: The underlying audio object property must be backed by `T`
 	/// - parameter property: The address of the desired property
 	/// - parameter value: The desired value
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property`, `property` is not settable, or the property value could not be set
-	public func setProperty<T>(_ property: PropertyAddress, to value: T) throws {
-		try AudioObject.setPropertyData(objectID: objectID, property: property, value: value)
+	public func setProperty<T>(_ property: PropertyAddress, to value: T, qualifier: PropertyQualifier? = nil) throws {
+		try AudioObject.setPropertyData(objectID: objectID, property: property, value: value, qualifier: qualifier)
 	}
 }
 
