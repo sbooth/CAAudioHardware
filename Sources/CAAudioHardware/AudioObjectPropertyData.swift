@@ -125,13 +125,13 @@ extension AudioObject {
 		return value
 	}
 
-	/// Writes the value of `property` on `objectID`
+	/// Sets the value of `property` on `objectID` to `value`
 	/// - parameter objectID: The audio object to change
 	/// - parameter property: The address of the desired property
 	/// - parameter value: The desired value
 	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if the object does not have the requested property, the property is not settable, or the property data could not be set
-	public static func writePropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, value: T, qualifier: PropertyQualifier? = nil) throws {
+	public static func setPropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, value: T, qualifier: PropertyQualifier? = nil) throws {
 		try withUnsafePointer(to: value) {
 			try writeRawPropertyData(objectID: objectID, property: property, data: $0, size: MemoryLayout<T>.stride, qualifier: qualifier)
 		}
@@ -156,7 +156,7 @@ extension AudioObject {
 		return array
 	}
 
-	/// Sets the array value of `property` to `value`
+	/// Sets the array value of `property` on `objectID` to `value`
 	/// - note: The underlying audio object property must be backed by a C array of `T`
 	/// - parameter objectID: The audio object to change
 	/// - parameter property: The address of the desired property
