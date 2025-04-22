@@ -362,7 +362,7 @@ extension AudioDevice {
 		let dataSize = try AudioObject.propertyDataSize(objectID: objectID, property: property)
 		let mem = UnsafeMutablePointer<UInt8>.allocate(capacity: dataSize)
 		do {
-			try AudioObject.readPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
+			_ = try AudioObject.readRawPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
 		} catch let error {
 			mem.deallocate()
 			throw error
@@ -375,7 +375,7 @@ extension AudioDevice {
 	/// - parameter scope: The desired scope
 	public func setPreferredChannelLayout(_ value: UnsafePointer<AudioChannelLayout>, inScope scope: PropertyScope) throws {
 		let dataSize = AudioChannelLayout.sizeInBytes(maximumDescriptions: Int(value.pointee.mNumberChannelDescriptions))
-		try AudioObject.writePropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyPreferredChannelLayout), scope: scope), from: value, size: dataSize)
+		try AudioObject.writeRawPropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyPreferredChannelLayout), scope: scope), data: value, size: dataSize)
 	}
 }
 
@@ -507,7 +507,7 @@ extension AudioDevice {
 		let dataSize = try AudioObject.propertyDataSize(objectID: objectID, property: property)
 		let mem = UnsafeMutablePointer<UInt8>.allocate(capacity: dataSize)
 		do {
-			try AudioObject.readPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
+			_ = try AudioObject.readRawPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
 		} catch let error {
 			mem.deallocate()
 			throw error
@@ -540,7 +540,7 @@ extension AudioDevice {
 		let mem = UnsafeMutablePointer<UInt8>.allocate(capacity: dataSize)
 		UnsafeMutableRawPointer(mem).assumingMemoryBound(to: AudioHardwareIOProcStreamUsage.self).pointee.mIOProc = ioProc
 		do {
-			try AudioObject.readPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
+			_ = try AudioObject.readRawPropertyData(objectID: objectID, property: property, into: mem, size: dataSize)
 		} catch let error {
 			mem.deallocate()
 			throw error
@@ -553,7 +553,7 @@ extension AudioDevice {
 	/// - parameter scope: The desired scope
 	public func setIOProcStreamUsage(_ value: UnsafePointer<AudioHardwareIOProcStreamUsage>, inScope scope: PropertyScope) throws {
 		let dataSize = AudioHardwareIOProcStreamUsage.sizeInBytes(maximumStreams: Int(value.pointee.mNumberStreams))
-		try AudioObject.writePropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOProcStreamUsage), scope: scope), from: value, size: dataSize)
+		try AudioObject.writeRawPropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOProcStreamUsage), scope: scope), data: value, size: dataSize)
 	}
 
 	/// Returns the actual sample rate
@@ -576,9 +576,7 @@ extension AudioDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertyIOThreadOSWorkgroup`
 	@available(macOS 11.0, *)
 	public func ioThreadOSWorkgroup(inScope scope: PropertyScope = .global) throws -> WorkGroup {
-		var value: Unmanaged<os_workgroup_t>?
-		try AudioObject.readPropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOThreadOSWorkgroup), scope: scope), into: &value)
-		return value!.takeRetainedValue() as WorkGroup
+		return try AudioObject.getPropertyData(objectID: objectID, property: PropertyAddress(PropertySelector(kAudioDevicePropertyIOThreadOSWorkgroup), scope: scope), type: os_workgroup_t.self)
 	}
 
 	/// Returns `true` if the current process's audio will be zeroed out by the system
