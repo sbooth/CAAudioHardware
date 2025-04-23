@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -36,18 +36,6 @@ public class AudioProcess: AudioObject {
 		return AudioProcess(objectID)
 	}
 
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString), pid \(try pid), \(try isRunning ? "running" : "not running")>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-}
-
-@available(macOS 14.2, *)
-extension AudioProcess {
 	/// Returns the PID
 	/// - remark: This corresponds to the property `kAudioProcessPropertyPID`
 	public var pid: pid_t {
@@ -92,6 +80,15 @@ extension AudioProcess {
 	public var isRunningOutput: Bool {
 		get throws {
 			try getProperty(PropertyAddress(kAudioProcessPropertyIsRunningOutput), type: UInt32.self) != 0
+		}
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString), pid \(try pid), \(try isRunning ? "running" : "not running")>"
+		} catch {
+			return super.debugDescription
 		}
 	}
 }

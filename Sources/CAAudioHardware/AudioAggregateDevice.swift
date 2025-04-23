@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -43,9 +43,7 @@ public class AudioAggregateDevice: AudioDevice {
 		}
 		device.removeAllPropertyListeners()
 	}
-}
 
-extension AudioAggregateDevice {
 	/// Returns the UIDs of all subdevices in the aggregate device, active or inactive
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyFullSubDeviceList`
 	public var fullSubdeviceList: [String] {
@@ -100,12 +98,10 @@ extension AudioAggregateDevice {
 	public func setAggregateClockDevice(_ value: String) throws {
 		try setProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), to: value as CFString)
 	}
-}
 
-@available(macOS 14.2, *)
-extension AudioAggregateDevice {
 	/// Returns the tap list
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyTapList`
+	@available(macOS 14.2, *)
 	public var tapList: [String] {
 		get throws {
 			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyTapList), type: CFArray.self) as! [String]
@@ -114,14 +110,13 @@ extension AudioAggregateDevice {
 
 	/// Returns the sub tap list
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertySubTapList`
+	@available(macOS 14.2, *)
 	public var subTapList: [AudioSubtap] {
 		get throws {
 			try getProperty(PropertyAddress(kAudioAggregateDevicePropertySubTapList)).map { AudioSubtap($0) }
 		}
 	}
-}
 
-extension AudioAggregateDevice {
 	/// Returns `true` if the aggregate device is private
 	/// - remark: This corresponds to the value of `kAudioAggregateDeviceIsPrivateKey` in `composition`
 	/// - attention: If `kAudioAggregateDeviceIsPrivateKey` is not present in `composition` an error is thrown

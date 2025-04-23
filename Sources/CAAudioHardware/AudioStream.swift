@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -13,17 +13,6 @@ import CoreAudioExtensions
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`), a main element (`kAudioObjectPropertyElementMain`), and an element for each channel
 /// - remark: This class correponds to objects with base class `kAudioStreamClassID`
 public class AudioStream: AudioObject {
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString), \(try isActive ? "active" : "inactive"), \(try direction ? "output" : "input"), starting channel = \(try startingChannel), virtual format = \(try virtualFormat.formatDescription), physical format = \(try physicalFormat.formatDescription)>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-}
-
-extension AudioStream {
 	/// Returns `true` if the stream is active
 	/// - remark: This corresponds to the property `kAudioStreamPropertyIsActive`
 	public var isActive: Bool {
@@ -107,6 +96,16 @@ extension AudioStream {
 			return value.map { ($0.mFormat, $0.mSampleRateRange.mMinimum ... $0.mSampleRateRange.mMaximum) }
 		}
 	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString), \(try isActive ? "active" : "inactive"), \(try direction ? "output" : "input"), starting channel = \(try startingChannel), virtual format = \(try virtualFormat.formatDescription), physical format = \(try physicalFormat.formatDescription)>"
+		} catch {
+			return super.debugDescription
+		}
+	}
+
 }
 
 extension AudioStream {

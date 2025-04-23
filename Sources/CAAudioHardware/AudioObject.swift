@@ -134,15 +134,8 @@ public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 		}
 	}
 
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		return "<\(type(of: self)): 0x\(objectID.hexString)>"
-	}
-}
+	// MARK: - Scalar Properties
 
-// MARK: - Scalar Properties
-
-extension AudioObject {
 	/// Returns the numeric value of `property`
 	/// - note: The underlying audio object property must be backed by an equivalent native C type of `T`
 	/// - parameter property: The address of the desired property
@@ -191,11 +184,9 @@ extension AudioObject {
 	public func setProperty<T>(_ property: PropertyAddress, to value: T, qualifier: PropertyQualifier? = nil) throws {
 		try AudioObject.setPropertyData(objectID: objectID, property: property, value: value, qualifier: qualifier)
 	}
-}
 
-// MARK: - Array Properties
+	// MARK: - Array Properties
 
-extension AudioObject {
 	/// Returns the array value of `property`
 	/// - note: The underlying audio object property must be backed by a C array of `T`
 	/// - parameter property: The address of the desired property
@@ -215,11 +206,9 @@ extension AudioObject {
 	public func setProperty<T>(_ property: PropertyAddress, to value: [T], qualifier: PropertyQualifier? = nil) throws {
 		try AudioObject.setPropertyData(objectID: objectID, property: property, to: value, qualifier: qualifier)
 	}
-}
 
-// MARK: - Translated Properties
+	// MARK: - Translated Properties
 
-extension AudioObject {
 	/// Returns `value` translated to a numeric type using `property`
 	/// - note: The underlying audio object property must be backed by `AudioValueTranslation`
 	/// - note: The `AudioValueTranslation` input type must be `In`
@@ -245,11 +234,9 @@ extension AudioObject {
 	public func getProperty<In, Out: CFTypeRef>(_ property: PropertyAddress, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
 		return try AudioObject.getPropertyData(objectID: objectID, property: property, translatingValue: value, toType: type, qualifier: qualifier)
 	}
-}
 
-// MARK: - Base Audio Object Properties
+	// MARK: - Base Audio Object Properties
 
-extension AudioObject {
 	/// Returns the bundle ID of the plug-in that instantiated the object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyCreator`
 	public var creator: String {
@@ -379,6 +366,11 @@ extension AudioObject {
 		get throws {
 			try getProperty(PropertyAddress(kAudioObjectPropertyFirmwareVersion), type: CFString.self) as String
 		}
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public var debugDescription: String {
+		return "<\(type(of: self)): 0x\(objectID.hexString)>"
 	}
 }
 

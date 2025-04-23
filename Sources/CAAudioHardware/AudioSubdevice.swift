@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -10,9 +10,6 @@ import CoreAudio
 /// A HAL audio subdevice
 /// - remark: This class correponds to objects with base class `kAudioSubDeviceClassID`
 public class AudioSubdevice: AudioDevice {
-}
-
-extension AudioSubdevice {
 	/// Returns the extra latency
 	/// - remark: This corresponds to the property `kAudioSubDevicePropertyExtraLatency`
 	public var extraLatency: Double {
