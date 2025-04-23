@@ -47,9 +47,9 @@ public class AudioStream: AudioObject {
 
 	/// Returns the latency
 	/// - remark: This corresponds to the property `kAudioStreamPropertyLatency`
-	public var latency: UInt32 {
+	public var latency: Int {
 		get throws {
-			try getProperty(PropertyAddress(kAudioStreamPropertyLatency))
+			Int(try getProperty(PropertyAddress(kAudioStreamPropertyLatency), type: UInt32.self))
 		}
 	}
 
