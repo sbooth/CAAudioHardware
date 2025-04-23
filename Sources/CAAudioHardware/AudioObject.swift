@@ -134,11 +134,6 @@ public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 		}
 	}
 
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		return "<\(type(of: self)): 0x\(objectID.hexString)>"
-	}
-
 	// MARK: - Scalar Properties
 
 	/// Returns the numeric value of `property`
@@ -371,6 +366,11 @@ public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 		get throws {
 			try getProperty(PropertyAddress(kAudioObjectPropertyFirmwareVersion), type: CFString.self) as String
 		}
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public var debugDescription: String {
+		return "<\(type(of: self)): 0x\(objectID.hexString)>"
 	}
 }
 

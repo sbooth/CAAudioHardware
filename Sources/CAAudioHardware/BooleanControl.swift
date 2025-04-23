@@ -11,15 +11,6 @@ import os.log
 /// A HAL audio boolean control object
 /// - remark: This class correponds to objects with base class `kAudioBooleanControlClassID`
 public class BooleanControl: AudioControl {
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element)), \(try value ? "On" : "Off")>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-
 	/// Returns the control's value
 	/// - remark: This corresponds to the property `kAudioBooleanControlPropertyValue`
 	public var value: Bool {
@@ -31,6 +22,15 @@ public class BooleanControl: AudioControl {
 	/// - remark: This corresponds to the property `kAudioBooleanControlPropertyValue`
 	public func setValue(_ value: Bool) throws {
 		try setProperty(PropertyAddress(kAudioBooleanControlPropertyValue), to: UInt32(value ? 1 : 0))
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element)), \(try value ? "On" : "Off")>"
+		} catch {
+			return super.debugDescription
+		}
 	}
 }
 

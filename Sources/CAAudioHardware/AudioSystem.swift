@@ -30,9 +30,7 @@ public class AudioSystem: AudioObject {
 	private init() {
 		super.init(.systemObject)
 	}
-}
 
-extension AudioSystem {
 	/// Returns the `AudioObjectID` for the audio device with `uid` or `nil` if unknown
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyTranslateUIDToDevice`
 	/// - parameter uid: The UID of the desired device

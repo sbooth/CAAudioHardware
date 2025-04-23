@@ -87,15 +87,6 @@ public class AudioDevice: AudioClockDevice {
 		}
 	}
 
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString) \"\(try name)\">"
-		} catch {
-			return super.debugDescription
-		}
-	}
-
 	// MARK: - Starting and Stopping the Audio Device
 
 	/// Starts IO for the given`IOProc`
@@ -1181,6 +1172,15 @@ public class AudioDevice: AudioClockDevice {
 	@available(macOS 14, *)
 	public func voiceActivityDetectionState(inScope scope: PropertyScope, onElement element: PropertyElement = .main) throws -> Bool {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionState), scope: scope, element: element), type: UInt32.self) != 0
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString) \"\(try name)\">"
+		} catch {
+			return super.debugDescription
+		}
 	}
 }
 

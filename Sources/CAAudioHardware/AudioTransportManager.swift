@@ -35,15 +35,6 @@ public class AudioTransportManager: AudioPlugIn {
 		return AudioTransportManager(objectID)
 	}
 
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString), [\(try endpointList.map({ $0.debugDescription }).joined(separator: ", "))]>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-
 	/// Creates and returns a new endpoint device
 	/// - remark: This corresponds to the property `kAudioTransportManagerCreateEndPointDevice`
 	/// - parameter composition: The composition of the new endpoint device
@@ -87,6 +78,15 @@ public class AudioTransportManager: AudioPlugIn {
 	public var transportType: AudioDevice.TransportType {
 		get throws {
 			AudioDevice.TransportType(try getProperty(PropertyAddress(kAudioTransportManagerPropertyTransportType), type: UInt32.self))
+		}
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString), [\(try endpointList.map({ $0.debugDescription }).joined(separator: ", "))]>"
+		} catch {
+			return super.debugDescription
 		}
 	}
 }

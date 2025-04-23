@@ -69,15 +69,6 @@ public class AudioTap: AudioObject {
 		tap.removeAllPropertyListeners()
 	}
 
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString) \(try uid)>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-
 	/// Returns the UID
 	/// - remark: This corresponds to the property `kAudioTapPropertyUID`
 	public var uid: String {
@@ -104,6 +95,15 @@ public class AudioTap: AudioObject {
 	public var format: AudioStreamBasicDescription {
 		get throws {
 			try getProperty(PropertyAddress(kAudioTapPropertyFormat))
+		}
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString) \(try uid)>"
+		} catch {
+			return super.debugDescription
 		}
 	}
 }

@@ -11,15 +11,6 @@ import os.log
 /// A HAL audio level control object
 /// - remark: This class correponds to objects with base class `kAudioLevelControlClassID`
 public class LevelControl: AudioControl {
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element)), \(try scalarValue)>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-
 	/// Returns the control's scalar value
 	/// - remark: This corresponds to the property `kAudioLevelControlPropertyScalarValue`
 	public var scalarValue: Float {
@@ -67,6 +58,15 @@ public class LevelControl: AudioControl {
 	/// - parameter decibels: The value to convert
 	public func convertToScalar(fromDecibels decibels: Float) throws -> Float {
 		return try getProperty(PropertyAddress(kAudioLevelControlPropertyConvertDecibelsToScalar), initialValue: decibels)
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element)), \(try scalarValue)>"
+		} catch {
+			return super.debugDescription
+		}
 	}
 }
 
