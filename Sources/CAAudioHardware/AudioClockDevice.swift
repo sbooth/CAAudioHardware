@@ -12,7 +12,7 @@ import os.log
 ///
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`) and a single element (`kAudioObjectPropertyElementMain`)
 /// - remark: This class correponds to objects with base class `kAudioClockDeviceClassID`
-public class AudioClockDevice: AudioObject {
+public class AudioClockDevice: AudioObject, @unchecked Sendable {
 	/// Returns the available audio clock devices
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyClockDeviceList` on `kAudioObjectSystemObject`
 	public static var clockDevices: [AudioClockDevice] {

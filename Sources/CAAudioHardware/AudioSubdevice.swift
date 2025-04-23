@@ -9,7 +9,7 @@ import CoreAudio
 
 /// A HAL audio subdevice
 /// - remark: This class correponds to objects with base class `kAudioSubDeviceClassID`
-public class AudioSubdevice: AudioDevice {
+public class AudioSubdevice: AudioDevice, @unchecked Sendable {
 	/// Returns the extra latency
 	/// - remark: This corresponds to the property `kAudioSubDevicePropertyExtraLatency`
 	public var extraLatency: Double {

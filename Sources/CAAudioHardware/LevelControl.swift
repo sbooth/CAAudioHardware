@@ -10,7 +10,7 @@ import os.log
 
 /// A HAL audio level control object
 /// - remark: This class correponds to objects with base class `kAudioLevelControlClassID`
-public class LevelControl: AudioControl {
+public class LevelControl: AudioControl, @unchecked Sendable {
 	/// Returns the control's scalar value
 	/// - remark: This corresponds to the property `kAudioLevelControlPropertyScalarValue`
 	public var scalarValue: Float {
@@ -111,12 +111,12 @@ extension AudioObjectSelector where T == LevelControl {
 
 /// A HAL audio volume control object
 /// - remark: This class correponds to objects with base class `kAudioVolumeControlClassID`
-public class VolumeControl: LevelControl {
+public class VolumeControl: LevelControl, @unchecked Sendable {
 }
 
 /// A HAL audio LFE volume control object
 /// - remark: This class correponds to objects with base class `kAudioLFEVolumeControlClassID`
-public class LFEVolumeControl: LevelControl {
+public class LFEVolumeControl: LevelControl, @unchecked Sendable {
 }
 
 // MARK: -
