@@ -69,18 +69,6 @@ public class AudioTap: AudioObject, @unchecked Sendable {
 		tap.removeAllPropertyListeners()
 	}
 
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString) \(try uid)>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-}
-
-@available(macOS 14.2, *)
-extension AudioTap {
 	/// Returns the UID
 	/// - remark: This corresponds to the property `kAudioTapPropertyUID`
 	public var uid: String {
@@ -107,6 +95,15 @@ extension AudioTap {
 	public var format: AudioStreamBasicDescription {
 		get throws {
 			try getProperty(PropertyAddress(kAudioTapPropertyFormat))
+		}
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString) \(try uid)>"
+		} catch {
+			return super.debugDescription
 		}
 	}
 }

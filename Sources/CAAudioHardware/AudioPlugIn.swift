@@ -34,17 +34,6 @@ public class AudioPlugIn: AudioObject, @unchecked Sendable {
 		return try makeAudioPlugIn(objectID)
 	}
 
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-}
-
-extension AudioPlugIn {
 	/// Creates and returns a new aggregate device
 	/// - remark: This corresponds to the property `kAudioPlugInCreateAggregateDevice`
 	/// - parameter composition: The composition of the new aggregate device
@@ -130,6 +119,15 @@ extension AudioPlugIn {
 		}
 		// Revisit if a subclass of `AudioClockDevice` is added
 		return AudioClockDevice(clockDeviceObjectID)
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
+		} catch {
+			return super.debugDescription
+		}
 	}
 }
 

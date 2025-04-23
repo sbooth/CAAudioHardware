@@ -35,9 +35,7 @@ public class AudioClockDevice: AudioObject, @unchecked Sendable {
 		// Revisit if a subclass of `AudioClockDevice` is added
 		return AudioClockDevice(objectID)
 	}
-}
 
-extension AudioClockDevice {
 	/// Returns the clock device UID
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyDeviceUID`
 	public var deviceUID: String {

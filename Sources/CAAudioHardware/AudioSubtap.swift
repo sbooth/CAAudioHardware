@@ -11,10 +11,6 @@ import CoreAudio
 /// - remark: This class correponds to objects with base class `kAudioSubTapClassID`
 @available(macOS 14.2, *)
 public class AudioSubtap: AudioObject, @unchecked Sendable {
-}
-
-@available(macOS 14.2, *)
-extension AudioSubtap {
 	/// Returns the extra latency
 	/// - remark: This corresponds to the property `kAudioSubTapPropertyExtraLatency`
 	/// - parameter scope: The desired scope
