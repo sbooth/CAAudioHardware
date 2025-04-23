@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -43,9 +43,7 @@ public class AudioTransportManager: AudioPlugIn {
 			return super.debugDescription
 		}
 	}
-}
 
-extension AudioTransportManager {
 	/// Creates and returns a new endpoint device
 	/// - remark: This corresponds to the property `kAudioTransportManagerCreateEndPointDevice`
 	/// - parameter composition: The composition of the new endpoint device

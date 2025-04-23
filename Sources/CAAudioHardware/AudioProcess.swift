@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -44,10 +44,7 @@ public class AudioProcess: AudioObject {
 			return super.debugDescription
 		}
 	}
-}
 
-@available(macOS 14.2, *)
-extension AudioProcess {
 	/// Returns the PID
 	/// - remark: This corresponds to the property `kAudioProcessPropertyPID`
 	public var pid: pid_t {

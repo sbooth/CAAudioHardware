@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -47,9 +47,7 @@ public class AudioBox: AudioObject {
 			return super.debugDescription
 		}
 	}
-}
 
-extension AudioBox {
 	/// Returns the box UID
 	/// - remark: This corresponds to the property `kAudioBoxPropertyBoxUID`
 	public var boxUID: String {

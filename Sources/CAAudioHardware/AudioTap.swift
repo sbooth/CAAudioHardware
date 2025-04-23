@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -77,10 +77,7 @@ public class AudioTap: AudioObject {
 			return super.debugDescription
 		}
 	}
-}
 
-@available(macOS 14.2, *)
-extension AudioTap {
 	/// Returns the UID
 	/// - remark: This corresponds to the property `kAudioTapPropertyUID`
 	public var uid: String {

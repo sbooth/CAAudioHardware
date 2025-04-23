@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -42,9 +42,7 @@ public class AudioPlugIn: AudioObject {
 			return super.debugDescription
 		}
 	}
-}
 
-extension AudioPlugIn {
 	/// Creates and returns a new aggregate device
 	/// - remark: This corresponds to the property `kAudioPlugInCreateAggregateDevice`
 	/// - parameter composition: The composition of the new aggregate device
