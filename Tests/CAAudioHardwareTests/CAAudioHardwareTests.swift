@@ -1,7 +1,12 @@
 import XCTest
+import CoreAudio
 @testable import CAAudioHardware
 
 final class CAAudioHardwareTests: XCTestCase {
+	func testObject() {
+		XCTAssertThrowsError(try AudioObject.make(kAudioObjectUnknown))
+	}
+
 	func testDevices() throws {
 		let devices = try AudioDevice.devices
 		for device in devices {
