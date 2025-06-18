@@ -45,7 +45,7 @@ public class AudioTap: AudioObject {
 		let result = AudioHardwareCreateProcessTap(description, &objectId)
 		guard result == kAudioHardwareNoError else {
 			os_log(.error, log: audioObjectLog, "AudioHardwareCreateProcessTap (%{public}@) failed: '%{public}@'", description, UInt32(result).fourCC)
-			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: nil)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 		return AudioTap(objectId)
 	}
@@ -64,7 +64,7 @@ public class AudioTap: AudioObject {
 		let result = AudioHardwareDestroyProcessTap(tap.objectID)
 		guard result == kAudioHardwareNoError else {
 			os_log(.error, log: audioObjectLog, "AudioHardwareDestroyProcessTap (0x%x) failed: '%{public}@'", tap.objectID, UInt32(result).fourCC)
-			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: nil)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 		tap.removeAllPropertyListeners()
 	}
