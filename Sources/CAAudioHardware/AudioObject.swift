@@ -409,7 +409,7 @@ extension AudioObject {
 	public static func make(_ objectID: AudioObjectID) throws -> AudioObject {
 		guard objectID != kAudioObjectUnknown else {
 			os_log(.error, log: audioObjectLog, "kAudioObjectUnknown is not a valid AudioObjectID")
-			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError), userInfo: nil)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
 		}
 
 		if objectID == kAudioObjectSystemObject {
