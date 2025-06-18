@@ -1395,8 +1395,11 @@ extension AudioObjectSelector where T == AudioDevice {
 
 /// Creates and returns an initialized `AudioDevice` or subclass.
 func makeAudioDevice(_ objectID: AudioObjectID) throws -> AudioDevice {
-	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
+	guard objectID != kAudioObjectUnknown else {
+		os_log(.error, log: audioObjectLog, "kAudioObjectUnknown is not a valid audio device object ID")
+		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
+	}
 
 	let objectClass = try AudioObject.getClass(objectID)
 
