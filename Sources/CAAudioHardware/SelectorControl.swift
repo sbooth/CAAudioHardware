@@ -120,7 +120,6 @@ public class HighPassFilterControl: SelectorControl {
 
 /// Creates and returns an initialized `SelectorControl` or subclass.
 func makeSelectorControl(_ objectID: AudioObjectID) throws -> SelectorControl {
-	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
 	let objectClass = try AudioObject.getClass(objectID)
