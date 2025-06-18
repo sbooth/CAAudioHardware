@@ -371,7 +371,7 @@ public class AudioDevice: AudioClockDevice {
 	/// - parameter scope: The desired scope
 	public func preferredStereoChannels(inScope scope: PropertyScope) throws -> (PropertyElement, PropertyElement) {
 		let channels = try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPreferredChannelsForStereo), scope: scope), elementType: UInt32.self)
-		precondition(channels.count == 2)
+		precondition(channels.count == 2, "Unexpected array length for kAudioDevicePropertyPreferredChannelsForStereo")
 		return (PropertyElement(channels[0]), PropertyElement(channels[1]))
 	}
 	/// Sets the preferred stereo channels
@@ -718,7 +718,7 @@ public class AudioDevice: AudioClockDevice {
 	/// - remark: This corresponds to the property `kAudioDevicePropertyStereoPanChannels`
 	public func stereoPanChannels(inScope scope: PropertyScope) throws -> (PropertyElement, PropertyElement) {
 		let channels = try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyStereoPanChannels), scope: scope), elementType: UInt32.self)
-		precondition(channels.count == 2)
+		precondition(channels.count == 2, "Unexpected array length for kAudioDevicePropertyStereoPanChannels")
 		return (PropertyElement(channels[0]), PropertyElement(channels[1]))
 	}
 	/// Sets the channels used for stereo panning
@@ -971,7 +971,7 @@ public class AudioDevice: AudioClockDevice {
 	public var playThroughStereoPanChannels: (PropertyElement, PropertyElement) {
 		get throws {
 			let channels = try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruStereoPanChannels), scope: .playThrough), elementType: UInt32.self)
-			precondition(channels.count == 2)
+			precondition(channels.count == 2, "Unexpected array length for kAudioDevicePropertyPlayThruStereoPanChannels")
 			return (PropertyElement(channels[0]), PropertyElement(channels[1]))
 		}
 	}

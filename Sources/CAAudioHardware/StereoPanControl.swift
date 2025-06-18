@@ -28,7 +28,7 @@ public class StereoPanControl: AudioControl {
 	public var panningChannels: (PropertyElement, PropertyElement) {
 		get throws {
 			let channels = try getProperty(PropertyAddress(kAudioStereoPanControlPropertyPanningChannels), elementType: UInt32.self)
-			precondition(channels.count == 2)
+			precondition(channels.count == 2, "Unexpected array length for kAudioStereoPanControlPropertyPanningChannels")
 			return (PropertyElement(channels[0]), PropertyElement(channels[1]))
 		}
 	}
