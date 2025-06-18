@@ -74,7 +74,6 @@ extension AudioObjectSelector where T == AudioControl {
 
 /// Creates and returns an initialized `AudioControl` or subclass.
 func makeAudioControl(_ objectID: AudioObjectID, baseClass: AudioClassID /*= kAudioControlClassID*/) throws -> AudioControl {
-	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
 	let objectClass = try AudioObject.getClass(objectID)

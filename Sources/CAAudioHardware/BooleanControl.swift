@@ -114,7 +114,6 @@ public class ListenbackControl: BooleanControl {
 
 /// Creates and returns an initialized `BooleanControl` or subclass.
 func makeBooleanControl(_ objectID: AudioObjectID) throws -> BooleanControl {
-	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
 	let objectClass = try AudioObject.getClass(objectID)

@@ -180,7 +180,6 @@ extension AudioObjectSelector where T == AudioPlugIn {
 
 /// Creates and returns an initialized `AudioPlugIn` or subclass.
 func makeAudioPlugIn(_ objectID: AudioObjectID) throws -> AudioPlugIn {
-	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
 	let objectClass = try AudioObject.getClass(objectID)
