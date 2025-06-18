@@ -25,8 +25,7 @@ public class AudioDevice: AudioClockDevice {
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultInputDevice` on `kAudioObjectSystemObject`
 	public static var defaultInputDevice: AudioDevice {
 		get throws {
-			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultInputDevice))
-			return try makeAudioDevice(objectID)
+			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultInputDevice)))
 		}
 	}
 
@@ -34,8 +33,7 @@ public class AudioDevice: AudioClockDevice {
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultOutputDevice` on `kAudioObjectSystemObject`
 	public static var defaultOutputDevice: AudioDevice {
 		get throws {
-			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice))
-			return try makeAudioDevice(objectID)
+			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice)))
 		}
 	}
 
@@ -43,8 +41,7 @@ public class AudioDevice: AudioClockDevice {
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultSystemOutputDevice` on `kAudioObjectSystemObject`
 	public static var defaultSystemOutputDevice: AudioDevice {
 		get throws {
-			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice))
-			return try makeAudioDevice(objectID)
+			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice)))
 		}
 	}
 
