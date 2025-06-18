@@ -20,7 +20,7 @@ public class AudioAggregateDevice: AudioDevice {
 		let result = AudioHardwareCreateAggregateDevice(description as CFDictionary, &objectID)
 		guard result == kAudioHardwareNoError else {
 			os_log(.error, log: audioObjectLog, "AudioHardwareCreateAggregateDevice (%{public}@) failed: '%{public}@'", description, UInt32(result).fourCC)
-			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: nil)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 		return AudioAggregateDevice(objectID)
 	}
@@ -39,7 +39,7 @@ public class AudioAggregateDevice: AudioDevice {
 		let result = AudioHardwareDestroyAggregateDevice(device.objectID)
 		guard result == kAudioHardwareNoError else {
 			os_log(.error, log: audioObjectLog, "AudioHardwareDestroyAggregateDevice (0x%x) failed: '%{public}@'", device.objectID, UInt32(result).fourCC)
-			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: nil)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 		device.removeAllPropertyListeners()
 	}
@@ -123,7 +123,7 @@ public class AudioAggregateDevice: AudioDevice {
 	public var isPrivate: Bool {
 		get throws {
 			guard let isPrivate = try composition[kAudioAggregateDeviceIsPrivateKey] as? NSNumber else {
-				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError), userInfo: nil)
+				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError))
 			}
 			return isPrivate.boolValue
 		}
@@ -135,7 +135,7 @@ public class AudioAggregateDevice: AudioDevice {
 	public var isStacked: Bool {
 		get throws {
 			guard let isStacked = try composition[kAudioAggregateDeviceIsStackedKey] as? NSNumber else {
-				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError), userInfo: nil)
+				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError))
 			}
 			return isStacked.boolValue
 		}
