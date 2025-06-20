@@ -180,7 +180,10 @@ extension AudioObjectSelector where T == AudioPlugIn {
 
 /// Creates and returns an initialized `AudioPlugIn` or subclass.
 func makeAudioPlugIn(_ objectID: AudioObjectID) throws -> AudioPlugIn {
-	precondition(objectID != kAudioObjectSystemObject)
+	guard objectID != kAudioObjectSystemObject else {
+		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid audio plug-in object id")
+		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
+	}
 
 	let objectClass = try AudioObject.getClass(objectID)
 

@@ -114,7 +114,10 @@ public class ListenbackControl: BooleanControl {
 
 /// Creates and returns an initialized `BooleanControl` or subclass.
 func makeBooleanControl(_ objectID: AudioObjectID) throws -> BooleanControl {
-	precondition(objectID != kAudioObjectSystemObject)
+	guard objectID != kAudioObjectSystemObject else {
+		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid boolean control object id")
+		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
+	}
 
 	let objectClass = try AudioObject.getClass(objectID)
 

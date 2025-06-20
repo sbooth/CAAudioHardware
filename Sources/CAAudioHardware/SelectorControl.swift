@@ -120,7 +120,10 @@ public class HighPassFilterControl: SelectorControl {
 
 /// Creates and returns an initialized `SelectorControl` or subclass.
 func makeSelectorControl(_ objectID: AudioObjectID) throws -> SelectorControl {
-	precondition(objectID != kAudioObjectSystemObject)
+	guard objectID != kAudioObjectSystemObject else {
+		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid selector control object id")
+		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
+	}
 
 	let objectClass = try AudioObject.getClass(objectID)
 
