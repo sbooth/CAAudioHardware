@@ -10,7 +10,7 @@ import os.log
 
 /// A HAL audio boolean control object
 /// - remark: This class correponds to objects with base class `kAudioBooleanControlClassID`
-public class BooleanControl: AudioControl {
+public class BooleanControl: AudioControl, @unchecked Sendable {
 	/// Returns the control's value
 	/// - remark: This corresponds to the property `kAudioBooleanControlPropertyValue`
 	public var value: Bool {
@@ -67,47 +67,47 @@ extension AudioObjectSelector where T == BooleanControl {
 
 /// A HAL audio mute control object
 /// - remark: This class correponds to objects with base class `kAudioMuteControlClassID`
-public class MuteControl: BooleanControl {
+public class MuteControl: BooleanControl, @unchecked Sendable {
 }
 
 /// A HAL audio solo control object
 /// - remark: This class correponds to objects with base class `kAudioSoloControlClassID`
-public class SoloControl: BooleanControl {
+public class SoloControl: BooleanControl, @unchecked Sendable {
 }
 
 /// A HAL audio jack control object
 /// - remark: This class correponds to objects with base class `kAudioJackControlClassID`
-public class JackControl: BooleanControl {
+public class JackControl: BooleanControl, @unchecked Sendable {
 }
 
 /// A HAL audio LFE mute control object
 /// - remark: This class correponds to objects with base class `kAudioLFEMuteControlClassID`
-public class LFEMuteControl: BooleanControl {
+public class LFEMuteControl: BooleanControl, @unchecked Sendable {
 }
 
 /// A HAL audio phantom power control object
 /// - remark: This class correponds to objects with base class `kAudioPhantomPowerControlClassID`
-public class PhantomPowerControl: BooleanControl {
+public class PhantomPowerControl: BooleanControl, @unchecked Sendable {
 }
 
 /// A HAL audio phase invert control object
 /// - remark: This class correponds to objects with base class `kAudioPhaseInvertControlClassID`
-public class PhaseInvertControl: BooleanControl {
+public class PhaseInvertControl: BooleanControl, @unchecked Sendable {
 }
 
 /// A HAL audio clip light control object
 /// - remark: This class correponds to objects with base class `kAudioClipLightControlClassID`
-public class ClipLightControl: BooleanControl {
+public class ClipLightControl: BooleanControl, @unchecked Sendable {
 }
 
 /// A HAL audio talkback control object
 /// - remark: This class correponds to objects with base class `kAudioTalkbackControlClassID`
-public class TalkbackControl: BooleanControl {
+public class TalkbackControl: BooleanControl, @unchecked Sendable {
 }
 
 /// A HAL audio listenback control object
 /// - remark: This class correponds to objects with base class `kAudioListenbackControlClassID`
-public class ListenbackControl: BooleanControl {
+public class ListenbackControl: BooleanControl, @unchecked Sendable {
 }
 
 // MARK: -

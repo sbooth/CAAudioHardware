@@ -9,7 +9,7 @@ import CoreAudio
 
 /// A HAL audio stereo pan control object
 /// - remark: This class correponds to objects with base class `kAudioStereoPanControlClassID`
-public class StereoPanControl: AudioControl {
+public class StereoPanControl: AudioControl, @unchecked Sendable {
 	/// Returns the control's value
 	/// - remark: This corresponds to the property `kAudioStereoPanControlPropertyValue`
 	public var value: Float {
