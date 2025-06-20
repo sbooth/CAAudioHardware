@@ -407,11 +407,6 @@ extension AudioObject {
 	/// Whenever possible this will return a specialized subclass exposing additional functionality
 	/// - parameter objectID: The audio object ID
 	public static func make(_ objectID: AudioObjectID) throws -> AudioObject {
-		guard objectID != kAudioObjectUnknown else {
-			os_log(.error, log: audioObjectLog, "kAudioObjectUnknown is not a valid AudioObjectID")
-			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError), userInfo: nil)
-		}
-
 		if objectID == kAudioObjectSystemObject {
 			return AudioSystem.instance
 		}
@@ -540,7 +535,6 @@ extension AudioObjectSelector: CustomStringConvertible {
 
 /// Creates and returns an initialized `AudioObject` or subclass.
 func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
-	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
 	let objectClass = try AudioObject.getClass(objectID)

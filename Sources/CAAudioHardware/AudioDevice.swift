@@ -21,39 +21,27 @@ public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 		}
 	}
 
-	/// Returns the default input device or `nil` if unknown
+	/// Returns the default input device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultInputDevice` on `kAudioObjectSystemObject`
-	public static var defaultInputDevice: AudioDevice? {
+	public static var defaultInputDevice: AudioDevice {
 		get throws {
-			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultInputDevice))
-			guard objectID != kAudioObjectUnknown else {
-				return nil
-			}
-			return try makeAudioDevice(objectID)
+			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultInputDevice)))
 		}
 	}
 
-	/// Returns the default output device or `nil` if unknown
+	/// Returns the default output device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultOutputDevice` on `kAudioObjectSystemObject`
-	public static var defaultOutputDevice: AudioDevice? {
+	public static var defaultOutputDevice: AudioDevice {
 		get throws {
-			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice))
-			guard objectID != kAudioObjectUnknown else {
-				return nil
-			}
-			return try makeAudioDevice(objectID)
+			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice)))
 		}
 	}
 
-	/// Returns the default system output device or `nil` if unknown
+	/// Returns the default system output device
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultSystemOutputDevice` on `kAudioObjectSystemObject`
-	public static var defaultSystemOutputDevice: AudioDevice? {
+	public static var defaultSystemOutputDevice: AudioDevice {
 		get throws {
-			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice))
-			guard objectID != kAudioObjectUnknown else {
-				return nil
-			}
-			return try makeAudioDevice(objectID)
+			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice)))
 		}
 	}
 
@@ -371,7 +359,7 @@ public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 	/// - parameter scope: The desired scope
 	public func preferredStereoChannels(inScope scope: PropertyScope) throws -> (PropertyElement, PropertyElement) {
 		let channels = try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPreferredChannelsForStereo), scope: scope), elementType: UInt32.self)
-		precondition(channels.count == 2)
+		precondition(channels.count == 2, "Unexpected array length for kAudioDevicePropertyPreferredChannelsForStereo")
 		return (PropertyElement(channels[0]), PropertyElement(channels[1]))
 	}
 	/// Sets the preferred stereo channels
@@ -718,7 +706,7 @@ public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 	/// - remark: This corresponds to the property `kAudioDevicePropertyStereoPanChannels`
 	public func stereoPanChannels(inScope scope: PropertyScope) throws -> (PropertyElement, PropertyElement) {
 		let channels = try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyStereoPanChannels), scope: scope), elementType: UInt32.self)
-		precondition(channels.count == 2)
+		precondition(channels.count == 2, "Unexpected array length for kAudioDevicePropertyStereoPanChannels")
 		return (PropertyElement(channels[0]), PropertyElement(channels[1]))
 	}
 	/// Sets the channels used for stereo panning
@@ -971,7 +959,7 @@ public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 	public var playThroughStereoPanChannels: (PropertyElement, PropertyElement) {
 		get throws {
 			let channels = try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyPlayThruStereoPanChannels), scope: .playThrough), elementType: UInt32.self)
-			precondition(channels.count == 2)
+			precondition(channels.count == 2, "Unexpected array length for kAudioDevicePropertyPlayThruStereoPanChannels")
 			return (PropertyElement(channels[0]), PropertyElement(channels[1]))
 		}
 	}
@@ -1395,8 +1383,10 @@ extension AudioObjectSelector where T == AudioDevice {
 
 /// Creates and returns an initialized `AudioDevice` or subclass.
 func makeAudioDevice(_ objectID: AudioObjectID) throws -> AudioDevice {
-	precondition(objectID != kAudioObjectUnknown)
-	precondition(objectID != kAudioObjectSystemObject)
+	guard objectID != kAudioObjectSystemObject else {
+		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid audio device object id")
+		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
+	}
 
 	let objectClass = try AudioObject.getClass(objectID)
 
