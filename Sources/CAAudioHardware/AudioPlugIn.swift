@@ -12,7 +12,7 @@ import os.log
 ///
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`) and a single element (`kAudioObjectPropertyElementMain`)
 /// - remark: This class correponds to objects of type `kAudioPlugInClassID`
-public class AudioPlugIn: AudioObject {
+public class AudioPlugIn: AudioObject, @unchecked Sendable {
 	/// Returns the available audio plug-ins
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyPlugInList` on `kAudioObjectSystemObject`
 	public static var plugIns: [AudioPlugIn] {

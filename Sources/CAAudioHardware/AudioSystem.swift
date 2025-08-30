@@ -17,7 +17,7 @@ extension AudioObjectID {
 ///
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`) and a single element (`kAudioObjectPropertyElementMain`)
 /// - remark: This class correponds to the object with id `kAudioObjectSystemObject` and class `kAudioSystemObjectClassID`
-public class AudioSystem: AudioObject {
+public class AudioSystem: AudioObject, @unchecked Sendable {
 	/// The singleton audio system object
 	public static let instance = AudioSystem()
 

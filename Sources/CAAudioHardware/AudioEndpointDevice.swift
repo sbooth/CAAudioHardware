@@ -9,7 +9,7 @@ import CoreAudio
 
 /// A HAL audio endpoint device
 /// - remark: This class correponds to objects with base class `kAudioEndPointDeviceClassID`
-public class AudioEndpointDevice: AudioDevice {
+public class AudioEndpointDevice: AudioDevice, @unchecked Sendable {
 	/// Returns the composition
 	/// - remark: This corresponds to the property `kAudioEndPointDevicePropertyComposition`
 	public var composition: [AnyHashable: Any] {
