@@ -12,7 +12,7 @@ import CoreAudioExtensions
 ///
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`), a main element (`kAudioObjectPropertyElementMain`), and an element for each channel
 /// - remark: This class correponds to objects with base class `kAudioStreamClassID`
-public class AudioStream: AudioObject {
+public class AudioStream: AudioObject, @unchecked Sendable {
 	/// Returns `true` if the stream is active
 	/// - remark: This corresponds to the property `kAudioStreamPropertyIsActive`
 	public var isActive: Bool {
