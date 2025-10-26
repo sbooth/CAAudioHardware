@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -11,17 +11,6 @@ import os.log
 /// A HAL audio boolean control object
 /// - remark: This class correponds to objects with base class `kAudioBooleanControlClassID`
 public class BooleanControl: AudioControl {
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element)), \(try value ? "On" : "Off")>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-}
-
-extension BooleanControl {
 	/// Returns the control's value
 	/// - remark: This corresponds to the property `kAudioBooleanControlPropertyValue`
 	public var value: Bool {
@@ -33,6 +22,15 @@ extension BooleanControl {
 	/// - remark: This corresponds to the property `kAudioBooleanControlPropertyValue`
 	public func setValue(_ value: Bool) throws {
 		try setProperty(PropertyAddress(kAudioBooleanControlPropertyValue), to: UInt32(value ? 1 : 0))
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element)), \(try value ? "On" : "Off")>"
+		} catch {
+			return super.debugDescription
+		}
 	}
 }
 
@@ -116,8 +114,10 @@ public class ListenbackControl: BooleanControl {
 
 /// Creates and returns an initialized `BooleanControl` or subclass.
 func makeBooleanControl(_ objectID: AudioObjectID) throws -> BooleanControl {
-	precondition(objectID != kAudioObjectUnknown)
-	precondition(objectID != kAudioObjectSystemObject)
+	guard objectID != kAudioObjectSystemObject else {
+		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid boolean control object id")
+		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
+	}
 
 	let objectClass = try AudioObject.getClass(objectID)
 

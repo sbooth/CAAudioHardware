@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -35,21 +35,6 @@ public class AudioBox: AudioObject {
 		return AudioBox(objectID)
 	}
 
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			var media = [String]()
-			if try hasAudio { media.append("audio") }
-			if try hasVideo { media.append("video") }
-			if try hasMIDI { media.append("MIDI") }
-			return "<\(type(of: self)): 0x\(objectID.hexString), \(media.joined(separator: ", ")), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-}
-
-extension AudioBox {
 	/// Returns the box UID
 	/// - remark: This corresponds to the property `kAudioBoxPropertyBoxUID`
 	public var boxUID: String {
@@ -128,6 +113,19 @@ extension AudioBox {
 		get throws {
 			// Revisit if a subclass of `AudioClockDevice` is added
 			try getProperty(PropertyAddress(kAudioBoxPropertyClockDeviceList)).map { AudioClockDevice($0) }
+		}
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			var media = [String]()
+			if try hasAudio { media.append("audio") }
+			if try hasVideo { media.append("video") }
+			if try hasMIDI { media.append("MIDI") }
+			return "<\(type(of: self)): 0x\(objectID.hexString), \(media.joined(separator: ", ")), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
+		} catch {
+			return super.debugDescription
 		}
 	}
 }

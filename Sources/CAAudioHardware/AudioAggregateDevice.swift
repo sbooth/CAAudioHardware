@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -20,7 +20,7 @@ public class AudioAggregateDevice: AudioDevice {
 		let result = AudioHardwareCreateAggregateDevice(description as CFDictionary, &objectID)
 		guard result == kAudioHardwareNoError else {
 			os_log(.error, log: audioObjectLog, "AudioHardwareCreateAggregateDevice (%{public}@) failed: '%{public}@'", description, UInt32(result).fourCC)
-			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: nil)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 		return AudioAggregateDevice(objectID)
 	}
@@ -39,13 +39,11 @@ public class AudioAggregateDevice: AudioDevice {
 		let result = AudioHardwareDestroyAggregateDevice(device.objectID)
 		guard result == kAudioHardwareNoError else {
 			os_log(.error, log: audioObjectLog, "AudioHardwareDestroyAggregateDevice (0x%x) failed: '%{public}@'", device.objectID, UInt32(result).fourCC)
-			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: nil)
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result))
 		}
 		device.removeAllPropertyListeners()
 	}
-}
 
-extension AudioAggregateDevice {
 	/// Returns the UIDs of all subdevices in the aggregate device, active or inactive
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyFullSubDeviceList`
 	public var fullSubdeviceList: [String] {
@@ -100,12 +98,10 @@ extension AudioAggregateDevice {
 	public func setAggregateClockDevice(_ value: String) throws {
 		try setProperty(PropertyAddress(kAudioAggregateDevicePropertyClockDevice), to: value as CFString)
 	}
-}
 
-@available(macOS 14.2, *)
-extension AudioAggregateDevice {
 	/// Returns the tap list
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertyTapList`
+	@available(macOS 14.2, *)
 	public var tapList: [String] {
 		get throws {
 			try getProperty(PropertyAddress(kAudioAggregateDevicePropertyTapList), type: CFArray.self) as! [String]
@@ -114,21 +110,20 @@ extension AudioAggregateDevice {
 
 	/// Returns the sub tap list
 	/// - remark: This corresponds to the property `kAudioAggregateDevicePropertySubTapList`
+	@available(macOS 14.2, *)
 	public var subTapList: [AudioSubtap] {
 		get throws {
 			try getProperty(PropertyAddress(kAudioAggregateDevicePropertySubTapList)).map { AudioSubtap($0) }
 		}
 	}
-}
 
-extension AudioAggregateDevice {
 	/// Returns `true` if the aggregate device is private
 	/// - remark: This corresponds to the value of `kAudioAggregateDeviceIsPrivateKey` in `composition`
 	/// - attention: If `kAudioAggregateDeviceIsPrivateKey` is not present in `composition` an error is thrown
 	public var isPrivate: Bool {
 		get throws {
 			guard let isPrivate = try composition[kAudioAggregateDeviceIsPrivateKey] as? NSNumber else {
-				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError), userInfo: nil)
+				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError))
 			}
 			return isPrivate.boolValue
 		}
@@ -140,7 +135,7 @@ extension AudioAggregateDevice {
 	public var isStacked: Bool {
 		get throws {
 			guard let isStacked = try composition[kAudioAggregateDeviceIsStackedKey] as? NSNumber else {
-				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError), userInfo: nil)
+				throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareUnspecifiedError))
 			}
 			return isStacked.boolValue
 		}

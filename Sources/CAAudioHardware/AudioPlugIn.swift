@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -34,17 +34,6 @@ public class AudioPlugIn: AudioObject {
 		return try makeAudioPlugIn(objectID)
 	}
 
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-}
-
-extension AudioPlugIn {
 	/// Creates and returns a new aggregate device
 	/// - remark: This corresponds to the property `kAudioPlugInCreateAggregateDevice`
 	/// - parameter composition: The composition of the new aggregate device
@@ -131,6 +120,15 @@ extension AudioPlugIn {
 		// Revisit if a subclass of `AudioClockDevice` is added
 		return AudioClockDevice(clockDeviceObjectID)
 	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString), [\(try deviceList.map({ $0.debugDescription }).joined(separator: ", "))]>"
+		} catch {
+			return super.debugDescription
+		}
+	}
 }
 
 extension AudioPlugIn {
@@ -182,8 +180,10 @@ extension AudioObjectSelector where T == AudioPlugIn {
 
 /// Creates and returns an initialized `AudioPlugIn` or subclass.
 func makeAudioPlugIn(_ objectID: AudioObjectID) throws -> AudioPlugIn {
-	precondition(objectID != kAudioObjectUnknown)
-	precondition(objectID != kAudioObjectSystemObject)
+	guard objectID != kAudioObjectSystemObject else {
+		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid audio plug-in object id")
+		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
+	}
 
 	let objectClass = try AudioObject.getClass(objectID)
 

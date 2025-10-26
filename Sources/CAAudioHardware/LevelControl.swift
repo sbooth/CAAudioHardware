@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -11,17 +11,6 @@ import os.log
 /// A HAL audio level control object
 /// - remark: This class correponds to objects with base class `kAudioLevelControlClassID`
 public class LevelControl: AudioControl {
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element)), \(try scalarValue)>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-}
-
-extension LevelControl {
 	/// Returns the control's scalar value
 	/// - remark: This corresponds to the property `kAudioLevelControlPropertyScalarValue`
 	public var scalarValue: Float {
@@ -69,6 +58,15 @@ extension LevelControl {
 	/// - parameter decibels: The value to convert
 	public func convertToScalar(fromDecibels decibels: Float) throws -> Float {
 		return try getProperty(PropertyAddress(kAudioLevelControlPropertyConvertDecibelsToScalar), initialValue: decibels)
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element)), \(try scalarValue)>"
+		} catch {
+			return super.debugDescription
+		}
 	}
 }
 
@@ -125,8 +123,10 @@ public class LFEVolumeControl: LevelControl {
 
 /// Creates and returns an initialized `LevelControl` or subclass.
 func makeLevelControl(_ objectID: AudioObjectID) throws -> LevelControl {
-	precondition(objectID != kAudioObjectUnknown)
-	precondition(objectID != kAudioObjectSystemObject)
+	guard objectID != kAudioObjectSystemObject else {
+		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid level control object id")
+		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
+	}
 
 	let objectClass = try AudioObject.getClass(objectID)
 

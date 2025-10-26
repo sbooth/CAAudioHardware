@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -13,17 +13,6 @@ import os.log
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`) and a single element (`kAudioObjectPropertyElementMain`)
 /// - remark: This class correponds to objects with base class `kAudioControlClassID`
 public class AudioControl: AudioObject {
-	// A textual representation of this instance, suitable for debugging.
-	public override var debugDescription: String {
-		do {
-			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element))>"
-		} catch {
-			return super.debugDescription
-		}
-	}
-}
-
-extension AudioControl {
 	/// Returns the control's scope
 	/// - remark: This corresponds to the property `kAudioControlPropertyScope`
 	public var scope: PropertyScope {
@@ -37,6 +26,15 @@ extension AudioControl {
 	public var element: PropertyElement {
 		get throws {
 			PropertyElement(try getProperty(PropertyAddress(kAudioControlPropertyElement)))
+		}
+	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public override var debugDescription: String {
+		do {
+			return "<\(type(of: self)): 0x\(objectID.hexString), (\(try scope), \(try element))>"
+		} catch {
+			return super.debugDescription
 		}
 	}
 }
@@ -76,8 +74,10 @@ extension AudioObjectSelector where T == AudioControl {
 
 /// Creates and returns an initialized `AudioControl` or subclass.
 func makeAudioControl(_ objectID: AudioObjectID, baseClass: AudioClassID /*= kAudioControlClassID*/) throws -> AudioControl {
-	precondition(objectID != kAudioObjectUnknown)
-	precondition(objectID != kAudioObjectSystemObject)
+	guard objectID != kAudioObjectSystemObject else {
+		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid audio control object id")
+		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
+	}
 
 	let objectClass = try AudioObject.getClass(objectID)
 

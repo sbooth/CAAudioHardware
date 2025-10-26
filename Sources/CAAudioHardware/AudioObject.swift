@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -134,15 +134,8 @@ public class AudioObject: Equatable, Hashable, CustomDebugStringConvertible {
 		}
 	}
 
-	// A textual representation of this instance, suitable for debugging.
-	public var debugDescription: String {
-		return "<\(type(of: self)): 0x\(objectID.hexString)>"
-	}
-}
+	// MARK: - Scalar Properties
 
-// MARK: - Scalar Properties
-
-extension AudioObject {
 	/// Returns the numeric value of `property`
 	/// - note: The underlying audio object property must be backed by an equivalent native C type of `T`
 	/// - parameter property: The address of the desired property
@@ -167,37 +160,33 @@ extension AudioObject {
 	/// Returns the `AudioValueRange` value of `property`
 	/// - note: The underlying audio object property must be backed by `AudioValueRange`
 	/// - parameter property: The address of the desired property
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
-	public func getProperty(_ property: PropertyAddress) throws -> AudioValueRange {
-		var value = AudioValueRange()
-		try AudioObject.readPropertyData(objectID: objectID, property: property, into: &value)
-		return value
+	public func getProperty(_ property: PropertyAddress, qualifier: PropertyQualifier? = nil) throws -> AudioValueRange {
+		return try AudioObject.getPropertyData(objectID: objectID, property: property, qualifier: qualifier)
 	}
 
 	/// Returns the `AudioStreamBasicDescription` value of `property`
 	/// - note: The underlying audio object property must be backed by `AudioStreamBasicDescription`
 	/// - parameter property: The address of the desired property
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property` or the property value could not be retrieved
-	public func getProperty(_ property: PropertyAddress) throws -> AudioStreamBasicDescription {
-		var value = AudioStreamBasicDescription()
-		try AudioObject.readPropertyData(objectID: objectID, property: property, into: &value)
-		return value
+	public func getProperty(_ property: PropertyAddress, qualifier: PropertyQualifier? = nil) throws -> AudioStreamBasicDescription {
+		return try AudioObject.getPropertyData(objectID: objectID, property: property, qualifier: qualifier)
 	}
 
 	/// Sets the value of `property` to `value`
 	/// - note: The underlying audio object property must be backed by `T`
 	/// - parameter property: The address of the desired property
 	/// - parameter value: The desired value
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property`, `property` is not settable, or the property value could not be set
-	public func setProperty<T>(_ property: PropertyAddress, to value: T) throws {
-		var data = value
-		try AudioObject.writePropertyData(objectID: objectID, property: property, from: &data)
+	public func setProperty<T>(_ property: PropertyAddress, to value: T, qualifier: PropertyQualifier? = nil) throws {
+		try AudioObject.setPropertyData(objectID: objectID, property: property, value: value, qualifier: qualifier)
 	}
-}
 
-// MARK: - Array Properties
+	// MARK: - Array Properties
 
-extension AudioObject {
 	/// Returns the array value of `property`
 	/// - note: The underlying audio object property must be backed by a C array of `T`
 	/// - parameter property: The address of the desired property
@@ -212,15 +201,14 @@ extension AudioObject {
 	/// - note: The underlying audio object property must be backed by a C array of `T`
 	/// - parameter property: The address of the desired property
 	/// - parameter value: The desired value
+	/// - parameter qualifier: An optional property qualifier
 	/// - throws: An error if `self` does not have `property`, `property` is not settable, or the property value could not be set
-	public func setProperty<T>(_ property: PropertyAddress, to value: [T]) throws {
-		try AudioObject.writePropertyData(objectID: objectID, property: property, from: value, size: MemoryLayout<T>.stride * value.count)
+	public func setProperty<T>(_ property: PropertyAddress, to value: [T], qualifier: PropertyQualifier? = nil) throws {
+		try AudioObject.setPropertyData(objectID: objectID, property: property, to: value, qualifier: qualifier)
 	}
-}
 
-// MARK: - Translated Properties
+	// MARK: - Translated Properties
 
-extension AudioObject {
 	/// Returns `value` translated to a numeric type using `property`
 	/// - note: The underlying audio object property must be backed by `AudioValueTranslation`
 	/// - note: The `AudioValueTranslation` input type must be `In`
@@ -246,11 +234,9 @@ extension AudioObject {
 	public func getProperty<In, Out: CFTypeRef>(_ property: PropertyAddress, translatingValue value: In, toType type: Out.Type = Out.self, qualifier: PropertyQualifier? = nil) throws -> Out {
 		return try AudioObject.getPropertyData(objectID: objectID, property: property, translatingValue: value, toType: type, qualifier: qualifier)
 	}
-}
 
-// MARK: - Base Audio Object Properties
+	// MARK: - Base Audio Object Properties
 
-extension AudioObject {
 	/// Returns the bundle ID of the plug-in that instantiated the object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyCreator`
 	public var creator: String {
@@ -277,12 +263,15 @@ extension AudioObject {
 		}
 	}
 
-	/// Returns the audio object's owning object
+	/// Returns the audio object's owning object  or `nil` if this is the system audio object
 	/// - remark: This corresponds to the property `kAudioObjectPropertyOwner`
-	/// - note: The system audio object does not have an owner
-	public var owner: AudioObject {
+	public var owner: AudioObject? {
 		get throws {
-			try AudioObject.make(getProperty(PropertyAddress(kAudioObjectPropertyOwner)))
+			let objectID: AudioObjectID = try getProperty(PropertyAddress(kAudioObjectPropertyOwner))
+			guard objectID != kAudioObjectUnknown else {
+				return nil
+			}
+			return try AudioObject.make(objectID)
 		}
 	}
 
@@ -378,6 +367,11 @@ extension AudioObject {
 			try getProperty(PropertyAddress(kAudioObjectPropertyFirmwareVersion), type: CFString.self) as String
 		}
 	}
+
+	// A textual representation of this instance, suitable for debugging.
+	public var debugDescription: String {
+		return "<\(type(of: self)): 0x\(objectID.hexString)>"
+	}
 }
 
 // MARK: - Helpers
@@ -385,16 +379,12 @@ extension AudioObject {
 extension AudioObject {
 	/// Returns the value of `kAudioObjectPropertyClass` for `objectID`
 	static func getClass(_ objectID: AudioObjectID) throws -> AudioClassID {
-		var value: AudioClassID = 0
-		try AudioObject.readPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyClass), into: &value)
-		return value
+		return try AudioObject.getPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyClass))
 	}
 
 	/// Returns the value of `kAudioObjectPropertyBaseClass` for `objectID`
 	static func getBaseClass(_ objectID: AudioObjectID) throws -> AudioClassID {
-		var value: AudioClassID = 0
-		try AudioObject.readPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyBaseClass), into: &value)
-		return value
+		return try AudioObject.getPropertyData(objectID: objectID, property: PropertyAddress(kAudioObjectPropertyBaseClass))
 	}
 }
 
@@ -417,13 +407,8 @@ extension AudioObject {
 	/// Whenever possible this will return a specialized subclass exposing additional functionality
 	/// - parameter objectID: The audio object ID
 	public static func make(_ objectID: AudioObjectID) throws -> AudioObject {
-		guard objectID != kAudioObjectUnknown else {
-			os_log(.error, log: audioObjectLog, "kAudioObjectUnknown is not a valid AudioObjectID")
-			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError), userInfo: nil)
-		}
-
 		if objectID == kAudioObjectSystemObject {
-			return AudioSystemObject.instance
+			return AudioSystem.instance
 		}
 
 		let baseClass = try AudioObject.getBaseClass(objectID)
@@ -550,7 +535,6 @@ extension AudioObjectSelector: CustomStringConvertible {
 
 /// Creates and returns an initialized `AudioObject` or subclass.
 func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
-	precondition(objectID != kAudioObjectUnknown)
 	precondition(objectID != kAudioObjectSystemObject)
 
 	let objectClass = try AudioObject.getClass(objectID)

@@ -1,5 +1,5 @@
 //
-// Copyright © 2020-2024 Stephen F. Booth <me@sbooth.org>
+// Copyright © 2020-2025 Stephen F. Booth <me@sbooth.org>
 // Part of https://github.com/sbooth/CAAudioHardware
 // MIT license
 //
@@ -17,22 +17,20 @@ extension AudioObjectID {
 ///
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`) and a single element (`kAudioObjectPropertyElementMain`)
 /// - remark: This class correponds to the object with id `kAudioObjectSystemObject` and class `kAudioSystemObjectClassID`
-public class AudioSystemObject: AudioObject {
+public class AudioSystem: AudioObject {
 	/// The singleton audio system object
-	public static let instance = AudioSystemObject()
+	public static let instance = AudioSystem()
 
 	@available(*, unavailable, message: "Use instance instead")
 	private override init(_ objectID: AudioObjectID) {
 		fatalError()
 	}
 
-	/// Initializes an `AudioSystemObject` with the`kAudioObjectSystemObject` object ID
+	/// Initializes an `AudioSystem` object with the`kAudioObjectSystemObject` object ID
 	private init() {
 		super.init(.systemObject)
 	}
-}
 
-extension AudioSystemObject {
 	/// Returns the `AudioObjectID` for the audio device with `uid` or `nil` if unknown
 	/// - remark: This corresponds to the property `kAudioHardwarePropertyTranslateUIDToDevice`
 	/// - parameter uid: The UID of the desired device
@@ -226,17 +224,17 @@ extension AudioSystemObject {
 	}
 }
 
-extension AudioSystemObject {
+extension AudioSystem {
 	/// Returns `true` if `self` has `selector`
 	/// - parameter selector: The selector of the desired property
-	public func hasSelector(_ selector: AudioObjectSelector<AudioSystemObject>) -> Bool {
+	public func hasSelector(_ selector: AudioObjectSelector<AudioSystem>) -> Bool {
 		return hasProperty(PropertyAddress(PropertySelector(selector.rawValue)))
 	}
 
 	/// Returns `true` if `selector` is settable
 	/// - parameter selector: The selector of the desired property
 	/// - throws: An error if `self` does not have the requested property
-	public func isSelectorSettable(_ selector: AudioObjectSelector<AudioSystemObject>) throws -> Bool {
+	public func isSelectorSettable(_ selector: AudioObjectSelector<AudioSystem>) throws -> Bool {
 		return try isPropertySettable(PropertyAddress(PropertySelector(selector.rawValue)))
 	}
 
@@ -245,12 +243,12 @@ extension AudioSystemObject {
 	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioSystemObject>, notifyOnQueue queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioSystem>, notifyOnQueue queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
 		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), notifyOnQueue: queue, perform: block)
 	}
 }
 
-extension AudioObjectSelector where T == AudioSystemObject {
+extension AudioObjectSelector where T == AudioSystem {
 	/// The property selector `kAudioHardwarePropertyDevices`
 	public static let devices = AudioObjectSelector(kAudioHardwarePropertyDevices)
 	/// The property selector `kAudioHardwarePropertyDefaultInputDevice`
