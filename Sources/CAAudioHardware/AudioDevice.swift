@@ -12,7 +12,7 @@ import os.log
 ///
 /// This class has four scopes (`kAudioObjectPropertyScopeGlobal`, `kAudioObjectPropertyScopeInput`, `kAudioObjectPropertyScopeOutput`, and `kAudioObjectPropertyScopePlayThrough`), a main element (`kAudioObjectPropertyElementMain`), and an element for each channel in each stream
 /// - remark: This class correponds to objects with base class `kAudioDeviceClassID`
-public class AudioDevice: AudioClockDevice {
+public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 	/// Returns the available audio devices
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDevices` on `kAudioObjectSystemObject`
 	public static var devices: [AudioDevice] {

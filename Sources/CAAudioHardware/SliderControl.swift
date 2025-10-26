@@ -9,7 +9,7 @@ import CoreAudio
 
 /// A HAL audio slider control object
 /// - remark: This class correponds to objects with base class `kAudioSliderControlClassID`
-public class SliderControl: AudioControl {
+public class SliderControl: AudioControl, @unchecked Sendable {
 	/// Returns the control's value
 	/// - remark: This corresponds to the property `kAudioSliderControlPropertyValue`
 	public var value: UInt32 {

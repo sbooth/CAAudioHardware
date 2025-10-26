@@ -10,7 +10,7 @@ import os.log
 
 /// A HAL audio selector control object
 /// - remark: This class correponds to objects with base class `kAudioSelectorControlClassID`
-public class SelectorControl: AudioControl {
+public class SelectorControl: AudioControl, @unchecked Sendable {
 	/// Returns the selected items
 	/// - remark: This corresponds to the property `kAudioSelectorControlPropertyCurrentItem`
 	public var currentItem: [UInt32] {
@@ -95,27 +95,27 @@ extension AudioObjectSelector where T == SelectorControl {
 
 /// A HAL audio data source control
 /// - remark: This class correponds to objects with base class `kAudioDataSourceControlClassID`
-public class DataSourceControl: SelectorControl {
+public class DataSourceControl: SelectorControl, @unchecked Sendable {
 }
 
 /// A HAL audio data destination control
 /// - remark: This class correponds to objects with base class `kAudioDataDestinationControlClassID`
-public class DataDestinationControl: SelectorControl {
+public class DataDestinationControl: SelectorControl, @unchecked Sendable {
 }
 
 /// A HAL audio clock source control
 /// - remark: This class correponds to objects with base class `kAudioClockSourceControlClassID`
-public class ClockSourceControl: SelectorControl {
+public class ClockSourceControl: SelectorControl, @unchecked Sendable {
 }
 
 /// A HAL audio line level control
 /// - remark: This class correponds to objects with base class `kAudioLineLevelControlClassID`
-public class LineLevelControl: SelectorControl {
+public class LineLevelControl: SelectorControl, @unchecked Sendable {
 }
 
 /// A HAL audio high pass filter control
 /// - remark: This class correponds to objects with base class `kAudioHighPassFilterControlClassID`
-public class HighPassFilterControl: SelectorControl {
+public class HighPassFilterControl: SelectorControl, @unchecked Sendable {
 }
 
 /// Creates and returns an initialized `SelectorControl` or subclass.

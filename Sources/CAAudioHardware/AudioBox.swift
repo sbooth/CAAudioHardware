@@ -11,7 +11,7 @@ import CoreAudio
 ///
 /// This class has a single scope (`kAudioObjectPropertyScopeGlobal`) and a single element (`kAudioObjectPropertyElementMain`)
 /// - remark: This class correponds to objects with base class `kAudioBoxClassID`
-public class AudioBox: AudioObject {
+public class AudioBox: AudioObject, @unchecked Sendable {
 	/// Returns the available audio boxes
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyBoxList` on `kAudioObjectSystemObject`
 	public static var boxes: [AudioBox] {

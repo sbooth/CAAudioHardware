@@ -10,7 +10,7 @@ import os.log
 
 /// A HAL audio aggregate device object
 /// - remark: This class correponds to objects with the base class `kAudioAggregateDeviceClassID`
-public class AudioAggregateDevice: AudioDevice {
+public class AudioAggregateDevice: AudioDevice, @unchecked Sendable {
 	/// Creates and returns a new `AudioAggregateDevice` using the provided description
 	/// - parameter description: A dictionary specifying how to build the `AudioAggregateDevice`
 	/// - returns: A newly-created `AudioAggregateDevice`
