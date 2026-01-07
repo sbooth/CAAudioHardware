@@ -129,8 +129,8 @@ extension AudioTap {
 	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
 	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioTap>, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
+	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioTap>, notifyOnQueue queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
+		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue)), notifyOnQueue: queue, perform: block)
 	}
 }
 
