@@ -149,12 +149,26 @@ extension AudioObject {
 	/// - throws: An error if the object does not have the requested property or the property data could not be retrieved
 	public static func getPropertyData<T>(objectID: AudioObjectID, property: PropertyAddress, elementType type: T.Type = T.self, qualifier: PropertyQualifier? = nil) throws -> [T] {
 		let dataSize = try AudioObject.propertyDataSize(objectID: objectID, property: property, qualifier: qualifier)
-		let count = dataSize / MemoryLayout<T>.stride
-		let array = try [T](unsafeUninitializedCapacity: count) { (buffer, initializedCount) in
-			_ = try readRawPropertyData(objectID: objectID, property: property, into: buffer.baseAddress!, size: dataSize, qualifier: qualifier)
-			initializedCount = count
+		return try readArray(byteCount: dataSize) { buffer, size in
+			try readRawPropertyData(objectID: objectID, property: property, into: buffer, size: size, qualifier: qualifier)
 		}
-		return array
+	}
+
+	/// Returns the elements `read` writes into a buffer of `byteCount` bytes
+	/// - note: The property can shrink between the size query and the read
+	/// - parameter byteCount: The size of the buffer to allocate
+	/// - parameter read: A closure that fills at most `size` bytes of `buffer` and returns the number of bytes written
+	/// - returns: The elements written
+	/// - throws: Any error thrown by `read`
+	static func readArray<T>(byteCount: Int, read: (_ buffer: UnsafeMutableRawPointer, _ size: Int) throws -> Int) rethrows -> [T] {
+		let capacity = byteCount / MemoryLayout<T>.stride
+		guard capacity > 0 else {
+			return []
+		}
+		return try [T](unsafeUninitializedCapacity: capacity) { (buffer, initializedCount) in
+			let bytesWritten = try read(UnsafeMutableRawPointer(buffer.baseAddress!), capacity * MemoryLayout<T>.stride)
+			initializedCount = min(bytesWritten / MemoryLayout<T>.stride, capacity)
+		}
 	}
 
 	/// Sets the array value of `property` on `objectID` to `value`
