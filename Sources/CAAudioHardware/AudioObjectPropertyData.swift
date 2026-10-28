@@ -151,8 +151,8 @@ extension AudioObject {
 		let dataSize = try AudioObject.propertyDataSize(objectID: objectID, property: property, qualifier: qualifier)
 		let count = dataSize / MemoryLayout<T>.stride
 		let array = try [T](unsafeUninitializedCapacity: count) { (buffer, initializedCount) in
-			_ = try readRawPropertyData(objectID: objectID, property: property, into: buffer.baseAddress!, size: dataSize, qualifier: qualifier)
-			initializedCount = count
+			let readSize = try readRawPropertyData(objectID: objectID, property: property, into: buffer.baseAddress!, size: dataSize, qualifier: qualifier)
+			initializedCount = readSize / MemoryLayout<T>.stride
 		}
 		return array
 	}
