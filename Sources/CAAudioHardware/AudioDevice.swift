@@ -1163,6 +1163,18 @@ public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyVoiceActivityDetectionState), scope: scope, element: element), type: UInt32.self) != 0
 	}
 
+	/// Returns `false` if the controls for the device on `element` should not be saved/restored when the device is first published
+	/// - remark: This corresponds to the property `kAudioDevicePropertyWantsControlsRestored`
+	public func wantsControlsRestored(inScope scope: PropertyScope, onElement element: PropertyElement = .main) throws -> Bool {
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyWantsControlsRestored), scope: scope, element: element), type: UInt32.self) != 0
+	}
+
+	/// Returns `false` if the stream formats for the device on `element` should not be saved/restored when the device is first published
+	/// - remark: This corresponds to the property `kAudioDevicePropertyWantsStreamFormatsRestored`
+	public func wantsStreamFormatsRestored(inScope scope: PropertyScope, onElement element: PropertyElement = .main) throws -> Bool {
+		return try getProperty(PropertyAddress(PropertySelector(kAudioDevicePropertyWantsStreamFormatsRestored), scope: scope, element: element), type: UInt32.self) != 0
+	}
+
 	// A textual representation of this instance, suitable for debugging.
 	public override var debugDescription: String {
 		do {
@@ -1378,6 +1390,10 @@ extension AudioObjectSelector where T == AudioDevice {
 	/// The property selector `kAudioDevicePropertyVoiceActivityDetectionState`
 	@available(macOS 14, *)
 	public static let voiceActivityDetectionState = AudioObjectSelector(kAudioDevicePropertyVoiceActivityDetectionState)
+	/// The property selector `kAudioDevicePropertyWantsControlsRestored`
+	public static let wantsControlsRestored = AudioObjectSelector(kAudioDevicePropertyWantsControlsRestored)
+	/// The property selector `kAudioDevicePropertyWantsStreamFormatsRestored`
+	public static let wantsStreamFormatsRestored = AudioObjectSelector(kAudioDevicePropertyWantsStreamFormatsRestored)
 }
 
 // MARK: -
