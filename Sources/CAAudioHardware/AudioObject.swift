@@ -66,8 +66,8 @@ public class AudioObject: Equatable, Hashable, @unchecked Sendable, CustomDebugS
 
 	/// Registers `block` to be performed when `property` changes
 	///
-	/// `block` is invoked serially on a private dispatch queue. To control the queue on which `block`
-	/// is invoked, create a ``PropertyListenerRegistration`` directly.
+	/// `block` is invoked serially on a private dispatch queue. To choose the queue on which `block`
+	/// is invoked, use ``observe(_:on:perform:)``.
 	/// - important: The listener remains active only while the returned registration is alive.
 	/// - parameter property: The property to observe
 	/// - parameter block: A closure to invoke when `property` changes
@@ -75,6 +75,20 @@ public class AudioObject: Equatable, Hashable, @unchecked Sendable, CustomDebugS
 	/// - throws: An error if the property listener could not be registered
 	public final func observe(_ property: PropertyAddress, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyListenerRegistration {
 		try PropertyListenerRegistration(objectID: objectID, property: property, handler: block)
+	}
+
+	/// Registers `block` to be performed on `queue` when `property` changes
+	///
+	/// To have the HAL invoke `block` on one of its internal threads, create a
+	/// ``PropertyListenerRegistration`` with a `nil` queue.
+	/// - important: The listener remains active only while the returned registration is alive.
+	/// - parameter property: The property to observe
+	/// - parameter queue: The dispatch queue on which `block` will be invoked
+	/// - parameter block: A closure to invoke when `property` changes
+	/// - returns: The listener registration
+	/// - throws: An error if the property listener could not be registered
+	public final func observe(_ property: PropertyAddress, on queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyListenerRegistration {
+		try PropertyListenerRegistration(objectID: objectID, property: property, queue: queue, handler: block)
 	}
 
 	/// Registers `block` to be performed on the main actor when `property` changes
@@ -503,6 +517,19 @@ extension AudioObject {
 	/// - throws: An error if the property listener could not be registered
 	public func observe(_ selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyListenerRegistration {
 		try observe(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), perform: block)
+	}
+
+	/// Registers `block` to be performed on `queue` when `selector` in `scope` on `element` changes
+	/// - important: The listener remains active only while the returned registration is alive.
+	/// - parameter selector: The selector of the desired property
+	/// - parameter scope: The desired scope
+	/// - parameter element: The desired element
+	/// - parameter queue: The dispatch queue on which `block` will be invoked
+	/// - parameter block: A closure to invoke when the property changes
+	/// - returns: The listener registration
+	/// - throws: An error if the property listener could not be registered
+	public func observe(_ selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, on queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyListenerRegistration {
+		try observe(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), on: queue, perform: block)
 	}
 
 	/// Registers `block` to be performed on the main actor when `selector` in `scope` on `element` changes

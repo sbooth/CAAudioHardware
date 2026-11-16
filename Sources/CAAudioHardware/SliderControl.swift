@@ -68,6 +68,17 @@ extension SliderControl {
 		try observe(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
 	}
 
+	/// Registers `block` to be performed on `queue` when `selector` changes
+	/// - important: The listener remains active only while the returned registration is alive.
+	/// - parameter selector: The selector of the desired property
+	/// - parameter queue: The dispatch queue on which `block` will be invoked
+	/// - parameter block: A closure to invoke when the property changes
+	/// - returns: The listener registration
+	/// - throws: An error if the property listener could not be registered
+	public func observe(_ selector: AudioObjectSelector<SliderControl>, on queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyListenerRegistration {
+		try observe(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
+	}
+
 	/// Registers `block` to be performed on the main actor when `selector` changes
 	/// - important: The listener remains active only while the returned registration is alive.
 	/// - parameter selector: The selector of the desired property
