@@ -77,8 +77,12 @@ public final class PropertyListenerRegistration: Hashable, @unchecked Sendable {
 
 	/// Removes the property listener
 	///
-	/// Calling this method more than once has no effect.
-	/// - important: Do not call this method from within the listener's own change handler.
+	/// Calling this method more than once has no effect unless a previous removal failed,
+	/// in which case removal is attempted again.
+	///
+	/// This method may be called from within the listener's own change handler.
+	/// - note: If the HAL is already delivering a change notification on another thread,
+	/// the handler may be invoked after this method returns.
 	/// - throws: An error if the property listener could not be removed
 	public func remove() throws {
 		let wasRegistered = isRegistered.withLockUnchecked { isRegistered -> Bool in
@@ -94,6 +98,8 @@ public final class PropertyListenerRegistration: Hashable, @unchecked Sendable {
 		var address = property.rawValue
 		let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, queue, block)
 		guard result == kAudioHardwareNoError else {
+			// The listener may still be registered, so allow a later call to retry
+			isRegistered.withLockUnchecked { $0 = true }
 			os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
 			let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The listener block for the property \(property.selector) on audio object 0x\(objectID.hexString) could not be removed.", comment: "")]
 			throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
