@@ -55,15 +55,62 @@ extension AudioEndpointDevice {
 		return try isPropertySettable(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element))
 	}
 
-	/// Registers `block` to be performed when `selector` in `scope` on `element` changes
+	/// Registers `block` to be performed serially on a private dispatch queue when `selector` in `scope` on `element` changes
+	/// - important: The listener remains active only while the returned observation is alive.
 	/// - parameter selector: The selector of the desired property
 	/// - parameter scope: The desired scope
 	/// - parameter element: The desired element
-	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
-	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
+	/// - parameter block: A closure to invoke when the property changes
+	/// - returns: The property observation
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioEndpointDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), on: queue, perform: block)
+	public func observe(_ selector: AudioObjectSelector<AudioEndpointDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
+		try observe(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), perform: block)
+	}
+
+	/// Registers `block` to be performed on `queue` when `selector` in `scope` on `element` changes
+	/// - important: The listener remains active only while the returned observation is alive.
+	/// - parameter selector: The selector of the desired property
+	/// - parameter scope: The desired scope
+	/// - parameter element: The desired element
+	/// - parameter queue: The dispatch queue on which `block` will be invoked
+	/// - parameter block: A closure to invoke when the property changes
+	/// - returns: The property observation
+	/// - throws: An error if the property listener could not be registered
+	public func observe(_ selector: AudioObjectSelector<AudioEndpointDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
+		try observe(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), queue: queue, perform: block)
+	}
+
+	/// Registers `block` to be performed on the main actor when `selector` in `scope` on `element` changes
+	/// - important: The listener remains active only while the returned observation is alive.
+	/// - parameter selector: The selector of the desired property
+	/// - parameter scope: The desired scope
+	/// - parameter element: The desired element
+	/// - parameter block: A main actor-isolated closure to invoke when the property changes
+	/// - returns: The property observation
+	/// - throws: An error if the property listener could not be registered
+	public func observeOnMainActor(_ selector: AudioObjectSelector<AudioEndpointDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: @escaping MainActorPropertyChangeNotificationBlock) throws -> PropertyObservation {
+		try observeOnMainActor(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), perform: block)
+	}
+
+	/// Returns an asynchronous sequence of change notifications for `selector` in `scope` on `element`
+	/// - parameter selector: The selector of the desired property
+	/// - parameter scope: The desired scope
+	/// - parameter element: The desired element
+	/// - returns: An asynchronous sequence of change notifications
+	public func changes(of selector: AudioObjectSelector<AudioEndpointDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main) -> AsyncThrowingStream<[PropertyAddress], any Error> {
+		changes(of: PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element))
+	}
+
+	/// Returns an asynchronous sequence of values for `selector` in `scope` on `element`
+	///
+	/// The sequence yields the current value first and a new value each time the property changes.
+	/// - parameter selector: The selector of the desired property
+	/// - parameter scope: The desired scope
+	/// - parameter element: The desired element
+	/// - parameter read: A closure returning the property's current value
+	/// - returns: An asynchronous sequence of property values
+	public func values<Value: Sendable>(of selector: AudioObjectSelector<AudioEndpointDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, read: @escaping @Sendable () throws -> Value) -> AsyncThrowingStream<Value, any Error> {
+		values(of: PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), read: read)
 	}
 }
 
