@@ -104,75 +104,11 @@ public class AudioTap: AudioObject, @unchecked Sendable {
 }
 
 @available(macOS 14.2, *)
-extension AudioTap {
-	/// Returns `true` if `self` has `selector`
-	/// - parameter selector: The selector of the desired property
-	public func hasSelector(_ selector: AudioObjectSelector<AudioTap>) -> Bool {
-		return hasProperty(PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Returns `true` if `selector` is settable
-	/// - parameter selector: The selector of the desired property
-	/// - throws: An error if `self` does not have the requested property
-	public func isSelectorSettable(_ selector: AudioObjectSelector<AudioTap>) throws -> Bool {
-		return try isPropertySettable(PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Registers `block` to be performed serially on a private dispatch queue when `selector` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<AudioTap>, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observe(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
-	}
-
-	/// Registers `block` to be performed on `queue` when `selector` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter queue: The dispatch queue on which `block` will be invoked
-	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<AudioTap>, queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observe(PropertyAddress(PropertySelector(selector.rawValue)), queue: queue, perform: block)
-	}
-
-	/// Registers `block` to be performed on the main actor when `selector` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter block: A main actor-isolated closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observeOnMainActor(_ selector: AudioObjectSelector<AudioTap>, perform block: @escaping MainActorPropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observeOnMainActor(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
-	}
-
-	/// Returns an asynchronous sequence of change notifications for `selector`
-	/// - parameter selector: The selector of the desired property
-	/// - returns: An asynchronous sequence of change notifications
-	public func changes(of selector: AudioObjectSelector<AudioTap>) -> AsyncThrowingStream<[PropertyAddress], any Error> {
-		changes(of: PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Returns an asynchronous sequence of values for `selector`
-	///
-	/// The sequence yields the current value first and a new value each time the property changes.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter read: A closure returning the property's current value
-	/// - returns: An asynchronous sequence of property values
-	public func values<Value: Sendable>(of selector: AudioObjectSelector<AudioTap>, read: @escaping @Sendable () throws -> Value) -> AsyncThrowingStream<Value, any Error> {
-		values(of: PropertyAddress(PropertySelector(selector.rawValue)), read: read)
-	}
-}
-
-@available(macOS 14.2, *)
-extension AudioObjectSelector where T == AudioTap {
+extension AudioObjectSelector where T: AudioTap {
 	/// The property selector `kAudioTapPropertyUID`
-	public static let uid = AudioObjectSelector(kAudioTapPropertyUID)
+	public static var uid: Self { Self(kAudioTapPropertyUID) }
 	/// The property selector `kAudioTapPropertyDescription`
-	public static let description = AudioObjectSelector(kAudioTapPropertyDescription)
+	public static var description: Self { Self(kAudioTapPropertyDescription) }
 	/// The property selector `kAudioTapPropertyFormat`
-	public static let format = AudioObjectSelector(kAudioTapPropertyFormat)
+	public static var format: Self { Self(kAudioTapPropertyFormat) }
 }

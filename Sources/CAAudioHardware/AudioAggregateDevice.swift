@@ -137,103 +137,26 @@ public class AudioAggregateDevice: AudioDevice, @unchecked Sendable {
 	}
 }
 
-extension AudioAggregateDevice {
-	/// Returns `true` if `self` has `selector` in `scope` on `element`
-	/// - parameter selector: The selector of the desired property
-	/// - parameter scope: The desired scope
-	/// - parameter element: The desired element
-	public func hasSelector(_ selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main) -> Bool {
-		return hasProperty(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element))
-	}
-
-	/// Returns `true` if `selector` in `scope` on `element` is settable
-	/// - parameter selector: The selector of the desired property
-	/// - parameter scope: The desired scope
-	/// - parameter element: The desired element
-	/// - throws: An error if `self` does not have the requested property
-	public func isSelectorSettable(_ selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main) throws -> Bool {
-		return try isPropertySettable(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element))
-	}
-
-	/// Registers `block` to be performed serially on a private dispatch queue when `selector` in `scope` on `element` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter scope: The desired scope
-	/// - parameter element: The desired element
-	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observe(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), perform: block)
-	}
-
-	/// Registers `block` to be performed on `queue` when `selector` in `scope` on `element` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter scope: The desired scope
-	/// - parameter element: The desired element
-	/// - parameter queue: The dispatch queue on which `block` will be invoked
-	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observe(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), queue: queue, perform: block)
-	}
-
-	/// Registers `block` to be performed on the main actor when `selector` in `scope` on `element` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter scope: The desired scope
-	/// - parameter element: The desired element
-	/// - parameter block: A main actor-isolated closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observeOnMainActor(_ selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: @escaping MainActorPropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observeOnMainActor(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), perform: block)
-	}
-
-	/// Returns an asynchronous sequence of change notifications for `selector` in `scope` on `element`
-	/// - parameter selector: The selector of the desired property
-	/// - parameter scope: The desired scope
-	/// - parameter element: The desired element
-	/// - returns: An asynchronous sequence of change notifications
-	public func changes(of selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main) -> AsyncThrowingStream<[PropertyAddress], any Error> {
-		changes(of: PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element))
-	}
-
-	/// Returns an asynchronous sequence of values for `selector` in `scope` on `element`
-	///
-	/// The sequence yields the current value first and a new value each time the property changes.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter scope: The desired scope
-	/// - parameter element: The desired element
-	/// - parameter read: A closure returning the property's current value
-	/// - returns: An asynchronous sequence of property values
-	public func values<Value: Sendable>(of selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, read: @escaping @Sendable () throws -> Value) -> AsyncThrowingStream<Value, any Error> {
-		values(of: PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), read: read)
-	}
-}
-
-extension AudioObjectSelector where T == AudioAggregateDevice {
+extension AudioObjectSelector where T: AudioAggregateDevice {
 	/// The property selector `kAudioAggregateDevicePropertyFullSubDeviceList`
-	public static let fullSubDeviceList = AudioObjectSelector(kAudioAggregateDevicePropertyFullSubDeviceList)
+	public static var fullSubDeviceList: Self { Self(kAudioAggregateDevicePropertyFullSubDeviceList) }
 	/// The property selector `kAudioAggregateDevicePropertyActiveSubDeviceList`
-	public static let activeSubDeviceList = AudioObjectSelector(kAudioAggregateDevicePropertyActiveSubDeviceList)
+	public static var activeSubDeviceList: Self { Self(kAudioAggregateDevicePropertyActiveSubDeviceList) }
 	/// The property selector `kAudioAggregateDevicePropertyComposition`
-	public static let composition = AudioObjectSelector(kAudioAggregateDevicePropertyComposition)
+	public static var composition: Self { Self(kAudioAggregateDevicePropertyComposition) }
 	/// The property selector `kAudioAggregateDevicePropertyMainSubDevice`
-	public static let mainSubDevice = AudioObjectSelector(kAudioAggregateDevicePropertyMainSubDevice)
+	public static var mainSubDevice: Self { Self(kAudioAggregateDevicePropertyMainSubDevice) }
 	/// The property selector `kAudioAggregateDevicePropertyMasterSubDevice`
 	@available(macOS, introduced: 10.0, deprecated: 12.0, renamed: "mainSubDevice")
-	public static let masterSubDevice = AudioObjectSelector(kAudioAggregateDevicePropertyMasterSubDevice)
+	public static var masterSubDevice: Self { Self(kAudioAggregateDevicePropertyMasterSubDevice) }
 	/// The property selector `kAudioAggregateDevicePropertyClockDevice`
-	public static let clockDevice = AudioObjectSelector(kAudioAggregateDevicePropertyClockDevice)
+	public static var clockDevice: Self { Self(kAudioAggregateDevicePropertyClockDevice) }
 }
 
 @available(macOS 14.2, *)
-extension AudioObjectSelector where T == AudioAggregateDevice {
+extension AudioObjectSelector where T: AudioAggregateDevice {
 	/// The property selector `kAudioAggregateDevicePropertyTapList`
-	public static let tapList = AudioObjectSelector(kAudioAggregateDevicePropertyTapList)
+	public static var tapList: Self { Self(kAudioAggregateDevicePropertyTapList) }
 	/// The property selector `kAudioAggregateDevicePropertySubTapList`
-	public static let subTapList = AudioObjectSelector(kAudioAggregateDevicePropertySubTapList)
+	public static var subTapList: Self { Self(kAudioAggregateDevicePropertySubTapList) }
 }
