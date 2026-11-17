@@ -16,13 +16,13 @@ import CoreAudio
 /// selectors of the receiver's class and its superclasses.
 ///
 /// `AudioObject` conforms to this protocol, and therefore so does every subclass.
-public protocol AudioPropertyOwner: AudioObject {}
+public protocol PropertyOwning: AudioObject {}
 
-extension AudioObject: AudioPropertyOwner {}
+extension AudioObject: PropertyOwning {}
 
 // MARK: - Global scope
 
-extension AudioPropertyOwner {
+extension PropertyOwning {
 	/// Returns `true` if `self` has `selector`
 	/// - parameter selector: The selector of the desired property
 	public func hasSelector(_ selector: AudioObjectSelector<Self>) -> Bool {
@@ -90,7 +90,7 @@ extension AudioPropertyOwner {
 // `inScope:` has no default value in these methods. With one, a call such as `device.observe(.mute) { … }`
 // would match both these methods and the global scope methods above with the same selector type.
 // Requiring it means calls without a scope resolve to the methods above, and calls with one resolve here.
-extension AudioPropertyOwner where Self: AudioDevice {
+extension PropertyOwning where Self: AudioDevice {
 	/// Returns `true` if `self` has `selector` in `scope` on `element`
 	/// - parameter selector: The selector of the desired property
 	/// - parameter scope: The desired scope
@@ -172,7 +172,7 @@ extension AudioPropertyOwner where Self: AudioDevice {
 // Processes have input and output scopes but only the main element, so these methods take a scope only.
 // As with devices, `inScope:` is required so these methods never compete with the global scope methods.
 @available(macOS 14.2, *)
-extension AudioPropertyOwner where Self: AudioProcess {
+extension PropertyOwning where Self: AudioProcess {
 	/// Returns `true` if `self` has `selector` in `scope`
 	/// - parameter selector: The selector of the desired property
 	/// - parameter scope: The desired scope
