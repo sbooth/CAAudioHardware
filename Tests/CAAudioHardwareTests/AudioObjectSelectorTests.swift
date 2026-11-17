@@ -91,4 +91,29 @@ final class AudioObjectSelectorTests: XCTestCase {
 		let observation = try process.observe(.devices, inScope: .output) { _ in }
 		try observation.invalidate()
 	}
+
+	func testScopeAndElementDefaults() throws {
+		guard let device = try AudioDevice.devices.first else {
+			throw XCTSkip("No audio devices")
+		}
+		let elementName = PropertySelector(kAudioObjectPropertyElementName)
+
+		// Element only: the scope defaults to global
+		XCTAssertEqual(device.hasSelector(.elementName, onElement: 1), device.hasProperty(PropertyAddress(elementName, element: 1)))
+		// Scope only: the element defaults to main
+		XCTAssertEqual(device.hasSelector(.elementName, inScope: .output), device.hasProperty(PropertyAddress(elementName, scope: .output)))
+		// Both
+		XCTAssertEqual(device.hasSelector(.elementName, inScope: .output, onElement: 1), device.hasProperty(PropertyAddress(elementName, scope: .output, element: 1)))
+
+		// A value statically typed as AudioObject still accepts a scope and element
+		let object: AudioObject = device
+		XCTAssertEqual(object.hasSelector(.elementName, inScope: .output, onElement: 1), device.hasProperty(PropertyAddress(elementName, scope: .output, element: 1)))
+
+		// Every call shape for the queue and main actor variants
+		let queue = DispatchQueue(label: "AudioObjectSelectorTests")
+		try device.observe(.elementName, onElement: 1) { _ in }.invalidate()
+		try device.observe(.elementName, onElement: 1, queue: queue) { _ in }.invalidate()
+		try device.observe(.elementName, inScope: .output, queue: queue) { _ in }.invalidate()
+		try device.observeOnMainActor(.elementName, onElement: 1) { _ in }.invalidate()
+	}
 }
