@@ -46,24 +46,49 @@ final class CAAudioHardwareTests: XCTestCase {
 		}
 	}
 
-	func testPropertyListenerRegistration() throws {
-		let registration = try AudioSystem.instance.observe(.devices) { _ in }
-		XCTAssertEqual(registration.objectID, AudioSystem.instance.objectID)
-		try registration.remove()
-		// Removing more than once is a no-op
-		try registration.remove()
+	func testObserveWithQueue() throws {
+		let queue = DispatchQueue(label: "CAAudioHardwareTests.observe")
+		let key = DispatchSpecificKey<Bool>()
+		queue.setSpecific(key: key, value: true)
 
-		var registrations = Set<PropertyListenerRegistration>()
-		try AudioSystem.instance.observe(.devices) { _ in }.store(in: &registrations)
-		try AudioSystem.instance.observe(.devices) { _ in }.store(in: &registrations)
-		// Registrations for the same property are independent
-		XCTAssertEqual(registrations.count, 2)
-		registrations.removeAll()
+		let called = XCTestExpectation(description: "Handler called")
+		called.assertForOverFulfill = false
+		let observation = try AudioSystem.instance.observe(.processIsAudible, queue: queue) { _ in
+			XCTAssertEqual(DispatchQueue.getSpecific(key: key), true, "Handler was not invoked on the requested queue")
+			called.fulfill()
+		}
 
-		// Registration on a caller-specified queue, or a HAL thread
+		// kAudioHardwarePropertyProcessIsAudible is local to this process and settable
+		let original = try AudioSystem.instance.processIsAudible
+		defer {
+			try? AudioSystem.instance.setProcessIsAudible(original)
+		}
+		try AudioSystem.instance.setProcessIsAudible(!original)
+
+		guard XCTWaiter().wait(for: [called], timeout: 2) == .completed else {
+			throw XCTSkip("Changing kAudioHardwarePropertyProcessIsAudible did not deliver a notification")
+		}
+		try observation.invalidate()
+	}
+
+	func testPropertyObservation() throws {
+		let observation = try AudioSystem.instance.observe(.devices) { _ in }
+		XCTAssertEqual(observation.objectID, AudioSystem.instance.objectID)
+		try observation.invalidate()
+		// Invalidating more than once is a no-op
+		try observation.invalidate()
+
+		var observations = Set<PropertyObservation>()
+		try AudioSystem.instance.observe(.devices) { _ in }.store(in: &observations)
+		try AudioSystem.instance.observe(.devices) { _ in }.store(in: &observations)
+		// Observations of the same property are independent
+		XCTAssertEqual(observations.count, 2)
+		observations.removeAll()
+
+		// Observation on a caller-specified queue, or a HAL thread
 		let queue = DispatchQueue(label: "CAAudioHardwareTests")
-		_ = try PropertyListenerRegistration(objectID: AudioSystem.instance.objectID, property: PropertyAddress(kAudioHardwarePropertyDevices), queue: queue) { _ in }
-		_ = try PropertyListenerRegistration(objectID: AudioSystem.instance.objectID, property: PropertyAddress(kAudioHardwarePropertyDevices), queue: nil) { _ in }
+		_ = try PropertyObservation(objectID: AudioSystem.instance.objectID, property: PropertyAddress(kAudioHardwarePropertyDevices), queue: queue) { _ in }
+		_ = try PropertyObservation(objectID: AudioSystem.instance.objectID, property: PropertyAddress(kAudioHardwarePropertyDevices), queue: nil) { _ in }
 	}
 
 	func testPropertyValuesYieldsInitialValue() async throws {
