@@ -73,4 +73,22 @@ final class AudioObjectSelectorTests: XCTestCase {
 		let scopedObservation = try device.observe(.streams, inScope: .output) { _ in }
 		try scopedObservation.invalidate()
 	}
+
+	func testProcessScopes() throws {
+		guard #available(macOS 14.2, *) else {
+			throw XCTSkip("Audio processes require macOS 14.2")
+		}
+		guard let process = try AudioProcess.processes.first else {
+			throw XCTSkip("No audio processes")
+		}
+
+		// kAudioProcessPropertyDevices is read per direction
+		for scope in [PropertyScope.input, .output] {
+			XCTAssertEqual(process.hasSelector(.devices, inScope: scope), process.hasProperty(PropertyAddress(PropertySelector(kAudioProcessPropertyDevices), scope: scope)))
+		}
+		XCTAssertEqual(process.hasSelector(.devices), process.hasProperty(PropertyAddress(PropertySelector(kAudioProcessPropertyDevices))))
+
+		let observation = try process.observe(.devices, inScope: .output) { _ in }
+		try observation.invalidate()
+	}
 }
