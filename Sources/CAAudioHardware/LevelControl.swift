@@ -86,33 +86,33 @@ extension LevelControl {
 	}
 
 	/// Registers `block` to be performed serially on a private dispatch queue when `selector` changes
-	/// - important: The listener remains active only while the returned registration is alive.
+	/// - important: The listener remains active only while the returned observation is alive.
 	/// - parameter selector: The selector of the desired property
 	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The listener registration
+	/// - returns: The property observation
 	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<LevelControl>, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyListenerRegistration {
+	public func observe(_ selector: AudioObjectSelector<LevelControl>, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
 		try observe(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
 	}
 
 	/// Registers `block` to be performed on `queue` when `selector` changes
-	/// - important: The listener remains active only while the returned registration is alive.
+	/// - important: The listener remains active only while the returned observation is alive.
 	/// - parameter selector: The selector of the desired property
 	/// - parameter queue: The dispatch queue on which `block` will be invoked
 	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The listener registration
+	/// - returns: The property observation
 	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<LevelControl>, on queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyListenerRegistration {
-		try observe(PropertyAddress(PropertySelector(selector.rawValue)), on: queue, perform: block)
+	public func observe(_ selector: AudioObjectSelector<LevelControl>, queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
+		try observe(PropertyAddress(PropertySelector(selector.rawValue)), queue: queue, perform: block)
 	}
 
 	/// Registers `block` to be performed on the main actor when `selector` changes
-	/// - important: The listener remains active only while the returned registration is alive.
+	/// - important: The listener remains active only while the returned observation is alive.
 	/// - parameter selector: The selector of the desired property
 	/// - parameter block: A main actor-isolated closure to invoke when the property changes
-	/// - returns: The listener registration
+	/// - returns: The property observation
 	/// - throws: An error if the property listener could not be registered
-	public func observeOnMainActor(_ selector: AudioObjectSelector<LevelControl>, perform block: @escaping MainActorPropertyChangeNotificationBlock) throws -> PropertyListenerRegistration {
+	public func observeOnMainActor(_ selector: AudioObjectSelector<LevelControl>, perform block: @escaping MainActorPropertyChangeNotificationBlock) throws -> PropertyObservation {
 		try observeOnMainActor(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
 	}
 

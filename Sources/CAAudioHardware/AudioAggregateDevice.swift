@@ -28,7 +28,7 @@ public class AudioAggregateDevice: AudioDevice, @unchecked Sendable {
 
 	/// Destroys `device`
 	/// - note: Futher use of `device` following this function is undefined
-	/// - important: Remove property listener registrations and end property change sequences for `device` before destroying it
+	/// - important: Invalidate property observations and end property change sequences for `device` before destroying it
 	/// - parameter device: The `AudioAggregateDevice` to destroy
 	/// - throws: An error if the `AudioAggregateDevice` could not be destroyed
 	public static func destroy(_ device: AudioAggregateDevice) throws {
@@ -156,39 +156,39 @@ extension AudioAggregateDevice {
 	}
 
 	/// Registers `block` to be performed serially on a private dispatch queue when `selector` in `scope` on `element` changes
-	/// - important: The listener remains active only while the returned registration is alive.
+	/// - important: The listener remains active only while the returned observation is alive.
 	/// - parameter selector: The selector of the desired property
 	/// - parameter scope: The desired scope
 	/// - parameter element: The desired element
 	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The listener registration
+	/// - returns: The property observation
 	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyListenerRegistration {
+	public func observe(_ selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
 		try observe(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), perform: block)
 	}
 
 	/// Registers `block` to be performed on `queue` when `selector` in `scope` on `element` changes
-	/// - important: The listener remains active only while the returned registration is alive.
+	/// - important: The listener remains active only while the returned observation is alive.
 	/// - parameter selector: The selector of the desired property
 	/// - parameter scope: The desired scope
 	/// - parameter element: The desired element
 	/// - parameter queue: The dispatch queue on which `block` will be invoked
 	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The listener registration
+	/// - returns: The property observation
 	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, on queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyListenerRegistration {
-		try observe(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), on: queue, perform: block)
+	public func observe(_ selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
+		try observe(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), queue: queue, perform: block)
 	}
 
 	/// Registers `block` to be performed on the main actor when `selector` in `scope` on `element` changes
-	/// - important: The listener remains active only while the returned registration is alive.
+	/// - important: The listener remains active only while the returned observation is alive.
 	/// - parameter selector: The selector of the desired property
 	/// - parameter scope: The desired scope
 	/// - parameter element: The desired element
 	/// - parameter block: A main actor-isolated closure to invoke when the property changes
-	/// - returns: The listener registration
+	/// - returns: The property observation
 	/// - throws: An error if the property listener could not be registered
-	public func observeOnMainActor(_ selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: @escaping MainActorPropertyChangeNotificationBlock) throws -> PropertyListenerRegistration {
+	public func observeOnMainActor(_ selector: AudioObjectSelector<AudioAggregateDevice>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: @escaping MainActorPropertyChangeNotificationBlock) throws -> PropertyObservation {
 		try observeOnMainActor(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), perform: block)
 	}
 

@@ -9,12 +9,12 @@ import Foundation
 import CoreAudio
 import os.log
 
-/// An active audio object property listener
+/// An active observation of an audio object property
 ///
-/// The listener remains registered with the HAL until ``remove()`` is called
-/// or the registration is deallocated, whichever comes first.
-/// Keep a strong reference to the registration for as long as change notifications are needed.
-public final class PropertyListenerRegistration: Hashable, @unchecked Sendable {
+/// The listener remains registered with the HAL until ``invalidate()`` is called
+/// or the observation is deallocated, whichever comes first.
+/// Keep a strong reference to the observation for as long as change notifications are needed.
+public final class PropertyObservation: Hashable, @unchecked Sendable {
 	/// The observed audio object
 	public let objectID: AudioObjectID
 	/// The observed property
@@ -37,7 +37,7 @@ public final class PropertyListenerRegistration: Hashable, @unchecked Sendable {
 	/// - parameter queue: The dispatch queue on which `handler` will be invoked, or `nil` to use a HAL thread
 	/// - parameter handler: A closure to invoke when `property` changes
 	/// - throws: An error if the property listener could not be registered
-	public init(objectID: AudioObjectID, property: PropertyAddress, queue: DispatchQueue?, handler: @escaping AudioObject.PropertyChangeNotificationBlock) throws {
+	public init(objectID: AudioObjectID, property: PropertyAddress, queue: DispatchQueue?, perform handler: @escaping AudioObject.PropertyChangeNotificationBlock) throws {
 		self.objectID = objectID
 		self.property = property
 		self.queue = queue
@@ -65,17 +65,17 @@ public final class PropertyListenerRegistration: Hashable, @unchecked Sendable {
 	/// - parameter property: The property to observe
 	/// - parameter handler: A closure to invoke when `property` changes
 	/// - throws: An error if the property listener could not be registered
-	public convenience init(objectID: AudioObjectID, property: PropertyAddress, handler: @escaping AudioObject.PropertyChangeNotificationBlock) throws {
+	public convenience init(objectID: AudioObjectID, property: PropertyAddress, perform handler: @escaping AudioObject.PropertyChangeNotificationBlock) throws {
 		let queue = DispatchQueue(label: "CAAudioHardware.PropertyListener (0x\(objectID.hexString), \(property.selector))")
-		try self.init(objectID: objectID, property: property, queue: queue, handler: handler)
+		try self.init(objectID: objectID, property: property, queue: queue, perform: handler)
 	}
 
 	deinit {
-		// Errors are logged by `remove()`
-		try? remove()
+		// Errors are logged by `invalidate()`
+		try? invalidate()
 	}
 
-	/// Removes the property listener
+	/// Invalidates the observation, removing its property listener from the HAL
 	///
 	/// Calling this method more than once has no effect unless a previous removal failed,
 	/// in which case removal is attempted again.
@@ -84,7 +84,7 @@ public final class PropertyListenerRegistration: Hashable, @unchecked Sendable {
 	/// - note: If the HAL is already delivering a change notification on another thread,
 	/// the handler may be invoked after this method returns.
 	/// - throws: An error if the property listener could not be removed
-	public func remove() throws {
+	public func invalidate() throws {
 		let wasRegistered = isRegistered.withLockUnchecked { isRegistered -> Bool in
 			defer {
 				isRegistered = false
@@ -108,12 +108,12 @@ public final class PropertyListenerRegistration: Hashable, @unchecked Sendable {
 
 	/// Stores `self` in `set`, tying the listener's lifetime to the set
 	/// - parameter set: The set in which to store `self`
-	public func store(in set: inout Set<PropertyListenerRegistration>) {
+	public func store(in set: inout Set<PropertyObservation>) {
 		set.insert(self)
 	}
 
 	// Equatable
-	public static func == (lhs: PropertyListenerRegistration, rhs: PropertyListenerRegistration) -> Bool {
+	public static func == (lhs: PropertyObservation, rhs: PropertyObservation) -> Bool {
 		lhs === rhs
 	}
 
