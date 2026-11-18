@@ -15,7 +15,7 @@ import os.log
 /// - remark: This class correponds to objects with base class `kAudioClockDeviceClassID`
 public class AudioClockDevice: AudioObject, @unchecked Sendable {
 	/// Returns the available audio clock devices
-	/// - remark: This corresponds to the property`kAudioHardwarePropertyClockDeviceList` on `kAudioObjectSystemObject`
+	/// - remark: This corresponds to the property `kAudioHardwarePropertyClockDeviceList` on `kAudioObjectSystemObject`
 	public static var clockDevices: [AudioClockDevice] {
 		get throws {
 			// Revisit if a subclass of `AudioClockDevice` is added

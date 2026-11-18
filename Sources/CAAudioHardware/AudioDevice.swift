@@ -15,7 +15,7 @@ import os.log
 /// - remark: This class correponds to objects with base class `kAudioDeviceClassID`
 public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 	/// Returns the available audio devices
-	/// - remark: This corresponds to the property`kAudioHardwarePropertyDevices` on `kAudioObjectSystemObject`
+	/// - remark: This corresponds to the property `kAudioHardwarePropertyDevices` on `kAudioObjectSystemObject`
 	public static var devices: [AudioDevice] {
 		get throws {
 			try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDevices)).map { try makeAudioDevice($0) }
@@ -23,7 +23,7 @@ public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 	}
 
 	/// Returns the default input device, or `nil` if none
-	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultInputDevice` on `kAudioObjectSystemObject`
+	/// - remark: This corresponds to the property `kAudioHardwarePropertyDefaultInputDevice` on `kAudioObjectSystemObject`
 	public static var defaultInputDevice: AudioDevice? {
 		get throws {
 			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultInputDevice))
@@ -35,7 +35,7 @@ public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 	}
 
 	/// Returns the default output device, or `nil` if  none
-	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultOutputDevice` on `kAudioObjectSystemObject`
+	/// - remark: This corresponds to the property `kAudioHardwarePropertyDefaultOutputDevice` on `kAudioObjectSystemObject`
 	public static var defaultOutputDevice: AudioDevice? {
 		get throws {
 			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice))
@@ -47,7 +47,7 @@ public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 	}
 
 	/// Returns the default system output device, or `nil` if there is none
-	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultSystemOutputDevice` on `kAudioObjectSystemObject`
+	/// - remark: This corresponds to the property `kAudioHardwarePropertyDefaultSystemOutputDevice` on `kAudioObjectSystemObject`
 	public static var defaultSystemOutputDevice: AudioDevice? {
 		get throws {
 			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice))

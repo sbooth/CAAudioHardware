@@ -14,7 +14,7 @@ import CoreAudio
 /// - remark: This class correponds to objects with base class `kAudioTransportManagerClassID`
 public class AudioTransportManager: AudioPlugIn, @unchecked Sendable {
 	/// Returns the available audio transport managers
-	/// - remark: This corresponds to the property`kAudioHardwarePropertyTransportManagerList` on `kAudioObjectSystemObject`
+	/// - remark: This corresponds to the property `kAudioHardwarePropertyTransportManagerList` on `kAudioObjectSystemObject`
 	public static var transportManagers: [AudioTransportManager] {
 		get throws {
 			// Revisit if a subclass of `AudioTransportManager` is added

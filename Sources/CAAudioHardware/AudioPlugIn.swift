@@ -15,7 +15,7 @@ import os.log
 /// - remark: This class correponds to objects of type `kAudioPlugInClassID`
 public class AudioPlugIn: AudioObject, @unchecked Sendable {
 	/// Returns the available audio plug-ins
-	/// - remark: This corresponds to the property`kAudioHardwarePropertyPlugInList` on `kAudioObjectSystemObject`
+	/// - remark: This corresponds to the property `kAudioHardwarePropertyPlugInList` on `kAudioObjectSystemObject`
 	public static var plugIns: [AudioPlugIn] {
 		get throws {
 			try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyPlugInList)).map { try makeAudioPlugIn($0) }
