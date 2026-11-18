@@ -158,24 +158,3 @@ public class VolumeControl: LevelControl, @unchecked Sendable {
 /// - remark: This class correponds to objects with base class `kAudioLFEVolumeControlClassID`
 public class LFEVolumeControl: LevelControl, @unchecked Sendable {
 }
-
-// MARK: -
-
-/// Creates and returns an initialized `LevelControl` or subclass.
-func makeLevelControl(_ objectID: AudioObjectID) throws -> LevelControl {
-	guard objectID != kAudioObjectSystemObject else {
-		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid level control object id")
-		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
-	}
-
-	let objectClass = try AudioObject.getClass(objectID)
-
-	switch objectClass {
-	case kAudioLevelControlClassID: 			return LevelControl(objectID)
-	case kAudioVolumeControlClassID: 			return VolumeControl(objectID)
-	case kAudioLFEVolumeControlClassID: 		return LFEVolumeControl(objectID)
-	default:
-		os_log(.debug, log: audioObjectLog, "Unknown level control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
-		return LevelControl(objectID)
-	}
-}
