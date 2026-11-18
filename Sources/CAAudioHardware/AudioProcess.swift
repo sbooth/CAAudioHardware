@@ -15,7 +15,7 @@ import CoreAudio
 @available(macOS 14.2, *)
 public class AudioProcess: AudioObject, @unchecked Sendable {
 	/// Returns the available audio processes
-	/// - remark: This corresponds to the property`kAudioHardwarePropertyProcessObjectList` on `kAudioObjectSystemObject`
+	/// - remark: This corresponds to the property `kAudioHardwarePropertyProcessObjectList` on `kAudioObjectSystemObject`
 	public static var processes: [AudioProcess] {
 		get throws {
 			// Revisit if a subclass of `AudioProcess` is added

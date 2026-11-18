@@ -16,7 +16,7 @@ import os.log
 @available(macOS 14.2, *)
 public class AudioTap: AudioObject, @unchecked Sendable {
 	/// Returns the available audio taps
-	/// - remark: This corresponds to the property`kAudioHardwarePropertyTapList` on `kAudioObjectSystemObject`
+	/// - remark: This corresponds to the property `kAudioHardwarePropertyTapList` on `kAudioObjectSystemObject`
 	public static var taps: [AudioTap] {
 		get throws {
 			try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyTapList)).map { AudioTap($0) }

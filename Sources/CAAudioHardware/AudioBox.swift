@@ -14,7 +14,7 @@ import CoreAudio
 /// - remark: This class correponds to objects with base class `kAudioBoxClassID`
 public class AudioBox: AudioObject, @unchecked Sendable {
 	/// Returns the available audio boxes
-	/// - remark: This corresponds to the property`kAudioHardwarePropertyBoxList` on `kAudioObjectSystemObject`
+	/// - remark: This corresponds to the property `kAudioHardwarePropertyBoxList` on `kAudioObjectSystemObject`
 	public static var boxes: [AudioBox] {
 		get throws {
 			// Revisit if a subclass of `AudioBox` is added
