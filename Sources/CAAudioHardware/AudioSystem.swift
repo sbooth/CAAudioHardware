@@ -343,4 +343,16 @@ extension AudioObjectSelector where T == AudioSystem {
 	public static let serviceRestarted = AudioObjectSelector(kAudioHardwarePropertyServiceRestarted)
 	/// The property selector `kAudioHardwarePropertyPowerHint`
 	public static let powerHint = AudioObjectSelector(kAudioHardwarePropertyPowerHint)
+	/// The property selector `kAudioHardwarePropertyProcessObjectList`
+	@available(macOS 14.2, *)
+	public static let processObjectList = AudioObjectSelector(kAudioHardwarePropertyProcessObjectList)
+	/// The property selector `kAudioHardwarePropertyTranslatePIDToProcessObject`
+	@available(macOS 14.2, *)
+	public static let translatePIDToProcessObject = AudioObjectSelector(kAudioHardwarePropertyTranslatePIDToProcessObject)
+	/// The property selector `kAudioHardwarePropertyTapList`
+	@available(macOS 14.2, *)
+	public static let tapList = AudioObjectSelector(kAudioHardwarePropertyTapList)
+	/// The property selector `kAudioHardwarePropertyTranslateUIDToTap`
+	@available(macOS 14.2, *)
+	public static let translateUIDToTap = AudioObjectSelector(kAudioHardwarePropertyTranslateUIDToTap)
 }
