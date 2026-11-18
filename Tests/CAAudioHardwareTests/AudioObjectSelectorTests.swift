@@ -116,4 +116,38 @@ final class AudioObjectSelectorTests: XCTestCase {
 		try device.observe(.elementName, inScope: .output, queue: queue) { _ in }.invalidate()
 		try device.observeOnMainActor(.elementName, onElement: 1) { _ in }.invalidate()
 	}
+
+	// MARK: - Stored selectors typed as a superclass
+
+	func testStoredSuperclassSelectorOnDevice() throws {
+		guard let device = try AudioDevice.devices.first else {
+			throw XCTSkip("No audio devices")
+		}
+		let name: AudioObjectSelector<AudioObject> = .name
+		XCTAssertEqual(name.isSupported(by: device), device.hasSelector(.name))
+		XCTAssertEqual(name.isSupported(by: device, inScope: .output, onElement: 1), device.hasSelector(.name, inScope: .output, onElement: 1))
+	}
+
+	func testStoredSuperclassSelectorOnAggregateDevice() throws {
+		// A stored AudioObjectSelector<AudioDevice> used with an AudioAggregateDevice; the calls below
+		// only compile if the selector-first forms accept subclass instances
+		let streams: AudioObjectSelector<AudioDevice> = .streams
+
+		guard let aggregate = try AudioDevice.devices.lazy.compactMap({ $0 as? AudioAggregateDevice }).first else {
+			throw XCTSkip("No aggregate devices")
+		}
+
+		XCTAssertEqual(streams.isSupported(by: aggregate), aggregate.hasSelector(.streams))
+		XCTAssertEqual(streams.isSupported(by: aggregate, inScope: .output), aggregate.hasSelector(.streams, inScope: .output))
+		if streams.isSupported(by: aggregate) {
+			XCTAssertEqual(try streams.isSettable(on: aggregate), try aggregate.isSelectorSettable(.streams))
+		}
+
+		let queue = DispatchQueue(label: "AudioObjectSelectorTests")
+		try streams.observe(on: aggregate) { _ in }.invalidate()
+		try streams.observe(on: aggregate, inScope: .output, queue: queue) { _ in }.invalidate()
+		try streams.observeOnMainActor(on: aggregate) { _ in }.invalidate()
+		_ = streams.changes(on: aggregate)
+		_ = streams.values(on: aggregate, inScope: .output) { true }
+	}
 }
