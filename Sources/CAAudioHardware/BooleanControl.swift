@@ -149,31 +149,3 @@ public class TalkbackControl: BooleanControl, @unchecked Sendable {
 /// - remark: This class correponds to objects with base class `kAudioListenbackControlClassID`
 public class ListenbackControl: BooleanControl, @unchecked Sendable {
 }
-
-// MARK: -
-
-/// Creates and returns an initialized `BooleanControl` or subclass.
-func makeBooleanControl(_ objectID: AudioObjectID) throws -> BooleanControl {
-	guard objectID != kAudioObjectSystemObject else {
-		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid boolean control object id")
-		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
-	}
-
-	let objectClass = try AudioObject.getClass(objectID)
-
-	switch objectClass {
-	case kAudioBooleanControlClassID: 		return BooleanControl(objectID)
-	case kAudioMuteControlClassID: 			return MuteControl(objectID)
-	case kAudioSoloControlClassID:			return SoloControl(objectID)
-	case kAudioJackControlClassID:			return JackControl(objectID)
-	case kAudioLFEMuteControlClassID:		return LFEMuteControl(objectID)
-	case kAudioPhantomPowerControlClassID:	return PhantomPowerControl(objectID)
-	case kAudioPhaseInvertControlClassID:	return PhaseInvertControl(objectID)
-	case kAudioClipLightControlClassID:		return ClipLightControl(objectID)
-	case kAudioTalkbackControlClassID:		return TalkbackControl(objectID)
-	case kAudioListenbackControlClassID: 	return ListenbackControl(objectID)
-	default:
-		os_log(.debug, log: audioObjectLog, "Unknown boolean control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
-		return BooleanControl(objectID)
-	}
-}

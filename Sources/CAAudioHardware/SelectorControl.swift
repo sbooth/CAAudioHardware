@@ -157,25 +157,3 @@ public class LineLevelControl: SelectorControl, @unchecked Sendable {
 /// - remark: This class correponds to objects with base class `kAudioHighPassFilterControlClassID`
 public class HighPassFilterControl: SelectorControl, @unchecked Sendable {
 }
-
-/// Creates and returns an initialized `SelectorControl` or subclass.
-func makeSelectorControl(_ objectID: AudioObjectID) throws -> SelectorControl {
-	guard objectID != kAudioObjectSystemObject else {
-		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid selector control object id")
-		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
-	}
-
-	let objectClass = try AudioObject.getClass(objectID)
-
-	switch objectClass {
-	case kAudioSelectorControlClassID: 			return SelectorControl(objectID)
-	case kAudioDataSourceControlClassID: 		return DataSourceControl(objectID)
-	case kAudioDataDestinationControlClassID: 	return DataDestinationControl(objectID)
-	case kAudioClockSourceControlClassID: 		return ClockSourceControl(objectID)
-	case kAudioLineLevelControlClassID: 		return LineLevelControl(objectID)
-	case kAudioHighPassFilterControlClassID: 	return HighPassFilterControl(objectID)
-	default:
-		os_log(.debug, log: audioObjectLog, "Unknown selector control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
-		return SelectorControl(objectID)
-	}
-}

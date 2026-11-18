@@ -434,43 +434,34 @@ let audioObjectLog = OSLog(subsystem: "org.sbooth.CAAudioHardware", category: "A
 extension AudioObject {
 	/// Creates and returns an initialized `AudioObject`
 	///
-	/// Whenever possible this will return a specialized subclass exposing additional functionality
+	/// Whenever possible this will return a specialized subclass exposing additional functionality.
+	/// The subclass is chosen using the object's class (`kAudioObjectPropertyClass`). If the class is
+	/// not one this library recognizes, the object's base class (`kAudioObjectPropertyBaseClass`) is used
+	/// instead, when the object provides one.
 	/// - parameter objectID: The audio object ID
+	/// - throws: An error if `objectID` is `kAudioObjectUnknown` or the class of `objectID` could not be determined
 	public static func make(_ objectID: AudioObjectID) throws -> AudioObject {
 		if objectID == kAudioObjectSystemObject {
 			return AudioSystem.instance
 		}
 
-		let baseClass = try AudioObject.getBaseClass(objectID)
-
-		switch baseClass {
-		case kAudioObjectClassID: 			return try makeAudioObject(objectID);
-
-		case kAudioBoxClassID: 				return AudioBox(objectID) 				// Revisit if a subclass of `AudioBox` is added
-		case kAudioClockDeviceClassID: 		return AudioClockDevice(objectID) 		// Revisit if a subclass of `AudioClockDevice` is added
-
-		case kAudioControlClassID: 			return try makeAudioControl(objectID, baseClass: baseClass)
-		case kAudioBooleanControlClassID: 	return try makeAudioControl(objectID, baseClass: baseClass)
-		case kAudioLevelControlClassID: 	return try makeAudioControl(objectID, baseClass: baseClass)
-		case kAudioSelectorControlClassID: 	return try makeAudioControl(objectID, baseClass: baseClass)
-
-		case kAudioDeviceClassID: 			return try makeAudioDevice(objectID)
-		case kAudioPlugInClassID: 			return try makeAudioPlugIn(objectID)
-		case kAudioStreamClassID: 			return AudioStream(objectID) 			// Revisit if a subclass of `AudioStream` is added
-
-		default: 							break
+		guard objectID != kAudioObjectUnknown else {
+			os_log(.error, log: audioObjectLog, "kAudioObjectUnknown is not a valid audio object id")
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
 		}
 
-		if #available(macOS 14.2, *) {
-			switch baseClass {
-			case kAudioProcessClassID:		return AudioProcess(objectID)			// Revisit if a subclass of `AudioProcess` is added
-			case kAudioTapClassID: 			return AudioTap(objectID)				// Revisit if a subclass of `AudioTap` is added
-			case kAudioSubTapClassID: 		return AudioSubtap(objectID)			// Revisit if a subclass of `AudioSubtap` is added
-			default: 						break
-			}
+		let objectClass = try AudioObject.getClass(objectID)
+		if let object = makeAudioObject(objectID, ofClass: objectClass) {
+			return object
 		}
 
-		os_log(.debug, log: audioObjectLog, "Unknown audio object base class '%{public}@' for audio object 0x%{public}@", baseClass.fourCC, objectID.hexString)
+		// Not every object provides a base class (audio plug-ins, for example), so failing to read it is not an error
+		if let baseClass = try? AudioObject.getBaseClass(objectID), let object = makeAudioObject(objectID, ofClass: baseClass) {
+			os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@; using base class '%{public}@'", objectClass.fourCC, objectID.hexString, baseClass.fourCC)
+			return object
+		}
+
+		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
 		return AudioObject(objectID)
 	}
 }
@@ -610,32 +601,87 @@ extension AudioObjectSelector: CustomStringConvertible {
 
 // MARK: -
 
-/// Creates and returns an initialized `AudioObject` or subclass.
-func makeAudioObject(_ objectID: AudioObjectID) throws -> AudioObject {
+/// Creates and returns an initialized `AudioObject` subclass for `classID`, or `nil` if `classID` is not recognized
+/// - parameter objectID: The audio object ID
+/// - parameter classID: The class or base class of `objectID`
+func makeAudioObject(_ objectID: AudioObjectID, ofClass classID: AudioClassID) -> AudioObject? {
 	precondition(objectID != kAudioObjectSystemObject)
 
-	let objectClass = try AudioObject.getClass(objectID)
+	switch classID {
+	case kAudioObjectClassID: 					return AudioObject(objectID)
 
-	switch objectClass {
-	case kAudioObjectClassID: 		return AudioObject(objectID)
-	case kAudioBoxClassID: 			return AudioBox(objectID)
-	case kAudioClockDeviceClassID: 	return AudioClockDevice(objectID)
-	case kAudioControlClassID: 		return AudioControl(objectID)
-	case kAudioDeviceClassID: 		return AudioDevice(objectID)
-	case kAudioPlugInClassID: 		return AudioPlugIn(objectID)
-	case kAudioStreamClassID: 		return AudioStream(objectID)
-	default: 						break
+	case kAudioBoxClassID: 						return AudioBox(objectID)
+	case kAudioClockDeviceClassID: 				return AudioClockDevice(objectID)
+	case kAudioStreamClassID: 					return AudioStream(objectID)
+
+	case kAudioPlugInClassID: 					return AudioPlugIn(objectID)
+	case kAudioTransportManagerClassID: 		return AudioTransportManager(objectID)
+
+	case kAudioDeviceClassID: 					return AudioDevice(objectID)
+	case kAudioAggregateDeviceClassID: 			return AudioAggregateDevice(objectID)
+	case kAudioEndPointDeviceClassID: 			return AudioEndpointDevice(objectID)
+	case kAudioEndPointClassID: 				return AudioEndpoint(objectID)
+	case kAudioSubDeviceClassID: 				return AudioSubdevice(objectID)
+
+	case kAudioControlClassID: 					return AudioControl(objectID)
+	case kAudioSliderControlClassID: 			return SliderControl(objectID)
+	case kAudioStereoPanControlClassID: 		return StereoPanControl(objectID)
+
+	case kAudioBooleanControlClassID: 			return BooleanControl(objectID)
+	case kAudioMuteControlClassID: 				return MuteControl(objectID)
+	case kAudioSoloControlClassID: 				return SoloControl(objectID)
+	case kAudioJackControlClassID: 				return JackControl(objectID)
+	case kAudioLFEMuteControlClassID: 			return LFEMuteControl(objectID)
+	case kAudioPhantomPowerControlClassID: 		return PhantomPowerControl(objectID)
+	case kAudioPhaseInvertControlClassID: 		return PhaseInvertControl(objectID)
+	case kAudioClipLightControlClassID: 		return ClipLightControl(objectID)
+	case kAudioTalkbackControlClassID: 			return TalkbackControl(objectID)
+	case kAudioListenbackControlClassID: 		return ListenbackControl(objectID)
+
+	case kAudioLevelControlClassID: 			return LevelControl(objectID)
+	case kAudioVolumeControlClassID: 			return VolumeControl(objectID)
+	case kAudioLFEVolumeControlClassID: 		return LFEVolumeControl(objectID)
+
+	case kAudioSelectorControlClassID: 			return SelectorControl(objectID)
+	case kAudioDataSourceControlClassID: 		return DataSourceControl(objectID)
+	case kAudioDataDestinationControlClassID: 	return DataDestinationControl(objectID)
+	case kAudioClockSourceControlClassID: 		return ClockSourceControl(objectID)
+	case kAudioLineLevelControlClassID: 		return LineLevelControl(objectID)
+	case kAudioHighPassFilterControlClassID: 	return HighPassFilterControl(objectID)
+
+	default: 									break
 	}
 
 	if #available(macOS 14.2, *) {
-		switch objectClass {
-		case kAudioProcessClassID: 	return AudioProcess(objectID)
-		case kAudioTapClassID: 		return AudioTap(objectID)
-		case kAudioSubTapClassID: 	return AudioSubtap(objectID)
-		default: 					break
+		switch classID {
+		case kAudioProcessClassID: 				return AudioProcess(objectID)
+		case kAudioTapClassID: 					return AudioTap(objectID)
+		case kAudioSubTapClassID: 				return AudioSubtap(objectID)
+		default: 								break
 		}
 	}
 
-	os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
-	return AudioObject(objectID)
+	return nil
+}
+
+/// Creates and returns an initialized `T` or subclass
+///
+/// If `objectID` is not an instance of `T` or a subclass, as when its class is not recognized,
+/// the object returned by `fallback` is used.
+/// - parameter objectID: The audio object ID
+/// - parameter fallback: A closure returning an instance of `T` for `objectID`
+/// - throws: An error if `objectID` is `kAudioObjectSystemObject` or its class could not be determined
+func makeAudioObject<T: AudioObject>(_ objectID: AudioObjectID, fallback: (AudioObjectID) -> T) throws -> T {
+	guard objectID != kAudioObjectSystemObject else {
+		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid object id for %{public}@", String(describing: T.self))
+		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
+	}
+
+	let object = try AudioObject.make(objectID)
+	if let object = object as? T {
+		return object
+	}
+
+	os_log(.debug, log: audioObjectLog, "Audio object 0x%{public}@ (%{public}@) is not %{public}@", objectID.hexString, String(describing: type(of: object)), String(describing: T.self))
+	return fallback(objectID)
 }

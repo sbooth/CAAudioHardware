@@ -89,7 +89,7 @@ public class AudioClockDevice: AudioObject, @unchecked Sendable {
 	/// - remark: This corresponds to the property `kAudioClockDevicePropertyControlList`
 	public var controlList: [AudioControl] {
 		get throws {
-			try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList)).map { try makeAudioControl($0, baseClass: AudioObject.getBaseClass($0)) }
+			try getProperty(PropertyAddress(kAudioClockDevicePropertyControlList)).map { try makeAudioControl($0) }
 		}
 	}
 

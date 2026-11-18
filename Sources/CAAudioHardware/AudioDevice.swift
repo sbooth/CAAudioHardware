@@ -287,7 +287,7 @@ public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 	/// - remark: This corresponds to the property `kAudioObjectPropertyControlList`
 	public override var controlList: [AudioControl] {
 		get throws {
-			try getProperty(PropertyAddress(kAudioObjectPropertyControlList)).map { try makeAudioControl($0, baseClass: AudioObject.getBaseClass($0)) }
+			try getProperty(PropertyAddress(kAudioObjectPropertyControlList)).map { try makeAudioControl($0) }
 		}
 	}
 
@@ -1447,21 +1447,5 @@ extension AudioObjectSelector where T == AudioDevice {
 
 /// Creates and returns an initialized `AudioDevice` or subclass.
 func makeAudioDevice(_ objectID: AudioObjectID) throws -> AudioDevice {
-	guard objectID != kAudioObjectSystemObject else {
-		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid audio device object id")
-		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
-	}
-
-	let objectClass = try AudioObject.getClass(objectID)
-
-	switch objectClass {
-	case kAudioDeviceClassID: 			return AudioDevice(objectID)
-	case kAudioAggregateDeviceClassID: 	return AudioAggregateDevice(objectID)
-	case kAudioEndPointDeviceClassID:	return AudioEndpointDevice(objectID)
-	case kAudioEndPointClassID:			return AudioEndpoint(objectID)
-	case kAudioSubDeviceClassID:		return AudioSubdevice(objectID)
-	default:
-		os_log(.debug, log: audioObjectLog, "Unknown audio device class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
-		return AudioDevice(objectID)
-	}
+	try makeAudioObject(objectID) { AudioDevice($0) }
 }

@@ -113,31 +113,6 @@ extension AudioObjectSelector where T == AudioControl {
 // MARK: -
 
 /// Creates and returns an initialized `AudioControl` or subclass.
-func makeAudioControl(_ objectID: AudioObjectID, baseClass: AudioClassID /*= kAudioControlClassID*/) throws -> AudioControl {
-	guard objectID != kAudioObjectSystemObject else {
-		os_log(.error, log: audioObjectLog, "kAudioObjectSystemObject is not a valid audio control object id")
-		throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
-	}
-
-	let objectClass = try AudioObject.getClass(objectID)
-
-	switch baseClass {
-	case kAudioControlClassID:
-		switch objectClass {
-		case kAudioBooleanControlClassID:		return BooleanControl(objectID)
-		case kAudioLevelControlClassID:			return LevelControl(objectID)
-		case kAudioSelectorControlClassID: 		return SelectorControl(objectID)
-		case kAudioSliderControlClassID:		return SliderControl(objectID)
-		case kAudioStereoPanControlClassID: 	return StereoPanControl(objectID)
-		default:
-			os_log(.debug, log: audioObjectLog, "Unknown audio control class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
-			return AudioControl(objectID)
-		}
-	case kAudioBooleanControlClassID: 	return try makeBooleanControl(objectID)
-	case kAudioLevelControlClassID: 	return try makeLevelControl(objectID)
-	case kAudioSelectorControlClassID: 	return try makeSelectorControl(objectID)
-	default:
-		os_log(.debug, log: audioObjectLog, "Unknown audio control base class '%{public}@' for audio object 0x%{public}@", baseClass.fourCC, objectID.hexString)
-		return AudioControl(objectID)
-	}
+func makeAudioControl(_ objectID: AudioObjectID) throws -> AudioControl {
+	try makeAudioObject(objectID) { AudioControl($0) }
 }
