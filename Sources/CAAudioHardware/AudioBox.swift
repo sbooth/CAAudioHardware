@@ -131,88 +131,25 @@ public class AudioBox: AudioObject, @unchecked Sendable {
 	}
 }
 
-extension AudioBox {
-	/// Returns `true` if `self` has `selector`
-	/// - parameter selector: The selector of the desired property
-	public func hasSelector(_ selector: AudioObjectSelector<AudioBox>) -> Bool {
-		return hasProperty(PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Returns `true` if `selector` is settable
-	/// - parameter selector: The selector of the desired property
-	/// - throws: An error if `self` does not have the requested property
-	public func isSelectorSettable(_ selector: AudioObjectSelector<AudioBox>) throws -> Bool {
-		return try isPropertySettable(PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Registers `block` to be performed serially on a private dispatch queue when `selector` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<AudioBox>, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observe(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
-	}
-
-	/// Registers `block` to be performed on `queue` when `selector` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter queue: The dispatch queue on which `block` will be invoked
-	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<AudioBox>, queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observe(PropertyAddress(PropertySelector(selector.rawValue)), queue: queue, perform: block)
-	}
-
-	/// Registers `block` to be performed on the main actor when `selector` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter block: A main actor-isolated closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observeOnMainActor(_ selector: AudioObjectSelector<AudioBox>, perform block: @escaping MainActorPropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observeOnMainActor(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
-	}
-
-	/// Returns an asynchronous sequence of change notifications for `selector`
-	/// - parameter selector: The selector of the desired property
-	/// - returns: An asynchronous sequence of change notifications
-	public func changes(of selector: AudioObjectSelector<AudioBox>) -> AsyncThrowingStream<[PropertyAddress], any Error> {
-		changes(of: PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Returns an asynchronous sequence of values for `selector`
-	///
-	/// The sequence yields the current value first and a new value each time the property changes.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter read: A closure returning the property's current value
-	/// - returns: An asynchronous sequence of property values
-	public func values<Value: Sendable>(of selector: AudioObjectSelector<AudioBox>, read: @escaping @Sendable () throws -> Value) -> AsyncThrowingStream<Value, any Error> {
-		values(of: PropertyAddress(PropertySelector(selector.rawValue)), read: read)
-	}
-}
-
-extension AudioObjectSelector where T == AudioBox {
+extension AudioObjectSelector where T: AudioBox {
 	/// The property selector `kAudioBoxPropertyBoxUID`
-	public static let boxUID = AudioObjectSelector(kAudioBoxPropertyBoxUID)
+	public static var boxUID: Self { Self(kAudioBoxPropertyBoxUID) }
 	/// The property selector `kAudioBoxPropertyTransportType`
-	public static let transportType = AudioObjectSelector(kAudioBoxPropertyTransportType)
+	public static var transportType: Self { Self(kAudioBoxPropertyTransportType) }
 	/// The property selector `kAudioBoxPropertyHasAudio`
-	public static let hasAudio = AudioObjectSelector(kAudioBoxPropertyHasAudio)
+	public static var hasAudio: Self { Self(kAudioBoxPropertyHasAudio) }
 	/// The property selector `kAudioBoxPropertyHasVideo`
-	public static let hasVideo = AudioObjectSelector(kAudioBoxPropertyHasVideo)
+	public static var hasVideo: Self { Self(kAudioBoxPropertyHasVideo) }
 	/// The property selector `kAudioBoxPropertyHasMIDI`
-	public static let hasMIDI = AudioObjectSelector(kAudioBoxPropertyHasMIDI)
+	public static var hasMIDI: Self { Self(kAudioBoxPropertyHasMIDI) }
 	/// The property selector `kAudioBoxPropertyIsProtected`
-	public static let isProtected = AudioObjectSelector(kAudioBoxPropertyIsProtected)
+	public static var isProtected: Self { Self(kAudioBoxPropertyIsProtected) }
 	/// The property selector `kAudioBoxPropertyAcquired`
-	public static let acquired = AudioObjectSelector(kAudioBoxPropertyAcquired)
+	public static var acquired: Self { Self(kAudioBoxPropertyAcquired) }
 	/// The property selector `kAudioBoxPropertyAcquisitionFailed`
-	public static let acquisitionFailed = AudioObjectSelector(kAudioBoxPropertyAcquisitionFailed)
+	public static var acquisitionFailed: Self { Self(kAudioBoxPropertyAcquisitionFailed) }
 	/// The property selector `kAudioBoxPropertyDeviceList`
-	public static let deviceList = AudioObjectSelector(kAudioBoxPropertyDeviceList)
+	public static var deviceList: Self { Self(kAudioBoxPropertyDeviceList) }
 	/// The property selector `kAudioBoxPropertyClockDeviceList`
-	public static let clockDeviceList = AudioObjectSelector(kAudioBoxPropertyClockDeviceList)
+	public static var clockDeviceList: Self { Self(kAudioBoxPropertyClockDeviceList) }
 }

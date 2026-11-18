@@ -57,78 +57,15 @@ public class SelectorControl: AudioControl, @unchecked Sendable {
 	}
 }
 
-extension SelectorControl {
-	/// Returns `true` if `self` has `selector`
-	/// - parameter selector: The selector of the desired property
-	public func hasSelector(_ selector: AudioObjectSelector<SelectorControl>) -> Bool {
-		return hasProperty(PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Returns `true` if `selector` is settable
-	/// - parameter selector: The selector of the desired property
-	/// - throws: An error if `self` does not have the requested property
-	public func isSelectorSettable(_ selector: AudioObjectSelector<SelectorControl>) throws -> Bool {
-		return try isPropertySettable(PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Registers `block` to be performed serially on a private dispatch queue when `selector` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<SelectorControl>, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observe(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
-	}
-
-	/// Registers `block` to be performed on `queue` when `selector` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter queue: The dispatch queue on which `block` will be invoked
-	/// - parameter block: A closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observe(_ selector: AudioObjectSelector<SelectorControl>, queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observe(PropertyAddress(PropertySelector(selector.rawValue)), queue: queue, perform: block)
-	}
-
-	/// Registers `block` to be performed on the main actor when `selector` changes
-	/// - important: The listener remains active only while the returned observation is alive.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter block: A main actor-isolated closure to invoke when the property changes
-	/// - returns: The property observation
-	/// - throws: An error if the property listener could not be registered
-	public func observeOnMainActor(_ selector: AudioObjectSelector<SelectorControl>, perform block: @escaping MainActorPropertyChangeNotificationBlock) throws -> PropertyObservation {
-		try observeOnMainActor(PropertyAddress(PropertySelector(selector.rawValue)), perform: block)
-	}
-
-	/// Returns an asynchronous sequence of change notifications for `selector`
-	/// - parameter selector: The selector of the desired property
-	/// - returns: An asynchronous sequence of change notifications
-	public func changes(of selector: AudioObjectSelector<SelectorControl>) -> AsyncThrowingStream<[PropertyAddress], any Error> {
-		changes(of: PropertyAddress(PropertySelector(selector.rawValue)))
-	}
-
-	/// Returns an asynchronous sequence of values for `selector`
-	///
-	/// The sequence yields the current value first and a new value each time the property changes.
-	/// - parameter selector: The selector of the desired property
-	/// - parameter read: A closure returning the property's current value
-	/// - returns: An asynchronous sequence of property values
-	public func values<Value: Sendable>(of selector: AudioObjectSelector<SelectorControl>, read: @escaping @Sendable () throws -> Value) -> AsyncThrowingStream<Value, any Error> {
-		values(of: PropertyAddress(PropertySelector(selector.rawValue)), read: read)
-	}
-}
-
-extension AudioObjectSelector where T == SelectorControl {
+extension AudioObjectSelector where T: SelectorControl {
 	/// The property selector `kAudioSelectorControlPropertyCurrentItem`
-	public static let currentItem = AudioObjectSelector(kAudioSelectorControlPropertyCurrentItem)
+	public static var currentItem: Self { Self(kAudioSelectorControlPropertyCurrentItem) }
 	/// The property selector `kAudioSelectorControlPropertyAvailableItems`
-	public static let availableItems = AudioObjectSelector(kAudioSelectorControlPropertyAvailableItems)
+	public static var availableItems: Self { Self(kAudioSelectorControlPropertyAvailableItems) }
 	/// The property selector `kAudioSelectorControlPropertyItemName`
-	public static let itemName = AudioObjectSelector(kAudioSelectorControlPropertyItemName)
+	public static var itemName: Self { Self(kAudioSelectorControlPropertyItemName) }
 	/// The property selector `kAudioSelectorControlPropertyItemKind`
-	public static let itemKind = AudioObjectSelector(kAudioSelectorControlPropertyItemKind)
+	public static var itemKind: Self { Self(kAudioSelectorControlPropertyItemKind) }
 }
 
 // MARK: -
