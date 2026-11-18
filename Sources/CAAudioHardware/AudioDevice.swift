@@ -22,27 +22,39 @@ public class AudioDevice: AudioClockDevice, @unchecked Sendable {
 		}
 	}
 
-	/// Returns the default input device
+	/// Returns the default input device, or `nil` if none
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultInputDevice` on `kAudioObjectSystemObject`
-	public static var defaultInputDevice: AudioDevice {
+	public static var defaultInputDevice: AudioDevice? {
 		get throws {
-			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultInputDevice)))
+			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultInputDevice))
+			guard objectID != kAudioObjectUnknown else {
+				return nil
+			}
+			return try makeAudioDevice(objectID)
 		}
 	}
 
-	/// Returns the default output device
+	/// Returns the default output device, or `nil` if  none
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultOutputDevice` on `kAudioObjectSystemObject`
-	public static var defaultOutputDevice: AudioDevice {
+	public static var defaultOutputDevice: AudioDevice? {
 		get throws {
-			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice)))
+			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultOutputDevice))
+			guard objectID != kAudioObjectUnknown else {
+				return nil
+			}
+			return try makeAudioDevice(objectID)
 		}
 	}
 
-	/// Returns the default system output device
+	/// Returns the default system output device, or `nil` if there is none
 	/// - remark: This corresponds to the property`kAudioHardwarePropertyDefaultSystemOutputDevice` on `kAudioObjectSystemObject`
-	public static var defaultSystemOutputDevice: AudioDevice {
+	public static var defaultSystemOutputDevice: AudioDevice? {
 		get throws {
-			try makeAudioDevice(getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice)))
+			let objectID: AudioObjectID = try getPropertyData(objectID: .systemObject, property: PropertyAddress(kAudioHardwarePropertyDefaultSystemOutputDevice))
+			guard objectID != kAudioObjectUnknown else {
+				return nil
+			}
+			return try makeAudioDevice(objectID)
 		}
 	}
 
