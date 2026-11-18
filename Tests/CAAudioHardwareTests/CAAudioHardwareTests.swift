@@ -11,7 +11,13 @@ import CoreAudio
 
 final class CAAudioHardwareTests: XCTestCase {
 	func testObject() {
-		XCTAssertThrowsError(try AudioObject.make(kAudioObjectUnknown))
+		XCTAssertThrowsError(try AudioObject.make(kAudioObjectUnknown)) { error in
+			XCTAssertEqual((error as NSError).code, Int(kAudioHardwareBadObjectError))
+		}
+		// The typed factories reject it the same way
+		XCTAssertThrowsError(try makeAudioDevice(kAudioObjectUnknown)) { error in
+			XCTAssertEqual((error as NSError).code, Int(kAudioHardwareBadObjectError))
+		}
 	}
 
 	func testDevices() throws {

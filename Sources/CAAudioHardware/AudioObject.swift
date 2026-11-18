@@ -439,10 +439,15 @@ extension AudioObject {
 	/// not one this library recognizes, the object's base class (`kAudioObjectPropertyBaseClass`) is used
 	/// instead, when the object provides one.
 	/// - parameter objectID: The audio object ID
-	/// - throws: An error if the class of `objectID` could not be determined
+	/// - throws: An error if `objectID` is `kAudioObjectUnknown` or the class of `objectID` could not be determined
 	public static func make(_ objectID: AudioObjectID) throws -> AudioObject {
 		if objectID == kAudioObjectSystemObject {
 			return AudioSystem.instance
+		}
+
+		guard objectID != kAudioObjectUnknown else {
+			os_log(.error, log: audioObjectLog, "kAudioObjectUnknown is not a valid audio object id")
+			throw NSError(domain: NSOSStatusErrorDomain, code: Int(kAudioHardwareBadObjectError))
 		}
 
 		let objectClass = try AudioObject.getClass(objectID)
