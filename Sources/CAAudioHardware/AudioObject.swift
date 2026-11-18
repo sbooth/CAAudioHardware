@@ -32,31 +32,6 @@ public class AudioObject: Equatable, Hashable, @unchecked Sendable, CustomDebugS
 		hasher.combine(objectID)
 	}
 
-	/// An audio object property listener block and associated dispatch queue.
-	typealias PropertyListener = (block: AudioObjectPropertyListenerBlock, queue: DispatchQueue?)
-
-	/// Registered audio object property listeners
-	private let propertyListeners = UnfairLock(uncheckedState: [PropertyAddress: PropertyListener]())
-
-	/// Removes all property listeners
-	/// - note: Errors are logged but otherwise ignored
-	final func removeAllPropertyListeners() {
-		propertyListeners.withLockUnchecked {
-			for (property, listener) in $0 {
-				var address = property.rawValue
-				let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
-				if result != kAudioHardwareNoError {
-					os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
-				}
-			}
-			$0.removeAll()
-		}
-	}
-
-	deinit {
-		removeAllPropertyListeners()
-	}
-
 	/// Returns `true` if `self` has `property`
 	/// - parameter property: The property to query
 	public final func hasProperty(_ property: PropertyAddress) -> Bool {
@@ -85,54 +60,108 @@ public class AudioObject: Equatable, Hashable, @unchecked Sendable, CustomDebugS
 	/// - parameter changes: An array of changed property addresses
 	public typealias PropertyChangeNotificationBlock = @Sendable (_ changes: [PropertyAddress]) -> Void
 
+	/// A main actor-isolated block called with one or more changed audio object properties
+	/// - parameter changes: An array of changed property addresses
+	public typealias MainActorPropertyChangeNotificationBlock = @MainActor @Sendable (_ changes: [PropertyAddress]) -> Void
+
 	/// Registers `block` to be performed when `property` changes
+	///
+	/// `block` is invoked serially on a private dispatch queue. To choose the queue on which `block`
+	/// is invoked, use ``observe(_:queue:perform:)``.
+	/// - important: The listener remains active only while the returned observation is alive.
 	/// - parameter property: The property to observe
-	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
-	/// - parameter block: A closure to invoke when `property` changes or `nil` to remove the previous value
+	/// - parameter block: A closure to invoke when `property` changes
+	/// - returns: The property observation
 	/// - throws: An error if the property listener could not be registered
-	public final func whenPropertyChanges(_ property: PropertyAddress, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
-		var address = property.rawValue
+	public final func observe(_ property: PropertyAddress, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
+		try PropertyObservation(objectID: objectID, property: property, perform: block)
+	}
 
-		// Remove the existing listener, if any, for the property
-		let listener = propertyListeners.withLockUnchecked {
-			$0.removeValue(forKey: property)
-		}
+	/// Registers `block` to be performed on `queue` when `property` changes
+	///
+	/// To have the HAL invoke `block` on one of its internal threads, create a
+	/// ``PropertyObservation`` with a `nil` queue.
+	/// - important: The listener remains active only while the returned observation is alive.
+	/// - parameter property: The property to observe
+	/// - parameter queue: The dispatch queue on which `block` will be invoked
+	/// - parameter block: A closure to invoke when `property` changes
+	/// - returns: The property observation
+	/// - throws: An error if the property listener could not be registered
+	public final func observe(_ property: PropertyAddress, queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
+		try PropertyObservation(objectID: objectID, property: property, queue: queue, perform: block)
+	}
 
-		if let listener {
-			let result = AudioObjectRemovePropertyListenerBlock(objectID, &address, listener.queue, listener.block)
-			guard result == kAudioHardwareNoError else {
-				os_log(.error, log: audioObjectLog, "AudioObjectRemovePropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
-				let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The listener block for the property \(property.selector) on audio object 0x\(objectID.hexString) could not be removed.", comment: "")]
-				throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
+	/// Registers `block` to be performed on the main actor when `property` changes
+	///
+	/// `block` is invoked synchronously on the main queue when the HAL delivers the change notification.
+	/// - important: The listener remains active only while the returned observation is alive.
+	/// - parameter property: The property to observe
+	/// - parameter block: A main actor-isolated closure to invoke when `property` changes
+	/// - returns: The property observation
+	/// - throws: An error if the property listener could not be registered
+	public final func observeOnMainActor(_ property: PropertyAddress, perform block: @escaping MainActorPropertyChangeNotificationBlock) throws -> PropertyObservation {
+		try PropertyObservation(objectID: objectID, property: property, queue: .main) { changes in
+			MainActor.assumeIsolated {
+				block(changes)
 			}
 		}
+	}
 
-		if let block {
-			let listenerBlock: AudioObjectPropertyListenerBlock = { inNumberAddresses, inAddresses in
-				let count = Int(inNumberAddresses)
-				let addresses = UnsafeBufferPointer(start: inAddresses, count: count)
-				let array = [PropertyAddress](unsafeUninitializedCapacity: count) { (buffer, initializedCount) in
-					for i in 0 ..< count {
-						buffer[i] = PropertyAddress(addresses[i])
-					}
-					initializedCount = count
-				}
-				block(array)
+	/// Returns an asynchronous sequence of change notifications for `property`
+	///
+	/// Each element is the array of changed property addresses delivered by the HAL.
+	/// The property listener is removed when iteration ends or the consuming task is cancelled.
+	/// - note: If the property listener cannot be registered the sequence throws the error on first iteration
+	/// - parameter property: The property to observe
+	/// - returns: An asynchronous sequence of change notifications
+	public final func changes(of property: PropertyAddress) -> AsyncThrowingStream<[PropertyAddress], any Error> {
+		let (stream, continuation) = AsyncThrowingStream.makeStream(of: [PropertyAddress].self)
+		do {
+			let observation = try observe(property) { changes in
+				continuation.yield(changes)
 			}
-
-			let listener: PropertyListener = (block: listenerBlock, queue: queue)
-
-			let result = AudioObjectAddPropertyListenerBlock(objectID, &address, listener.queue, listener.block)
-			guard result == kAudioHardwareNoError else {
-				os_log(.error, log: audioObjectLog, "AudioObjectAddPropertyListenerBlock (0x%x, %{public}@) failed: '%{public}@'", objectID, property.description, UInt32(result).fourCC)
-				let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString("The listener block for the property \(property.selector) on audio object 0x\(objectID.hexString) could not be added.", comment: "")]
-				throw NSError(domain: NSOSStatusErrorDomain, code: Int(result), userInfo: userInfo)
+			continuation.onTermination = { _ in
+				try? observation.invalidate()
 			}
+		} catch {
+			continuation.finish(throwing: error)
+		}
+		return stream
+	}
 
-			propertyListeners.withLockUnchecked {
-				$0[property] = listener
+	/// Returns an asynchronous sequence of values for `property`
+	///
+	/// The sequence yields the current value first and a new value each time `property` changes.
+	/// If the consumer falls behind, intermediate values are dropped and only the most recent is delivered.
+	/// The property listener is removed when iteration ends or the consuming task is cancelled.
+	/// - note: The sequence throws if the property listener cannot be registered or `read` throws
+	/// - parameter property: The property to observe
+	/// - parameter read: A closure returning the property's current value
+	/// - returns: An asynchronous sequence of property values
+	public final func values<Value: Sendable>(of property: PropertyAddress, read: @escaping @Sendable () throws -> Value) -> AsyncThrowingStream<Value, any Error> {
+		let (stream, continuation) = AsyncThrowingStream.makeStream(of: Value.self, bufferingPolicy: .bufferingNewest(1))
+		let yieldCurrentValue: @Sendable () -> Void = {
+			do {
+				continuation.yield(try read())
+			} catch {
+				continuation.finish(throwing: error)
 			}
 		}
+		do {
+			// All reads happen on one serial queue so values are yielded in order
+			let queue = DispatchQueue(label: "CAAudioHardware.AudioObject.values (0x\(objectID.hexString), \(property.selector))")
+			let observation = try PropertyObservation(objectID: objectID, property: property, queue: queue) { _ in
+				yieldCurrentValue()
+			}
+			continuation.onTermination = { _ in
+				try? observation.invalidate()
+			}
+			// Read the initial value after registering so no change is missed
+			queue.async(execute: yieldCurrentValue)
+		} catch {
+			continuation.finish(throwing: error)
+		}
+		return stream
 	}
 
 	// MARK: - Scalar Properties
@@ -478,15 +507,62 @@ extension AudioObject {
 		return try isPropertySettable(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element))
 	}
 
-	/// Registers `block` to be performed when `selector` in `scope` on `element` changes
+	/// Registers `block` to be performed serially on a private dispatch queue when `selector` in `scope` on `element` changes
+	/// - important: The listener remains active only while the returned observation is alive.
 	/// - parameter selector: The selector of the desired property
 	/// - parameter scope: The desired scope
 	/// - parameter element: The desired element
-	/// - parameter queue: An optional dispatch queue on which `block` will be invoked.
-	/// - parameter block: A closure to invoke when the property changes or `nil` to remove the previous value
+	/// - parameter block: A closure to invoke when the property changes
+	/// - returns: The property observation
 	/// - throws: An error if the property listener could not be registered
-	public func whenSelectorChanges(_ selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, on queue: DispatchQueue? = nil, perform block: PropertyChangeNotificationBlock?) throws {
-		try whenPropertyChanges(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), on: queue, perform: block)
+	public func observe(_ selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
+		try observe(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), perform: block)
+	}
+
+	/// Registers `block` to be performed on `queue` when `selector` in `scope` on `element` changes
+	/// - important: The listener remains active only while the returned observation is alive.
+	/// - parameter selector: The selector of the desired property
+	/// - parameter scope: The desired scope
+	/// - parameter element: The desired element
+	/// - parameter queue: The dispatch queue on which `block` will be invoked
+	/// - parameter block: A closure to invoke when the property changes
+	/// - returns: The property observation
+	/// - throws: An error if the property listener could not be registered
+	public func observe(_ selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, queue: DispatchQueue, perform block: @escaping PropertyChangeNotificationBlock) throws -> PropertyObservation {
+		try observe(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), queue: queue, perform: block)
+	}
+
+	/// Registers `block` to be performed on the main actor when `selector` in `scope` on `element` changes
+	/// - important: The listener remains active only while the returned observation is alive.
+	/// - parameter selector: The selector of the desired property
+	/// - parameter scope: The desired scope
+	/// - parameter element: The desired element
+	/// - parameter block: A main actor-isolated closure to invoke when the property changes
+	/// - returns: The property observation
+	/// - throws: An error if the property listener could not be registered
+	public func observeOnMainActor(_ selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, perform block: @escaping MainActorPropertyChangeNotificationBlock) throws -> PropertyObservation {
+		try observeOnMainActor(PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), perform: block)
+	}
+
+	/// Returns an asynchronous sequence of change notifications for `selector` in `scope` on `element`
+	/// - parameter selector: The selector of the desired property
+	/// - parameter scope: The desired scope
+	/// - parameter element: The desired element
+	/// - returns: An asynchronous sequence of change notifications
+	public func changes(of selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main) -> AsyncThrowingStream<[PropertyAddress], any Error> {
+		changes(of: PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element))
+	}
+
+	/// Returns an asynchronous sequence of values for `selector` in `scope` on `element`
+	///
+	/// The sequence yields the current value first and a new value each time the property changes.
+	/// - parameter selector: The selector of the desired property
+	/// - parameter scope: The desired scope
+	/// - parameter element: The desired element
+	/// - parameter read: A closure returning the property's current value
+	/// - returns: An asynchronous sequence of property values
+	public func values<Value: Sendable>(of selector: AudioObjectSelector<AudioObject>, inScope scope: PropertyScope = .global, onElement element: PropertyElement = .main, read: @escaping @Sendable () throws -> Value) -> AsyncThrowingStream<Value, any Error> {
+		values(of: PropertyAddress(PropertySelector(selector.rawValue), scope: scope, element: element), read: read)
 	}
 }
 
