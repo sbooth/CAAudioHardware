@@ -456,12 +456,13 @@ extension AudioObject {
 		}
 
 		// Not every object provides a base class (audio plug-ins, for example), so failing to read it is not an error
-		if let baseClass = try? AudioObject.getBaseClass(objectID), let object = makeAudioObject(objectID, ofClass: baseClass) {
+		let baseClass = try? AudioObject.getBaseClass(objectID)
+		if let baseClass, let object = makeAudioObject(objectID, ofClass: baseClass) {
 			os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@; using base class '%{public}@'", objectClass.fourCC, objectID.hexString, baseClass.fourCC)
 			return object
 		}
 
-		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
+		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' (base class %{public}@) for audio object 0x%{public}@", objectClass.fourCC, baseClass.map { "'\($0.fourCC)'" } ?? "unavailable", objectID.hexString)
 		return AudioObject(objectID)
 	}
 }
