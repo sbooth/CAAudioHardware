@@ -456,12 +456,13 @@ extension AudioObject {
 		}
 
 		// Not every object provides a base class (audio plug-ins, for example), so failing to read it is not an error
-		if let baseClass = try? AudioObject.getBaseClass(objectID), let object = makeAudioObject(objectID, ofClass: baseClass) {
-			os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@; using base class '%{public}@'", objectClass.fourCC, objectID.hexString, baseClass.fourCC)
+		let baseClass = try? AudioObject.getBaseClass(objectID)
+		if let baseClass, let object = makeAudioObject(objectID, ofClass: baseClass) {
+			os_log(.info, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@; using base class '%{public}@'", objectClass.fourCC, objectID.hexString, baseClass.fourCC)
 			return object
 		}
 
-		os_log(.debug, log: audioObjectLog, "Unknown audio object class '%{public}@' for audio object 0x%{public}@", objectClass.fourCC, objectID.hexString)
+		os_log(.info, log: audioObjectLog, "Unknown audio object class '%{public}@' (base class %{public}@) for audio object 0x%{public}@", objectClass.fourCC, baseClass.map { "'\($0.fourCC)'" } ?? "unavailable", objectID.hexString)
 		return AudioObject(objectID)
 	}
 }
@@ -682,6 +683,10 @@ func makeAudioObject<T: AudioObject>(_ objectID: AudioObjectID, fallback: (Audio
 		return object
 	}
 
-	os_log(.debug, log: audioObjectLog, "Audio object 0x%{public}@ (%{public}@) is not %{public}@", objectID.hexString, String(describing: type(of: object)), String(describing: T.self))
+	// A plain AudioObject means the class was not recognized, which `make` has already logged.
+	// Any other type is a recognized class in an unexpected place, such as a stream in a control list.
+	if type(of: object) != AudioObject.self {
+		os_log(.info, log: audioObjectLog, "Audio object 0x%{public}@ is %{public}@, not %{public}@; using %{public}@", objectID.hexString, String(describing: type(of: object)), String(describing: T.self), String(describing: T.self))
+	}
 	return fallback(objectID)
 }
