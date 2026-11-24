@@ -11,7 +11,6 @@ import os.lock
 /// - note: The interface is modeled on `OSAllocatedUnfairLock`.
 struct UnfairLock<State>: @unchecked Sendable {
 	/// Storage for the underlying `os_unfair_lock` and protected state.
-	@usableFromInline
 	let storage: Storage
 
 	/// Initializes a new unfair lock protecting non-sendable state.
@@ -24,7 +23,6 @@ struct UnfairLock<State>: @unchecked Sendable {
 	/// - parameter closure: A closure to run.
 	/// - returns: The value returned by `closure`.
 	/// - throws: Any error thrown by `closure`.
-	@inlinable
 	func withLock<R>(_ closure: @Sendable (inout State) throws -> R) rethrows -> R where R: Sendable {
 		try withLockUnchecked(closure)
 	}
@@ -33,7 +31,6 @@ struct UnfairLock<State>: @unchecked Sendable {
 	/// - parameter closure: A closure to run.
 	/// - returns: The value returned by `closure`.
 	/// - throws: Any error thrown by `closure`.
-	@inlinable
 	func withLockUnchecked<R>(_ closure: (inout State) throws -> R) rethrows -> R {
 		storage.lock()
 		defer {
@@ -46,7 +43,6 @@ struct UnfairLock<State>: @unchecked Sendable {
 	/// - parameter closure: A closure to run.
 	/// - returns: The value returned by `closure` or `nil` if the lock could not be acquired.
 	/// - throws: Any error thrown by `closure`.
-	@inlinable
 	func withLockIfAvailable<R>(_ closure: @Sendable (inout State) throws -> R) rethrows -> R? where R: Sendable {
 		try withLockIfAvailableUnchecked(closure)
 	}
@@ -55,7 +51,6 @@ struct UnfairLock<State>: @unchecked Sendable {
 	/// - parameter closure: A closure to run.
 	/// - returns: The value returned by `closure` or `nil` if the lock could not be acquired.
 	/// - throws: Any error thrown by `closure`.
-	@inlinable
 	func withLockIfAvailableUnchecked<R>(_ closure: (inout State) throws -> R) rethrows -> R? {
 		guard storage.lockIfAvailable() else {
 			return nil
@@ -93,20 +88,20 @@ extension UnfairLock where State == () {
 	}
 
 	/// Acquires the lock.
-	@inlinable @available(*, noasync)
+	@available(*, noasync)
 	func lock() {
 		storage.lock()
 	}
 
 	/// Attempts to acquire the lock.
 	/// - returns: `true` if the lock was acquired.
-	@inlinable @available(*, noasync)
+	@available(*, noasync)
 	func lockIfAvailable() -> Bool {
 		storage.lockIfAvailable()
 	}
 
 	/// Releases the lock.
-	@inlinable @available(*, noasync)
+	@available(*, noasync)
 	func unlock() {
 		storage.unlock()
 	}
@@ -115,7 +110,6 @@ extension UnfairLock where State == () {
 	/// - parameter closure: A closure to run.
 	/// - returns: The value returned by `closure`.
 	/// - throws: Any error thrown by `closure`.
-	@inlinable
 	func withLock<R>(_ closure: @Sendable () throws -> R) rethrows -> R where R: Sendable {
 		try withLockUnchecked(closure)
 	}
@@ -124,7 +118,6 @@ extension UnfairLock where State == () {
 	/// - parameter closure: A closure to run.
 	/// - returns: The value returned by `closure`.
 	/// - throws: Any error thrown by `closure`.
-	@inlinable
 	func withLockUnchecked<R>(_ closure: () throws -> R) rethrows -> R {
 		storage.lock()
 		defer {
@@ -137,7 +130,6 @@ extension UnfairLock where State == () {
 	/// - parameter closure: A closure to run.
 	/// - returns: The value returned by `closure` or `nil` if the lock could not be acquired.
 	/// - throws: Any error thrown by `closure`.
-	@inlinable
 	func withLockIfAvailable<R>(_ closure: @Sendable () throws -> R) rethrows -> R? where R: Sendable {
 		try withLockIfAvailableUnchecked(closure)
 	}
@@ -146,7 +138,6 @@ extension UnfairLock where State == () {
 	/// - parameter closure: A closure to run.
 	/// - returns: The value returned by `closure` or `nil` if the lock could not be acquired.
 	/// - throws: Any error thrown by `closure`.
-	@inlinable
 	func withLockIfAvailableUnchecked<R>(_ closure: () throws -> R) rethrows -> R? {
 		guard storage.lockIfAvailable() else {
 			return nil
@@ -174,7 +165,6 @@ extension UnfairLock {
 		private let os_lock: os_unfair_lock_t
 
 		/// The mutable state protected by `os_lock`.
-		@usableFromInline
 		var state: State
 
 		/// Initializes a new unfair lock protecting mutable state.
@@ -191,32 +181,30 @@ extension UnfairLock {
 		}
 
 		/// Acquires the lock.
-		@inlinable @available(*, noasync)
+		@available(*, noasync)
 		func lock() {
 			os_unfair_lock_lock(os_lock)
 		}
 
 		/// Attempts to acquire the lock.
 		/// - returns: `true` if the lock was acquired.
-		@inlinable @available(*, noasync)
+		@available(*, noasync)
 		func lockIfAvailable() -> Bool {
 			os_unfair_lock_trylock(os_lock)
 		}
 
 		/// Releases the lock.
-		@inlinable @available(*, noasync)
+		@available(*, noasync)
 		func unlock() {
 			os_unfair_lock_unlock(os_lock)
 		}
 
 		/// Asserts that the calling thread is the current owner of the lock.
-		@inlinable
 		func assertOwner() {
 			os_unfair_lock_assert_owner(os_lock)
 		}
 
 		/// Asserts that the calling thread is not the current owner of the lock.
-		@inlinable
 		func assertNotOwner() {
 			os_unfair_lock_assert_not_owner(os_lock)
 		}
